@@ -1,9 +1,8 @@
 import numpy as np
+from numba import njit
 import cvxpy as cv
 import mosek
-from pycubicspline import *
 from scipy.integrate import ode, odeint
-from utils import generate_way_points
 from rk6 import odeintRK6
 import argparse
 import sys
@@ -17,6 +16,7 @@ Wf = .5             # percent of weight on front tires
 muf = .8            # coefficient of friction between tires and ground
 gravity = 9.81      # gravity constant (m/s^2)
 
+@njit(cache=True)
 def define_params(mass, Wf, muf, gravity):
     """
     params derived from vehicle config
@@ -29,8 +29,8 @@ def define_params(mass, Wf, muf, gravity):
     params['Flongmax'] = Fmax*Wf
     return params
 
-
-def define_path(x, y, plot_results=True):
+@njit(cache=True)
+def define_path(x, y):
     """
     calculate s, s_prime, s_dprime using way points
     """
@@ -73,7 +73,7 @@ def define_path(x, y, plot_results=True):
 
     return path
 
-
+@njit(cache=True)
 def dynamics(phi, params):
     """
     dynamics (non-linear)
@@ -96,7 +96,7 @@ def dynamics(phi, params):
 
     return R, M, C, d
 
-
+@njit(cache=True)
 def dynamics_cvx(S_prime, S_dprime, params):
     """
     dynamics (convexified)
@@ -116,20 +116,23 @@ def friction_circle(Fmax):
     y = Fmax*np.sin(t)
     return x, y
 
-
+@njit(cache=True)
 def diffequation(t, x, u, R, M, C, d):
     """
     write as first order ode
     """
     x0dot = x[2:]
-    x1dot = np.dot(np.linalg.inv(M), np.dot(R, u) - np.dot(C, x[2:]) - d)
+    # inefficient
+    # x1dot = np.dot(np.linalg.inv(M), np.dot(R, u) - np.dot(C, x[2:]) - d)
+    x1dot = np.linalg.solve(M, np.dot(R, u) - np.dot(C, x[2:]) - d)
     return np.concatenate([x0dot, x1dot], axis=0)
 
 
 # simulate control inputs
-def simulate(b, a, u, path, params, int_method ='rk6', plot_results=True):
+@njit(cache=True)
+def simulate(b, a, u, path, params):
     """
-    integrate using ode solver
+    integrate using ode solver, rk6
     """
 
     theta = path['theta']
@@ -151,40 +154,21 @@ def simulate(b, a, u, path, params, int_method ='rk6', plot_results=True):
     t = np.zeros([num_wpts])
     for j in range(1, num_wpts):
         t[j] = t[j-1] + dt[j-1]
-    print('The optimal time to traverse is {:.4f}s'.format(t[-1]))
+    # print('The optimal time to traverse is {:.4f}s'.format(t[-1]))
 
     # integrate
-    if int_method == 'odeint':
-        # print('using Runge Kutta sixth order integration')
-        for j in range(num_wpts-1):
-            phi = np.arctan2(S_prime[1,j],S_prime[0,j])
-            R, M, C, d = dynamics(phi, params)
-            odesol = odeint(diffequation, [x[j], y[j], vx[j], vy[j]], [t[j], t[j+1]],
-                            args=(u[:,j], R, M, C, d), tfirst=True)
-            x[j+1], y[j+1], vx[j+1], vy[j+1] = odesol[-1,:]
-    
-    elif int_method == 'rk6':
-        # print('using Runge Kutta sixth order integration')
-        for j in range(num_wpts-1):
-            phi = np.arctan2(S_prime[1,j],S_prime[0,j])
-            R, M, C, d = dynamics(phi, params)
-            odesol = odeintRK6(diffequation, [x[j], y[j], vx[j], vy[j]], [t[j], t[j+1]],
-                            args=(u[:,j], R, M, C, d))
-            x[j+1], y[j+1], vx[j+1], vy[j+1] = odesol[-1,:]
-    
-    else:
-        integrator = ode(diffequation).set_integrator('dopri5')
-        # print('using Runge Kutta fourth order integration')
-        for j in range(num_wpts-1):
-            phi = np.arctan2(S_prime[1,j],S_prime[0,j])
-            R, M, C, d = dynamics(phi, params)
-            integrator.set_initial_value([x[j], y[j], vx[j], vy[j]], t[j]).set_f_params(u[:,j], R, M, C, d)
-            x[j+1], y[j+1], vx[j+1], vy[j+1] = integrator.integrate(t[j+1])
+    # print('using Runge Kutta sixth order integration')
+    for j in range(num_wpts-1):
+        phi = np.arctan2(S_prime[1,j],S_prime[0,j])
+        R, M, C, d = dynamics(phi, params)
+        odesol = odeintRK6(diffequation, [x[j], y[j], vx[j], vy[j]], [t[j], t[j+1]],
+                        args=(u[:,j], R, M, C, d))
+        x[j+1], y[j+1], vx[j+1], vy[j+1] = odesol[-1,:]
 
     return np.sqrt(vx**2+vy**2), np.sum(dt)
 
 
-def optimize(path, params, plot_results=True):
+def optimize(path, params):
     """
     main function to optimize trajectory
     solves convex optimization
@@ -206,8 +190,10 @@ def optimize(path, params, plot_results=True):
     constr = []
 
     # no constr on A[0], U[:,0], defined on mid points
-    constr += [B[0] == 0]
+    
+    # TODO: constr could be vectorized?
 
+    constr += [B[0] == 0]
     for j in range(num_wpts-1):
 
         cost += 2*dtheta*cv.inv_pos(cv.power(B[j],0.5) + cv.power(B[j+1],0.5))
@@ -227,7 +213,7 @@ def optimize(path, params, plot_results=True):
     B, A, U = B.value, A.value, U.value
     B = abs(B)
 
-    vopt, topt = simulate(B, A, U, path, params, plot_results=plot_results)
+    vopt, topt = simulate(B, A, U, path, params)
     # cvx_simulate_done_time = time.time()
     # print('Problem defn time: ' + str(problem_define_done - problem_define_time) + ', problem solve time: ' + str(problem_solve_done - problem_define_done) + ', cvx sim time: ' + str(cvx_simulate_done_time - problem_solve_done))
     return B, A, U, vopt, topt
