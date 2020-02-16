@@ -18,12 +18,14 @@ if args.reprocess:
     npz_list = []
     all_time_hist_list = []
     exp_name_list = []
+    cov_norm_list = []
     for filename in os.listdir(args.results_path):
         if filename.endswith('.npz'):
             exp_name = os.path.splitext(filename)[0]
             hi = np.load(args.results_path+filename)
             npz_list.append(hi)
             all_time_hist_list.append(hi['time_list_hist'])
+            cov_norm_list.append(hi['cov_norm_hist'])
             exp_name_list.append(exp_name)
         else:
             continue
