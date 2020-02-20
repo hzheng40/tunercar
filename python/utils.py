@@ -35,6 +35,17 @@ def make_spline(points, config):
 
     return spline
 
+@njit(fastmath=False, cache=True)
+def get_bbox(states):
+    # states (Nx3), returns (4xNx2)
+    poses = np.expand_dims(states[:, :2], axis=0)
+    Lengths = np.expand_dims(CAR_LENGTH*np.ones((states.shape[0])), axis=1)
+    Widths = np.expand_dims(CAR_WIDTH*np.ones((states.shape[0])), axis=1)
+    x = np.expand_dims((Lengths/2.)*np.vstack((np.cos(states[:,2]), np.sin(states[:,2]))).T, axis=0)
+    y = np.expand_dims((Widths/2.)*np.vstack((-np.sin(states[:,2]), np.cos(states[:,2]))).T, axis=0)
+    corners = np.concatenate((x-y, x+y, y-x, -x-y), axis=0)
+    return corners + poses
+
 def get_width(center_line, config):
     diff = center_line[1:, :] - center_line[0:-1, :]
     width_sum = np.sum(np.linalg.norm(diff, axis=1), axis=0)
