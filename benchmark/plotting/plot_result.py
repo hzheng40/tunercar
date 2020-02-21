@@ -65,3 +65,11 @@ else:
 sns.set_style('white')
 ax = sns.lineplot(data=df, x='gen', y='score', hue='exp_name', ci='sd', palette='pastel')
 plt.show()
+
+sns.set_style('white')
+ax1 = sns.lineplot(data=cov_norm_df, x='gen', y='cov_norm', hue='exp_name', palette='pastel')
+ax1.axhline(0.01, ls='--')
+ax1.text(2,0.012, "Termination Threshold")
+ax1.set_xscale('log')
+ax1.set_yscale('log')
+plt.show()
