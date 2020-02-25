@@ -3,7 +3,7 @@ from numba import njit
 import cvxpy as cv
 import mosek
 from scipy.integrate import ode, odeint
-from rk6 import odeintRK6
+from speed_opt.rk6 import odeintRK6
 import argparse
 import sys
 import zmq

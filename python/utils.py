@@ -24,7 +24,9 @@ def get_centerline(config):
     return centerline
 
 def make_spline(points, config):
-    tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'], per=1)
+    # TODO: periodic in new version
+    # tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'], per=1)
+    tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'])
     spline_size = (points.shape[1] - 1) * config['interp_factor']
     # make a u vector that has much more values for interpolation
     new_u = np.arange(spline_size)
@@ -74,3 +76,10 @@ def get_boxes(centerline, map_img, config):
     prev_angle = 10.0
     sterak = 1
     ctr = 0
+
+def make_waypoints(spline, theta, curvature):
+    waypoints = np.zeros((spline.shape[0], 5))
+    waypoints[:, 0:2] = spline
+    waypoints[:, 3] = theta
+    waypoints[:, 4] = curvature
+    return waypoints

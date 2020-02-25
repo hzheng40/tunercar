@@ -75,10 +75,10 @@ target_link_libraries(sim_server PUBLIC
                       # ${OpenCV_LIBS})
 
 # executable for gjk unit tests
-add_executable(gjk_test ${TEST_FILES})
-target_include_directories(gjk_test PUBLIC
-                           include
-                          )
+# add_executable(gjk_test ${TEST_FILES})
+# target_include_directories(gjk_test PUBLIC
+#                            include
+#                           )
 # target_link_libraries(task_worker PUBLIC
 #                     ${ZeroMQ_LIBRARY}
 #                     ${PROTOBUF_LIBRARY})

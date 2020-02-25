@@ -1,6 +1,7 @@
 import numpy as np
 import numba
 from numba import prange
+from numba import boolean
 from numba.typed import List
 import math
 import scipy.optimize as spo
@@ -356,6 +357,34 @@ def idx_tweaker(val, lut_keys, lut_step_size):
     if temp >= 0 and temp <= 0.5:
         idx -= 1
     return min(lut_keys.shape[0]-1, idx)
+
+@numba.njit(cache=True)
+def sample_map_only(traj, env_layer, origin_x, origin_y, map_resolution):
+    free = True
+    traj_x = traj[:, 0]
+    traj_y = traj[:, 1]
+    row = ((traj_y - origin_y)/map_resolution).astype(np.intp)
+    col = ((traj_x - origin_x)/map_resolution).astype(np.intp)
+    # advanced indexing not support by numba
+    # free = (np.all(env_layer[row, col] == 0)) and (np.all(dynamic_layer[row, col] == 0)) and (np.all(static_layer[row, col] <= static_thresh))
+    for i in prange(col.shape[0]):
+        if (env_layer[row[i], col[i]] != 0):
+            free = False
+    return free
+
+@numba.njit(cache=True)
+def sample_parallel_map_only(traj_list, env_layer, origin_x, origin_y, map_resolution):
+    static_thresh = 50.
+    num_traj = int(traj_list.shape[0]/NUM_STEPS)
+    free_traj_list = np.empty((num_traj)).astype(boolean)
+    for i in prange(num_traj):
+        free = sample_map_only(traj_list[i*NUM_STEPS:i*NUM_STEPS+NUM_STEPS, :], env_layer, origin_x, origin_y, map_resolution)
+        free_traj_list[i] = free
+        # if free:
+            # free_traj_list.append(int64(i))
+
+    # return np.array(free_traj_list)
+    return free_traj_list
 
 
 def build_lut(x_bounds=[-1, 10], y_bounds=[-8,8], theta_bounds=[-np.pi/2,np.pi/2], kappa_bounds=[-1,1],
