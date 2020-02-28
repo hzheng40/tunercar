@@ -9,3 +9,20 @@ zoom: 15
 interp_factor: 10  # how many points at which to evaluate the spline between each of the points used to create it
 # s_factor: .175  # smoothing factor
 s_factor: 0.1
+start_theta: 0.0
+off_mpc: True
+
+
+# # levine lobby
+# map_name: 'levinelobby_with_track.yaml'
+# map_prefix: 'levinelobby_with_track'
+# map_img_ext: '.png'
+
+# map_threshold: 217
+# zoom: 15
+
+# interp_factor: 10  # how many points at which to evaluate the spline between each of the points used to create it
+# # s_factor: .175  # smoothing factor
+# s_factor: 0.1
+# start_theta: -1.57096
+# off_mpc: True

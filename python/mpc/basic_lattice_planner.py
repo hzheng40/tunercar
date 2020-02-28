@@ -149,7 +149,8 @@ class BasicLatticePlanner(object):
        
         lookahead_point = self._get_current_waypoint(self.waypoints, self.grid_lad, np.array([pose_x, pose_y]), pose_theta)
         if lookahead_point is None:
-            return self.safe_speed, self.prev_steer, None, None, None
+            # return self.safe_speed, self.prev_steer, None, None, None
+            return None, None, None, None
 
         # goal_x_global = lookahead_point[0]
         # goal_y_global = lookahead_point[1]
@@ -193,8 +194,9 @@ class BasicLatticePlanner(object):
         free_traj_sorted = np.sort(free_traj_idx)
 
         if len(free_traj_sorted) == 0:
-            next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, self.prev_pp_traj, self.track_lad)
-            return next_speed, next_steer, states_list, self.prev_traj, goal_grid
+            # next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, self.prev_pp_traj, self.track_lad)
+            # return next_speed, next_steer, states_list, self.prev_traj, goal_grid
+            return self.prev_pp_traj, states_list, self.prev_traj, goal_grid
 
         best_traj_idx = free_traj_sorted[0]
         best_traj = states_list[best_traj_idx*trajectory_generator.NUM_STEPS:(best_traj_idx+1)*trajectory_generator.NUM_STEPS, 0:2]
@@ -206,22 +208,17 @@ class BasicLatticePlanner(object):
         self.prev_pp_traj = pp_traj
         self.prev_traj = best_traj
 
-        next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, pp_traj, self.track_lad)
+        # next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, pp_traj, self.track_lad)
+        return pp_traj, states_list, best_traj, goal_grid
+        # return next_speed, next_steer, states_list, best_traj, goal_grid
 
-        return next_speed, next_steer, states_list, best_traj, goal_grid
 
-
-    def compute_action(self, pp_traj, safety_flag, pose, off_policy=False):
+    def compute_action(self, pp_traj, pose):
         pose_x, pose_y, pose_theta = pose
 
-        if safety_flag:
-            next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, pp_traj, self.track_lad)
-            next_steer = self.STEER_LP*next_steer+(1-self.STEER_LP)*self.prev_steer
-
-        elif off_policy:
-            next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, self.waypoints[:, 0:4], self.track_lad)
-            next_steer = self.STEER_LP*next_steer+(1-self.STEER_LP)*self.prev_steer
-
+        if pp_traj is None:
+            next_speed = self.safe_speed
+            next_steer = self.prev_steer
         else:
             next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, pp_traj, self.track_lad)
 

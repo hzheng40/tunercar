@@ -99,6 +99,11 @@ class PangoViz(object):
         gl.glColor3f(0.2, 0.2, 0.2)
         pangolin.DrawPoints(self.map_points)
 
+        # draw waypoints
+        gl.glPointSize(2)
+        gl.glColor3f(0.3, 0.3, 0.3)
+        pangolin.DrawPoints(self.waypoints_plot)
+
         # draw flow samples
         # ego
         gl.glPointSize(2)
@@ -153,12 +158,6 @@ class PangoViz(object):
             else:
                 gl.glColor3f(1., 1., 1.)
             pangolin.DrawPoints(np.hstack([ego_picked_state[:,0:2], np.zeros((ego_picked_state.shape[0],1))]))
-
-
-        # draw waypoints
-        gl.glPointSize(2)
-        gl.glColor3f(0.3, 0.3, 0.3)
-        pangolin.DrawPoints(self.waypoints_plot)
 
         # render
         pangolin.FinishFrame()

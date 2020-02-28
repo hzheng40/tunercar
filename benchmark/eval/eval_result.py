@@ -5,6 +5,7 @@ import os
 import argparse
 import multiprocessing as mp
 import random
+import time
 import sys
 sys.path.append('../../python')
 from utils import make_spline, make_waypoints, get_speed
@@ -14,14 +15,14 @@ import pango_visualizer
 
 def worker_func(config, score_q, perturb_chunk, mu, h_cg, l_r, cs_f, cs_r, I_z, mass, speed_gain, track_lad, grid_lad, best_waypoints, viz):
     if viz:
-        pango_viz = pango_visualizer.PangoViz(config['zoom'], '../../maps/'+config['map_prefix']+config['map_img_ext'], '../../maps/'+config['map_name'], best_waypoints, show_laser=True)
+        pango_viz = pango_visualizer.PangoViz(config['zoom'], '../../maps/'+config['map_prefix']+config['map_img_ext'], '../../maps/'+config['map_name'], best_waypoints, show_laser=False)
     else:
         pango_viz = None
     racecar_env = gym.make('f110_gym:f110-v0')
     racecar_env.init_map('../../maps/' + config['map_name'], config['map_img_ext'], False, False)
     racecar_env.update_params(mu, h_cg, l_r, cs_f, cs_r, I_z, mass, '../../build/')
     for perturb in perturb_chunk:
-        score = simulation_loop(perturb, racecar_env, best_waypoints, '../../maps/levine.yaml', '.pgm', '../../python/mpc', speed_gain, track_lad, grid_lad, pango_viz)
+        score = simulation_loop(perturb, racecar_env, best_waypoints, '../../maps/levine.yaml', '.pgm', '../../python/mpc', speed_gain, track_lad, grid_lad, pango_viz, config)
         print(score)
         score_q.put(score)
 
@@ -32,7 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('--result_npz_path', type=str, required=True)
     parser.add_argument('--save_stat', type=int, default=1)
     parser.add_argument('--num_eval', type=int, default=100)
-    parser.add_argument('--stat_npz_path', type=str)
+    parser.add_argument('--stat_npz_path', type=str, default='../results/random_start_stats.npz')
     parser.add_argument('--eval_config_path', type=str, default='./eval_config.yaml')
     parser.add_argument('--viz', type=int, default=1)
     args = parser.parse_args()
@@ -70,6 +71,7 @@ if __name__ == "__main__":
     random.seed(12345)
     # random perturbs to start
     perturb = np.random.rand(args.num_eval, 3) - 0.5
+    perturb[:, 2] += CONFIG['start_theta']
     
     num_workers = 1
     jobs = []
@@ -85,6 +87,7 @@ if __name__ == "__main__":
     #     jobs.append(p)
     
     # while True:
+    #     time.sleep(10)
     #     while not score_q.empty():
     #         one_out = score_q.get_nowait()
     #         scores.append(one_out)
@@ -98,13 +101,17 @@ if __name__ == "__main__":
     #     print('num scores', len(scores))
     # assert len(scores) == args.num_eval
 
-    # scores = np.array(scores)
-    # valid_scores = scores[scores<100]
-    # avg_score = np.mean(valid_scores)
-    # std_dev = np.std(valid_scores)
+    while not score_q.empty():
+        one_out = score_q.get()
+        scores.append(one_out)
 
-    # if args.save_stat:
-    #     if args.stat_npz_path is None:
-    #         print('Need npz path if save stat')
-    #         sys.exit()
-    #     np.savez_compressed(args.stat_npz_path, scores=valid_scores)
+    scores = np.array(scores)
+    valid_scores = scores[scores<50]
+    avg_score = np.mean(valid_scores)
+    std_dev = np.std(valid_scores)
+
+    if args.save_stat:
+        if args.stat_npz_path is None:
+            print('Need npz path if save stat')
+            sys.exit()
+        np.savez_compressed(args.stat_npz_path, scores=valid_scores)

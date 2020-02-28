@@ -8,34 +8,6 @@ from speed_opt import optimal_time
 import argparse
 import yaml
 
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--config_path', type=str, required=True, help='path to config yaml file')
-# parser.add_argument('--opt_method', type=str, required=True, help='cma, pso, ce, de, fastga')
-# parser.add_argument('--num_workers', type=int, default=1, help='number of workers for optimization')
-# parser.add_argument('--seed', type=int, default=12345, help='random seed for numpy and random')
-# ARGS = parser.parse_args()
-
-# # seeding
-# np.random.seed(ARGS.seed)
-# random.seed(ARGS.seed)
-
-# # read config
-# with open(ARGS.config_path, 'r') as stream:
-#     try:
-#         CONFIG = yaml.safe_load(stream)
-#     except yaml.YAMLError as ex:
-#         print(ex)
-
-# # TODO:
-# #   1. read in map, get metadata, read centerline csv, make the boxes
-# boxes, num_boxes = utils.get_boxes(CONFIG)
-# #   2. create parameterization with array of size (num_pts + num_params), set bounds of the variable
-# instrum = ng.p.Instrumentation(ng.p.Array())
-
-
-# #   2. 
-
-
 
 def get_vel(spline, mass, Wf):
     spline = spline[:, ::5]
@@ -72,7 +44,7 @@ def reset_simulation(pose0, racecar_env, waypoints, map_path, map_img_ext, direc
     obs, step_reward, done, info = racecar_env.reset({'x':[pose0[0]], 'y':[pose0[1]], 'theta':[pose0[2]]})
     return planner, obs
 
-def simulation_loop(pose0, racecar_env, waypoints, map_path, map_img_ext, directory, speed_gain, track_lad, grid_lad, pango_viz):
+def simulation_loop(pose0, racecar_env, waypoints, map_path, map_img_ext, directory, speed_gain, track_lad, grid_lad, pango_viz, config):
     planner, obs = reset_simulation(pose0, racecar_env, waypoints, map_path, map_img_ext, directory, track_lad, grid_lad)
     done = False
     score = 0.0
@@ -80,17 +52,61 @@ def simulation_loop(pose0, racecar_env, waypoints, map_path, map_img_ext, direct
     while not done:
         current_vel = obs['linear_vels_x'][0]
         pose = np.array([obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0]])
-        next_speed, next_steer, all_traj, picked_traj, grid = planner.plan(pose, current_vel)
-        actual_speed = speed_gain*next_speed
-        action = {'ego_idx': 0, 'speed':[actual_speed], 'steer':[next_steer]}
-        obs, step_reward, done, info = racecar_env.step(action)
-        if pango_viz is not None:
-            pango_viz.update(obs, all_traj, picked_traj, grid.T)
-        score += step_reward
-        if done:
-            break
+        if not config['off_mpc']:
+            pp_traj, all_traj, picked_traj, grid = planner.plan(pose, current_vel)
+            if pango_viz is not None:
+                pango_viz.update(obs, all_traj, picked_traj, grid.T)
+        # 10 hz steps
+            for i in range(10):
+                if i > 0:
+                    pose = np.array([obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0]])
+                next_speed, next_steer = planner.compute_action(pp_traj, list(pose))
+                # actual_speed = speed_gain*next_speed
+                actual_speed = 1.1*next_speed
+                action = {'ego_idx': 0, 'speed':[actual_speed], 'steer':[next_steer]}
+                obs, step_reward, done, info = racecar_env.step(action)
+                score += step_reward
+                if done:
+                    break
+        else:
+            if pango_viz is not None:
+                pango_viz.update(obs, None, None, None)
+            next_speed, next_steer = planner.compute_action(planner.waypoints, list(pose))
+            actual_speed = next_speed
+            action = {'ego_idx': 0, 'speed':[actual_speed], 'steer':[next_steer]}
+            obs, step_reward, done, info = racecar_env.step(action)
+            score += step_reward
 
     if obs['collisions'][0]:
         score = racecar_env.timeout
 
     return score
+
+
+if __name__ == '__main__':
+    # parser = argparse.ArgumentParser()
+    parser.add_argument('--config_path', type=str, required=True, help='path to config yaml file')
+    parser.add_argument('--opt_method', type=str, required=True, help='cma, pso, ce, de, fastga')
+    parser.add_argument('--num_workers', type=int, default=1, help='number of workers for optimization')
+    parser.add_argument('--seed', type=int, default=12345, help='random seed for numpy and random')
+    ARGS = parser.parse_args()
+
+    # seeding
+    np.random.seed(ARGS.seed)
+    random.seed(ARGS.seed)
+
+    # read config
+    with open(ARGS.config_path, 'r') as stream:
+        try:
+            CONFIG = yaml.safe_load(stream)
+        except yaml.YAMLError as ex:
+            print(ex)
+
+    # TODO:
+    #   1. read in map, get metadata, read centerline csv, make the boxes
+    boxes, num_boxes = utils.get_boxes(CONFIG)
+    #   2. create parameterization with array of size (num_pts + num_params), set bounds of the variable
+    instrum = ng.p.Instrumentation(ng.p.Array())
+
+
+    #   2. 
