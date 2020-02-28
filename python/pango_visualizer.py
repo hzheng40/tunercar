@@ -147,7 +147,7 @@ class PangoViz(object):
             # print('num traj', ego_all_states.shape[0]/100)
             pangolin.DrawPoints(np.hstack([ego_all_states[:, 0:2], np.zeros((ego_all_states.shape[0],1))]))
         if ego_picked_state is not None:
-            gl.glPointSize(5)
+            gl.glPointSize(2)
             if ego_all_states is None:
                 gl.glColor3f(1., 0., 0.)
             else:

@@ -27,6 +27,7 @@ def get_centerline(config):
 def make_spline(points, config):
     # TODO: periodic in new version
     # tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'], per=1)
+    points[1, :] *= -1.
     tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'])
     spline_size = (points.shape[1] - 1) * config['interp_factor']
     # make a u vector that has much more values for interpolation
