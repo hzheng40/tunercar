@@ -7,4 +7,5 @@ map_threshold: 217
 zoom: 15
 
 interp_factor: 10  # how many points at which to evaluate the spline between each of the points used to create it
-s_factor: .175  # smoothing factor
+# s_factor: .175  # smoothing factor
+s_factor: 0.1

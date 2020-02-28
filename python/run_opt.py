@@ -93,6 +93,4 @@ def simulation_loop(pose0, racecar_env, waypoints, map_path, map_img_ext, direct
     if obs['collisions'][0]:
         score = racecar_env.timeout
 
-    print(score)
-
     return score

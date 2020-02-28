@@ -18,7 +18,7 @@ class BasicLatticePlanner(object):
         self.prev_steer = 0.
         self.waypoints = waypoints
         self.wheelbase = 0.3302
-        self.max_reacquire = 10
+        self.max_reacquire = 30
         self.safe_speed = 2.5
 
         self.track_lad = track_lad
@@ -37,7 +37,7 @@ class BasicLatticePlanner(object):
         map_img_path = map_prefix + map_img_ext
         map_img = np.array(Image.open(map_img_path).transpose(Image.FLIP_TOP_BOTTOM))
         map_img = map_img.astype(np.float64)
-        inflation = 3
+        inflation = 4
         self.costmap = trajectory_generator_utils.fill_occgrid_map(map_img, inflation)
 
         with open(map_path, 'r') as yaml_stream:
@@ -137,9 +137,9 @@ class BasicLatticePlanner(object):
 
         speed, steering_angle = pure_pursuit_utils.get_actuation(pose_theta, lookahead_point, position, lookahead_distance, self.wheelbase)
 
-        # if abs(steering_angle) > 0.4189:
+        if abs(steering_angle) > 0.4189:
             # print('clipped')
-            # steering_angle = (steering_angle/abs(steering_angle))*0.4189
+            steering_angle = (steering_angle/abs(steering_angle))*0.4189
         return speed, steering_angle
 
 
@@ -149,7 +149,7 @@ class BasicLatticePlanner(object):
        
         lookahead_point = self._get_current_waypoint(self.waypoints, self.grid_lad, np.array([pose_x, pose_y]), pose_theta)
         if lookahead_point is None:
-            return self.safe_speed, self.prev_steer
+            return self.safe_speed, self.prev_steer, None, None, None
 
         # goal_x_global = lookahead_point[0]
         # goal_y_global = lookahead_point[1]
@@ -194,7 +194,7 @@ class BasicLatticePlanner(object):
 
         if len(free_traj_sorted) == 0:
             next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, self.prev_pp_traj, self.track_lad)
-            return next_speed, next_steer, states_list_local, None, goal_grid
+            return next_speed, next_steer, states_list, self.prev_traj, goal_grid
 
         best_traj_idx = free_traj_sorted[0]
         best_traj = states_list[best_traj_idx*trajectory_generator.NUM_STEPS:(best_traj_idx+1)*trajectory_generator.NUM_STEPS, 0:2]
@@ -203,6 +203,8 @@ class BasicLatticePlanner(object):
         pp_traj[:, 0:2] = best_traj
         pp_traj[:, 2] = speed*np.ones(best_traj.shape[0])
         pp_traj[:, 3] = np.zeros(best_traj.shape[0])
+        self.prev_pp_traj = pp_traj
+        self.prev_traj = best_traj
 
         next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, pp_traj, self.track_lad)
 

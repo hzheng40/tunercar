@@ -28,7 +28,7 @@ def make_spline(points, config):
     # TODO: periodic in new version
     # tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'], per=1)
     points[1, :] *= -1.
-    tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'])
+    tck, u = splprep([points[0, :], points[1, :]], k=3, s=points.shape[1] * config['s_factor'], per=1)
     spline_size = (points.shape[1] - 1) * config['interp_factor']
     # make a u vector that has much more values for interpolation
     new_u = np.arange(spline_size)
@@ -87,7 +87,7 @@ def make_waypoints(spline, theta, speed):
     return waypoints
 
 def get_speed(spline, mass, Wf):
-    spline = spline[::5, :]
+    # spline = spline[::5, :]
 
     muf = 0.523
     gravity = 9.81
@@ -95,5 +95,5 @@ def get_speed(spline, mass, Wf):
     params = optimal_time.define_params(mass, Wf, muf, gravity)
     B, A, U, v, topt = optimal_time.optimize(path, params)
 
-    v = v.repeat(5)
+    # v = v.repeat(5)
     return v

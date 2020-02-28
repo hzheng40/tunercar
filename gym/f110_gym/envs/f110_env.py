@@ -57,7 +57,7 @@ class F110Env(gym.Env, utils.EzPickle):
         self.ego_idx = 0
 
         # TODO: also set these things in init function?
-        self.timeout = 120.0
+        self.timeout = 60.0
         # radius to consider done
         self.start_thresh = 0.5  # 10cm
 
@@ -249,7 +249,7 @@ class F110Env(gym.Env, utils.EzPickle):
         elif not close and self.near_start:
             self.near_start = False
             self.num_toggles += 1
-        done = (self.in_collision | (timeout) | (self.num_toggles >= 4))
+        done = (self.in_collision | (timeout) | (self.num_toggles >= 2))
         return done
 
     def _check_passed(self):

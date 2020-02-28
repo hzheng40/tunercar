@@ -142,12 +142,12 @@ class PangoViz(object):
 
         # Draw splines
         if ego_all_states is not None:
-            gl.glPointSize(2)
+            gl.glPointSize(1)
             gl.glColor3f(0.8, 0.0, 0.5)
             # print('num traj', ego_all_states.shape[0]/100)
             pangolin.DrawPoints(np.hstack([ego_all_states[:, 0:2], np.zeros((ego_all_states.shape[0],1))]))
         if ego_picked_state is not None:
-            gl.glPointSize(2)
+            gl.glPointSize(3)
             if ego_all_states is None:
                 gl.glColor3f(1., 0., 0.)
             else:
@@ -157,7 +157,7 @@ class PangoViz(object):
 
         # draw waypoints
         gl.glPointSize(2)
-        gl.glColor3f(1., 1., 1.)
+        gl.glColor3f(0.3, 0.3, 0.3)
         pangolin.DrawPoints(self.waypoints_plot)
 
         # render

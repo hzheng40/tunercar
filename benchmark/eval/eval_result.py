@@ -52,7 +52,8 @@ if __name__ == "__main__":
     # best_spline[:, 1]*=-1.
     best_speed = get_speed(best_spline, best_params[0], best_params[1]/0.3302)
     best_waypoints = make_waypoints(best_spline, best_theta, best_speed)
-    best_param_eval = {'mass': best_params[0], 'l_r': 0.3302-best_params[1], 'wpt_lad':best_params[2], 'track_lad':best_params[3], 'speed_gain': best_params[4], 'I_z': 0.04712, 'mu':0.523, 'h_cg':0.074, 'cs_f':4.718, 'cs_r':5.4562}
+    best_param_eval = {'mass': best_params[0], 'l_r': 0.3302-best_params[1], 'wpt_lad':best_params[2], 'track_lad':best_params[2]/best_params[3], 'speed_gain': best_params[4], 'I_z': 0.04712, 'mu':0.523, 'h_cg':0.074, 'cs_f':4.718, 'cs_r':5.4562}
+    print(best_param_eval)
     mu = 0.523
     h_cg = 0.074
     l_r = 0.3302-best_params[1]
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     cs_r = 5.4562
     I_z = 0.04712
     mass = best_params[0]
-    track_lad = best_params[3]
+    track_lad = best_params[2]/best_params[3]
     grid_lad = best_params[2]
     speed_gain = best_params[4]
 
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     np.random.seed(12345)
     random.seed(12345)
     # random perturbs to start
-    perturb = 0.01*np.random.rand(args.num_eval, 3)
+    perturb = np.random.rand(args.num_eval, 3) - 0.5
     
     num_workers = 1
     jobs = []
