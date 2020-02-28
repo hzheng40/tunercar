@@ -69,32 +69,30 @@ def get_time_sim(spline, car_params, racecar_env):
 
 def reset_simulation(pose0, racecar_env, waypoints, map_path, map_img_ext, directory, track_lad, grid_lad):
     planner = basic_lattice_planner.BasicLatticePlanner(map_path, map_img_ext, waypoints, directory, track_lad, grid_lad)
-    print('planner made')
     obs, step_reward, done, info = racecar_env.reset({'x':[pose0[0]], 'y':[pose0[1]], 'theta':[pose0[2]]})
     return planner, obs
 
-def simulation_loop(pose0, racecar_env, spline, theta, curvature, map_path, map_img_ext, directory, track_lad, grid_lad):
-    print('in sim loop')
-    waypoints = make_waypoints(spline, theta, curvature)
-    print('waypoints made')
+def simulation_loop(pose0, racecar_env, waypoints, map_path, map_img_ext, directory, speed_gain, track_lad, grid_lad, pango_viz):
     planner, obs = reset_simulation(pose0, racecar_env, waypoints, map_path, map_img_ext, directory, track_lad, grid_lad)
-    print('reset done')
     done = False
     score = 0.0
 
     while not done:
-        print('something')
-        next_speed, next_steer = planner.plan(pose, track_lad, grid_lad, current_vel)
+        current_vel = obs['linear_vels_x'][0]
+        pose = np.array([obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0]])
+        next_speed, next_steer, all_traj, picked_traj, grid = planner.plan(pose, current_vel)
         actual_speed = speed_gain*next_speed
         action = {'ego_idx': 0, 'speed':[actual_speed], 'steer':[next_steer]}
         obs, step_reward, done, info = racecar_env.step(action)
+        if pango_viz is not None:
+            pango_viz.update(obs, all_traj, picked_traj, grid.T)
         score += step_reward
-        print(obs, score)
-
         if done:
             break
 
     if obs['collisions'][0]:
         score = racecar_env.timeout
+
+    print(score)
 
     return score

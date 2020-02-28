@@ -31,6 +31,8 @@ class BasicLatticePlanner(object):
         self.lut_theta = lut_all['theta']
         self.lut = lut_all['lut']
 
+        self.lut_stepsizes = np.array([self.lut_x[-1]-self.lut_x[-2], self.lut_y[-1]-self.lut_y[-2], self.lut_theta[-1]-self.lut_theta[-2]])
+
         map_prefix = os.path.splitext(map_path)[0]
         map_img_path = map_prefix + map_img_ext
         map_img = np.array(Image.open(map_img_path).transpose(Image.FLIP_TOP_BOTTOM))
@@ -145,8 +147,11 @@ class BasicLatticePlanner(object):
         if lookahead_point is None:
             return self.safe_speed, self.prev_steer
 
+        goal_x = lookahead_point[0]
+        goal_y = lookahead_point[1]
+        speed = lookahead_point[2]
+        waypoint_theta = lookahead_point[3]
 
-        goal_x, goal_y, speed, waypoint_theta = lookahead_point
         # quat = transformations.quaternion_from_euler(0.0, 0.0, pose_theta)
         # goal_quat = transformations.quaternion_from_euler(0.0, 0.0, waypoint_theta)
         # qr = transformations.quaternion_multiply(goal_quat, quat)
@@ -172,7 +177,7 @@ class BasicLatticePlanner(object):
 
         goal_grid = trajectory_generator_utils.create_grid_map_only(goal_x, goal_y, 0.3, np.array([goal_theta]), grid_rot, rot_cw, rot_ccw, 0.01, 0.8, self.grid_lad/1.5, np.ascontiguousarray(self.costmap), self.map_origin_x, self.map_origin_y, self.map_resolution, np.array([[pose_x], [pose_y], [0.0]]), rot)
 
-        states_list_local = trajectory_generator_utils.grid_lookup(goal_grid, self.lut_x, self.lut_y, self.lut_theta, self.lut)
+        states_list_local, params_list, lookup_grid_filtered = trajectory_generator_utils.basic_grid_lookup(goal_grid, self.lut_x, self.lut_y, self.lut_theta, self.lut, self.lut_stepsizes)
 
         states_list = trajectory_generator_utils.trans_traj_list(states_list_local, np.array([[pose_x], [pose_y], [0.0]]), rot)
 
@@ -183,7 +188,7 @@ class BasicLatticePlanner(object):
 
         if len(free_traj_sorted) == 0:
             next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, self.prev_pp_traj, self.track_lad)
-            return next_speed, next_steer
+            return next_speed, next_steer, states_list_local, None, goal_grid
 
         best_traj_idx = free_traj_sorted[0]
         best_traj = states_list[best_traj_idx*trajectory_generator.NUM_STEPS:(best_traj_idx+1)*trajectory_generator.NUM_STEPS, 0:2]
@@ -195,7 +200,7 @@ class BasicLatticePlanner(object):
 
         next_speed, next_steer = self._pure_pursuit(pose_x, pose_y, pose_theta, pp_traj, self.track_lad)
 
-        return next_speed, next_steer
+        return next_speed, next_steer, states_list_local, best_traj, goal_grid
 
 
     def compute_action(self, pp_traj, safety_flag, pose, off_policy=False):

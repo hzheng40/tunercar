@@ -105,11 +105,11 @@ std::vector<CarObs> StandaloneSimulator::step(std::vector<double> velocities, st
     // }
 
     // update opponent poses for each agent, only 2 atm
-    std::vector<Pose2D> ego_pose, op_pose;
-    ego_pose.push_back(agent_poses[0]);
-    op_pose.push_back(agent_poses[1]);
-    agents[0].update_op_poses(op_pose);
-    agents[1].update_op_poses(ego_pose);
+    // std::vector<Pose2D> ego_pose, op_pose;
+    // ego_pose.push_back(agent_poses[0]);
+    // op_pose.push_back(agent_poses[1]);
+    // agents[0].update_op_poses(op_pose);
+    // agents[1].update_op_poses(ego_pose);
 
     // std::cout << "Simulator - agent opponent poses updated." << std::endl;
 
@@ -120,14 +120,14 @@ std::vector<CarObs> StandaloneSimulator::step(std::vector<double> velocities, st
         all_obs.push_back(agent_obs);
     }
     // check collision between agents
-    bool collision = check_collision();
+    // bool collision = check_collision();
     // if collision between agents, change observation in_collision to true and collisan_angle to specific number
-    if (collision) {
-        for (size_t i=0; i<agents.size(); i++) {
-            all_obs[i].in_collision = true;
-            all_obs[i].collision_angle = -100; // specific number
-        }
-    }
+    // if (collision) {
+    //     for (size_t i=0; i<agents.size(); i++) {
+    //         all_obs[i].in_collision = true;
+    //         all_obs[i].collision_angle = -100; // specific number
+    //     }
+    // }
     current_obs.clear();
     current_obs = all_obs;
     // std::cout << "Simulator - Done stepping." << std::endl;

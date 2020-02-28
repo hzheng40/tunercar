@@ -396,7 +396,7 @@ CarObs RaceCar::update_scan() {
     check_ttc();
     // std::cout << "Race car - TTC check done." << std::endl;
     // if (opponent_poses.size() > 1) {
-    ray_cast_opponents(current_scan, scan_pose);
+    // ray_cast_opponents(current_scan, scan_pose);
     // }
     CarObs observation;
     observation.odom = odom;

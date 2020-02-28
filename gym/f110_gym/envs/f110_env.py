@@ -43,7 +43,7 @@ class F110Env(gym.Env, utils.EzPickle):
         # params list is [mu, h_cg, l_r, cs_f, cs_r, I_z, mass]
         self.params = []
         # TODO: add multi agent stuff, need a _add_agent function of sth
-        self.num_agents = 2
+        self.num_agents = 1
         self.timestep = 0.01
 
         # TODO: clean up the map path stuff, right now it's a init_map function

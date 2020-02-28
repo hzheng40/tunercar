@@ -3,6 +3,7 @@ from scipy.interpolate import splprep, splev, spalde
 import csv
 import yaml
 from PIL import Image
+from speed_opt import optimal_time
 
 def preprocess_centerline(raw_centerline, config):
     # TODO: do splprep and splev to get equispaced centerline
@@ -77,9 +78,21 @@ def get_boxes(centerline, map_img, config):
     sterak = 1
     ctr = 0
 
-def make_waypoints(spline, theta, curvature):
-    waypoints = np.zeros((spline.shape[0], 5))
+def make_waypoints(spline, theta, speed):
+    waypoints = np.zeros((spline.shape[0], 4))
     waypoints[:, 0:2] = spline
+    waypoints[:, 2] = speed
     waypoints[:, 3] = theta
-    waypoints[:, 4] = curvature
     return waypoints
+
+def get_speed(spline, mass, Wf):
+    spline = spline[::5, :]
+
+    muf = 0.523
+    gravity = 9.81
+    path = optimal_time.define_path(spline[:, 0], spline[:, 1])
+    params = optimal_time.define_params(mass, Wf, muf, gravity)
+    B, A, U, v, topt = optimal_time.optimize(path, params)
+
+    v = v.repeat(5)
+    return v

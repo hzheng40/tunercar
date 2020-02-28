@@ -265,7 +265,6 @@ int main(int argc, char const *argv[]) {
             memcpy(reset_response.data(), sim_response_string.data(), sim_response_string.size());
             // send reset response
             socket.send(reset_response);
-
         }
     }
     return 0;

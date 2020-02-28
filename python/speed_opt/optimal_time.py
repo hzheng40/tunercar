@@ -16,7 +16,7 @@ Wf = .5             # percent of weight on front tires
 muf = .8            # coefficient of friction between tires and ground
 gravity = 9.81      # gravity constant (m/s^2)
 
-@njit(cache=True)
+# @njit(cache=True)
 def define_params(mass, Wf, muf, gravity):
     """
     params derived from vehicle config
@@ -29,13 +29,13 @@ def define_params(mass, Wf, muf, gravity):
     params['Flongmax'] = Fmax*Wf
     return params
 
-@njit(cache=True)
+# @njit(cache=True)
 def define_path(x, y):
     """
     calculate s, s_prime, s_dprime using way points
     """
 
-    num_wpts = np.size(x)
+    num_wpts = x.shape[0]
     # print('no of way points: {}'.format(num_wpts))
 
     theta = np.linspace(0, 1, num_wpts)
@@ -73,7 +73,7 @@ def define_path(x, y):
 
     return path
 
-@njit(cache=True)
+# @njit(cache=True)
 def dynamics(phi, params):
     """
     dynamics (non-linear)
@@ -96,7 +96,7 @@ def dynamics(phi, params):
 
     return R, M, C, d
 
-@njit(cache=True)
+# @njit(cache=True)
 def dynamics_cvx(S_prime, S_dprime, params):
     """
     dynamics (convexified)
@@ -116,7 +116,7 @@ def friction_circle(Fmax):
     y = Fmax*np.sin(t)
     return x, y
 
-@njit(cache=True)
+# @njit(cache=True)
 def diffequation(t, x, u, R, M, C, d):
     """
     write as first order ode
@@ -129,7 +129,7 @@ def diffequation(t, x, u, R, M, C, d):
 
 
 # simulate control inputs
-@njit(cache=True)
+# @njit(cache=True)
 def simulate(b, a, u, path, params):
     """
     integrate using ode solver, rk6

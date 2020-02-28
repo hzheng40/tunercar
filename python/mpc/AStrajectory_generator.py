@@ -351,6 +351,15 @@ def lookup(x, y, theta, kappa0, lut_x, lut_y, lut_theta, lut_kappa, lut, step_si
     return lut[x_idx, y_idx, theta_idx, kappa_idx]
 
 @numba.njit(cache=True)
+def basic_lookup(x, y, theta, lut_x, lut_y, lut_theta, lut, step_sizes):
+    x_idx = idx_tweaker(x, lut_x, step_sizes[0])
+    y_idx = idx_tweaker(y, lut_y, step_sizes[1])
+    theta_idx = idx_tweaker(theta, lut_theta, step_sizes[2])
+    # params should be stored as [s, k0, k1, k2, k3]
+    return lut[x_idx, y_idx, theta_idx]
+
+
+@numba.njit(cache=True)
 def idx_tweaker(val, lut_keys, lut_step_size):
     idx = np.searchsorted(lut_keys, val, side='right')
     temp = (val-lut_keys[idx-1])/lut_step_size

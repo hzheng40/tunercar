@@ -387,6 +387,21 @@ def grid_lookup(goal_grid, lut_x, lut_y, lut_theta, lut_kappa, lut, flow, s, kap
     return states_list_local, params_list, flow, lookup_grid_filtered, s_filtered
 
 @njit(fastmath=False, cache=True)
+def basic_grid_lookup(goal_grid, lut_x, lut_y, lut_theta, lut, lut_stepsizes):
+    params_list = np.empty((goal_grid.shape[0], 5))
+    for i in range(goal_grid.shape[0]):
+        param = trajectory_generator.basic_lookup(goal_grid[i, 0], goal_grid[i, 1], goal_grid[i, 2], lut_x, lut_y, lut_theta, lut, lut_stepsizes)
+        if (param[0] < 3*np.linalg.norm(goal_grid[i,:2])) and (param[0] > 0):
+            params_list[i, :] = param
+        else:
+            params_list[i, 0] = 0.
+    idx = params_list[:, 0] >= 0.0001
+    params_list = params_list[idx]
+    lookup_grid_filtered = goal_grid[idx]
+    states_list_local = trajectory_generator.integrate_all(params_list)
+    return states_list_local, params_list, lookup_grid_filtered
+
+@njit(fastmath=False, cache=True)
 def grid_lookup_parallel(goal_grid, lut_x, lut_y, lut_theta, lut_kappa, lut, kappa0, lut_stepsizes, num_guys, flow):
     flow_list = List()
     for i in range(flow.shape[0]):
