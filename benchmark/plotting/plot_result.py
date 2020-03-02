@@ -63,11 +63,11 @@ else:
     cov_norm_df = pd.read_csv(args.cov_norm_csv_path, index_col=0)
 
 sns.set_style('white')
-ax = sns.lineplot(data=df, x='gen', y='score', hue='exp_name', ci='sd', palette='pastel')
+ax = sns.lineplot(data=df, x='gen', y='score', hue='exp_name', ci='sd', palette='deep')
 plt.show()
 
 sns.set_style('white')
-ax1 = sns.lineplot(data=cov_norm_df, x='gen', y='cov_norm', hue='exp_name', palette='pastel')
+ax1 = sns.lineplot(data=cov_norm_df, x='gen', y='cov_norm', hue='exp_name', palette='deep')
 ax1.axhline(0.01, ls='--')
 ax1.text(2,0.012, "Termination Threshold")
 ax1.set_xscale('log')

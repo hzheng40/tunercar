@@ -10,7 +10,7 @@ interp_factor: 10  # how many points at which to evaluate the spline between eac
 # s_factor: .175  # smoothing factor
 s_factor: 0.1
 start_theta: 0.0
-off_mpc: True
+off_mpc: False
 
 
 # # levine lobby

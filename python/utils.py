@@ -6,8 +6,25 @@ from PIL import Image
 from speed_opt import optimal_time
 
 def preprocess_centerline(raw_centerline, config):
-    # TODO: do splprep and splev to get equispaced centerline
-    pass
+    # [x, y, theta, s]
+    tck, u = splprep(raw_centerline[:, 0], raw_centerline[:, 1], s=config['preproc_smooth'], k=5, per=True)
+    # unew = np.arange(0, 1.0, 0.002)
+    unew = np.linspace(0., 1., config['num_preproc_points'])
+    new_centerline = np.asarray(splev(unew, tck)).T
+    diffs = np.linagl.norm(new_centerline[1:]-new_centerline[:-1], axis=1)
+    s = np.cumsum(diffs)
+    s = np.insert(s, 0, 0)
+    derivs = spalde(unew, tck)
+    Dx = np.asarray(derivs[0])
+    Dy = np.asarray(derivs[1])
+    dx = Dx[:, 1]
+    dy = Dy[:, 1]
+    theta = np.arctan2(dy, dx)
+    waypoints = np.empty((new_centerline.shape[0], 4))
+    waypoints[:, 0:2] = new_centerline
+    waypoints[:, 2] = theta
+    waypoints[:, 3] = s
+    return waypoints
 
 def get_map_img(config):
     map_img = np.array(Image.open('../maps/'+config['map_name']+config['map_img_ext']).transpose(Image.FLIP_TOP_BOTTOM)).astype(np.float64)
@@ -97,3 +114,39 @@ def get_speed(spline, mass, Wf):
 
     # v = v.repeat(5)
     return v
+
+def tweak_t(config, sub_waypoints, ts):
+    angle = sub_waypoints[:, 2]
+    angle_arr = np.stack((np.cos(angle), np.sin(angle)), axis=1)
+    
+    return tweaked_waypoints
+
+def bound_pop(config, population):
+    t_bound = config['box_height']
+    mass_bound = config['mass']
+    l_f_bound = config['l_f_bound']
+    wpt_lad_bound = config['wpt_lad_bound']
+    track_lad_div_bound = config['track_lad_div_bound']
+    speed_gain_bound = config['speed_gain_bound']
+    population[0] = mass_bound[0] + (mass_bound[1] - mass_bound[0]) * population[0]
+    population[1] = l_f_bound[0] + (l_f_bound[1] - l_f_bound[0]) * population[1]
+    population[2] = wpt_lad_bound[0] + (wpt_lad_bound[1] - wpt_lad_bound[0]) * population[2]
+    population[3] = track_lad_div_bound[0] + (track_lad_div_bound[1] - track_lad_div_bound[0]) * population[3]
+    population[4] = speed_gain_bound[0] + (speed_gain_bound[1] - speed_gain_bound[0]) * population[4]
+    population[5:] = -t_bound + 2*t_bound*population[5:]
+    return population
+
+def get_population(config):
+    # params [mass, l_f, wpt_lad, track_lad_div, speed_gain]
+    vector_size = config['num_params'] + config['num_control_points']
+    population = np.random.rand(vector_size)
+    bounded_population = bound_pop(config, population)
+    return bounded_population
+
+def population_to_params(config, waypoints, map_img):
+    # points(fixed s, variable t, bounded by track width)
+    # vel prof (search, on/off by flag)
+    # params (bounded)
+
+    num_skip = int(waypoints.shape[0] / config['num_control_points'])
+    sub_waypoints = waypoints[::num_skip, :]
