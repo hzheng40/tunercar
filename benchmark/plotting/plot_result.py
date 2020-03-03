@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 import seaborn as sns
 import os
 # import sys
@@ -91,18 +92,46 @@ sns.set_style('white')
 sns.set_style('ticks')
 sns.set_context('poster')
 palette = sns.color_palette("mako_r", 5)
-ax = sns.lineplot(data=cleaned_df[cleaned_df['population_size']==1000], x='generation', y='score', hue='percentile', ci='sd', palette=palette)
+ax = sns.lineplot(data=cleaned_df[cleaned_df['population_size']==1000], x='generation', y='score', hue='percentile', ci='sd', palette=palette, legend='brief')
 ax.set_xscale('log')
+axins = zoomed_inset_axes(ax, zoom=7.5, loc='upper center')
+axins.set_xlim(11.0, 170)
+axins.set_ylim(14.6, 16.2)
+sns.lineplot(data=cleaned_df[cleaned_df['population_size']==1000], x='generation', y='score', hue='percentile', ci='sd', palette=palette, ax=axins, legend=False)
+# axins.yaxis.get_major_locator().set_params(nbins=7)
+# axins.xaxis.get_major_locator().set_params(nbins=7)
+axins.set_aspect(60)
+axins.axhline(15.7, ls='--', c=palette[0])
+axins.axhline(15.3, ls='--', c=palette[1])
+axins.axhline(15.08, ls='--', c=palette[2])
+axins.axhline(15.26, ls='--', c=palette[3])
+axins.axhline(14.8, ls='--', c=palette[4])
+# plt.setp(axins.get_xticklabels(), visible=False)
+# plt.setp(axins.get_yticklabels(), visible=False)
+mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
 # ax.set_yscale('log')
 plt.show()
+
 
 
 sns.set_style('white')
 sns.set_style('ticks')
 sns.set_context('poster')
 palette = sns.color_palette("mako_r", 6)
-ax = sns.lineplot(data=cleaned_df[cleaned_df['percentile']==0.01], x='generation', y='score', hue='population_size', ci='sd', palette=palette)
-ax.set_xscale('log')
+ax0 = sns.lineplot(data=cleaned_df[cleaned_df['percentile']==0.01], x='generation', y='score', hue='population_size', ci='sd', palette=palette, legend='brief')
+ax0.set_xscale('log')
+axins0 = zoomed_inset_axes(ax0, zoom=7, loc='upper center')
+axins0.set_xlim(16.0, 50.0)
+axins0.set_ylim(13.8, 16.0)
+sns.lineplot(data=cleaned_df[cleaned_df['percentile']==0.01], x='generation', y='score', hue='population_size', ci='sd', palette=palette, ax=axins0, legend=False)
+axins0.set_aspect(13)
+axins0.axhline(15.69, ls='--', c=palette[0])
+axins0.axhline(14.74, ls='--', c=palette[1])
+axins0.axhline(14.44, ls='--', c=palette[2])
+axins0.axhline(14.35, ls='--', c=palette[3])
+axins0.axhline(14.11, ls='--', c=palette[4])
+axins0.axhline(14.08, ls='--', c=palette[5])
+mark_inset(ax0, axins0, loc1=2, loc2=4, fc="none", ec="0.5")
 # ax.set_yscale('log')
 plt.show()
 
