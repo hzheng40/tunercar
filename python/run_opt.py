@@ -86,14 +86,10 @@ def simulation_loop(pose0, racecar_env, waypoints, map_path, map_img_ext, direct
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, required=True, help='path to config yaml file')
-    parser.add_argument('--opt_method', type=str, required=True, help='cma, pso, ce, de, fastga')
-    parser.add_argument('--num_workers', type=int, default=1, help='number of workers for optimization')
-    parser.add_argument('--seed', type=int, default=12345, help='random seed for numpy and random')
+    # parser.add_argument('--opt_method', type=str, required=True, help='cma, pso, ce, de, fastga')
+    # parser.add_argument('--num_workers', type=int, default=1, help='number of workers for optimization')
+    # parser.add_argument('--seed', type=int, default=12345, help='random seed for numpy and random')
     ARGS = parser.parse_args()
-
-    # seeding
-    np.random.seed(ARGS.seed)
-    random.seed(ARGS.seed)
 
     # read config
     with open(ARGS.config_path, 'r') as stream:
@@ -102,7 +98,10 @@ if __name__ == '__main__':
         except yaml.YAMLError as ex:
             print(ex)
 
-    # TODO:
+    # seeding
+    np.random.seed(CONFIG['seed'])
+    random.seed(CONFIG['seed'])
+
     #   1. read in map, get metadata, read centerline csv, make the boxes
     boxes, num_boxes = utils.get_boxes(CONFIG)
     #   2. create parameterization with array of size (num_pts + num_params), set bounds of the variable
