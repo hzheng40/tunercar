@@ -1,4 +1,4 @@
-,exp_name,gen,cov_norm
+,experiment,generation,covariance_norm
 0,popsize1000percentile0.01,0,14.818899488090755
 1,popsize1000percentile0.01,1,10.160893921441707
 2,popsize1000percentile0.01,2,5.183145446375072
