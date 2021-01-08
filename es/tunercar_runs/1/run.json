@@ -1,0 +1,92 @@
+{
+  "artifacts": [],
+  "command": "run",
+  "experiment": {
+    "base_dir": "/home/f1tenth-eval/tunercar/es",
+    "dependencies": [
+      "numpy==1.19.5",
+      "ray==1.0.1.post1",
+      "sacred==0.8.2"
+    ],
+    "mainfile": "experiment.py",
+    "name": "TunerCar",
+    "repositories": [
+      {
+        "commit": "b468af26fbc5c91a1123cccf056558cd962bb4ce",
+        "dirty": true,
+        "url": "git@github.com:hzheng40/tunercar.git"
+      },
+      {
+        "commit": "b468af26fbc5c91a1123cccf056558cd962bb4ce",
+        "dirty": true,
+        "url": "git@github.com:hzheng40/tunercar.git"
+      }
+    ],
+    "sources": [
+      [
+        "experiment.py",
+        "_sources/experiment_3f57c18bb958a3d3ba19bbe06201d5a3.py"
+      ],
+      [
+        "head.py",
+        "_sources/head_2be05c2f884ec31a5d83262ed2192938.py"
+      ]
+    ]
+  },
+  "heartbeat": "2021-01-07T01:15:30.563642",
+  "host": {
+    "ENV": {},
+    "cpu": "AMD Ryzen 9 3900X 12-Core Processor",
+    "gpus": {
+      "driver_version": "455.45.01",
+      "gpus": [
+        {
+          "model": "GeForce RTX 2080 SUPER",
+          "persistence_mode": true,
+          "total_memory": 7979
+        }
+      ]
+    },
+    "hostname": "f1tenth-eval",
+    "os": [
+      "Linux",
+      "Linux-5.4.0-58-generic-x86_64-with-Ubuntu-18.04-bionic"
+    ],
+    "python_version": "3.6.9"
+  },
+  "meta": {
+    "command": "run",
+    "options": {
+      "--beat-interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print-config": false,
+      "--priority": null,
+      "--queue": false,
+      "--s3": null,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false,
+      "COMMAND": null,
+      "UPDATE": [
+        "map0"
+      ],
+      "help": false,
+      "with": true
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2021-01-07T01:15:30.558301",
+  "status": "COMPLETED",
+  "stop_time": "2021-01-07T01:15:30.561893"
+}
