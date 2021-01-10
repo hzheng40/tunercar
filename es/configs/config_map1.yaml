@@ -13,14 +13,14 @@ wpt_thind: 3
 wpt_vind: 5
 
 # varied params bound
+# physical params
 mass_min: 3.4
 mass_max: 4.0
 lf_min: 0.147
 lf_max: 0.170
-wlad_min: 5.0
-wlad_max: 10.0
-tdivisor_min: 1.0
-tdivisor_max: 15.0
+# controller params
+tlad_min: 0.2
+tlad_max: 10.
 vgain_min: 0.1
 vgain_max: 1.5
 

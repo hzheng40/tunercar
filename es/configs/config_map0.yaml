@@ -1,11 +1,12 @@
 # TunerCar opt parameters
 
 # map paths
-map_path: 'maps/map_0'
+map_path: '/home/f1tenth-eval/tunercar/es/maps/map0'
 map_ext: '.png'
 
 # raceline path and indices
 wpt_path: 'maps/map0_raceline.csv'
+wpt_delim: ';'
 wpt_rowskip: 3
 wpt_xind: 1
 wpt_yind: 2
@@ -13,14 +14,14 @@ wpt_thind: 3
 wpt_vind: 5
 
 # varied params bound
+# physical params
 mass_min: 3.4
 mass_max: 4.0
 lf_min: 0.147
 lf_max: 0.170
-wlad_min: 5.0
-wlad_max: 10.0
-tdivisor_min: 1.0
-tdivisor_max: 15.0
+# controller params
+tlad_min: 0.2
+tlad_max: 10.
 vgain_min: 0.1
 vgain_max: 1.5
 
