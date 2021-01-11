@@ -81,7 +81,7 @@ class GymWorker:
 
         self.curr_laptime = cummulated_laptime
         self.rollout_done = True
-        print('Lap time:', cummulated_laptime)
+        # print('Lap time:', cummulated_laptime)
 
     def collect(self):
         """

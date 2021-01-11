@@ -31,6 +31,4 @@ def map4():
 def run(_run, _config):
     ray.init()
     conf = Namespace(**_config)
-    # print(__name__)
-    # print(conf.map_path)
     run_tunercar(conf, _run)
