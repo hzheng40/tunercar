@@ -1,11 +1,22 @@
 # TunerCar opt parameters
 
+# metadata
+run_name: 'map1'
+# characteristic number for map
+perf_num: 5
+
 # map paths
-map_path: 'maps/map_1'
+map_path: '/home/f1tenth-eval/tunercar/es/maps/map1'
 map_ext: '.png'
+
+# starting pose for map
+sx: 0.0
+sy: 0.0
+stheta: 0.261799
 
 # raceline path and indices
 wpt_path: 'maps/map1_raceline.csv'
+wpt_delim: ';'
 wpt_rowskip: 3
 wpt_xind: 1
 wpt_yind: 2
@@ -14,14 +25,14 @@ wpt_vind: 5
 
 # varied params bound
 # physical params
-mass_min: 3.4
+mass_min: 3.0
 mass_max: 4.0
 lf_min: 0.147
 lf_max: 0.170
 # controller params
 tlad_min: 0.2
-tlad_max: 10.
-vgain_min: 0.1
+tlad_max: 5.
+vgain_min: 0.5
 vgain_max: 1.5
 
 # computation budget (can think of it as gen_num times pop_size)

@@ -13,6 +13,8 @@ class GymWorker:
         self.curr_laptime = 0.0
         self.rollout_done = False
 
+        self.conf = conf
+
         # default params
         self.default_params = {'mu': 1.0489, 'C_Sf': 4.718, 'C_Sr': 5.4562, 'lf': 0.15875, 'lr': 0.17145, 'h': 0.074, 'm': 3.74, 'I': 0.04712, 's_min': -0.4189, 's_max': 0.4189, 'sv_min': -3.2, 'sv_max': 3.2, 'v_switch': 7.319, 'a_max': 9.51, 'v_min':-5.0, 'v_max': 20.0, 'width': 0.31, 'length': 0.58}
         self.params = {'mu': 1.0489, 'C_Sf': 4.718, 'C_Sr': 5.4562, 'lf': 0.15875, 'lr': 0.17145, 'h': 0.074, 'm': 3.74, 'I': 0.04712, 's_min': -0.4189, 's_max': 0.4189, 'sv_min': -3.2, 'sv_max': 3.2, 'v_switch': 7.319, 'a_max': 9.51, 'v_min':-5.0, 'v_max': 20.0, 'width': 0.31, 'length': 0.58}
@@ -20,7 +22,7 @@ class GymWorker:
         # init worker's associated gym instance
         self.env = gym.make('f110_gym:f110-v0', seed=conf.seed, map=conf.map_path, map_ext=conf.map_ext, num_agents=1)
         # reset gym instance
-        obs, step_reward, done, info = self.env.reset(np.array([[0., 0., 1.57079632679]]))
+        obs, step_reward, done, info = self.env.reset(np.array([[conf.sx, conf.sy, conf.stheta]]))
 
         # init pure pursuit planner with raceline
         self.planner = PurePursuitPlanner(conf, self.params['lf']+self.params['lr'])
@@ -52,7 +54,7 @@ class GymWorker:
         self.env.update_params(self.params)
 
         # reset env
-        obs, step_reward, done, info = self.env.reset(np.array([[0., 0., 1.57079632679]]))
+        obs, step_reward, done, info = self.env.reset(np.array([[self.conf.sx, self.conf.sy, self.conf.stheta]]))
 
         # reset score
         self.curr_laptime = 0.0
