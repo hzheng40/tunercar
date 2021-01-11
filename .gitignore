@@ -3,4 +3,4 @@
 __pycache__
 .vscode/
 *.npz
-es/tunercar_runs
+tunercar_runs/

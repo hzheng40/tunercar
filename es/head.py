@@ -10,6 +10,13 @@ from argparse import Namespace
 from worker import GymWorker
 
 def run_tunercar(conf: Namespace, _run=None):
+    # set up stuff and seeding
+    np.random.seed(conf.seed)
+    import os
+    if not os.path.exists('tunercar_runs/npzs'):
+        os.makedirs('tunercar_runs/npzs')
+    filename = 'tunercar_runs/npzs/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '.npz'
+
     num_cores = mp.cpu_count()
 
     # setting up optimizer
@@ -20,7 +27,8 @@ def run_tunercar(conf: Namespace, _run=None):
         vgain=ng.p.Scalar(lower=conf.vgain_min, upper=conf.vgain_max))
     optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget)
 
-    popsize = optim._popsize
+    if conf.optim_method == 'CMA':
+        popsize = optim._popsize
 
     # setting up workers
     workers = [GymWorker.remote(conf) for _ in range(num_cores)]
@@ -49,13 +57,24 @@ def run_tunercar(conf: Namespace, _run=None):
         # collect all
         all_scores.extend(results)
         all_individuals.extend(individuals)
-        print(all_scores)
 
         # # logging
-        # if len(all_scores) >= pop_size:
+        # if len(all_scores) >= popsize and conf.optim_method == 'CMA':
         #     current_gen_scores = all_scores[:pop_size]
 
         #     # remove processed?
         #     all_scores = all_scores[pop_size:]
 
         #     # mean score
+
+    # storing as npz, while running as sacred experiment, the directory tunercar_runs should've been created
+    score_all_np = np.asarray(all_scores)
+    params_all_np = np.empty((len(param.args[0].keys()), score_all_np.shape[0]))
+    for i, indi in enumerate(all_individuals):
+        params_all_np[0, i] = indi['mass'].value
+        params_all_np[1, i] = indi['lf'].value
+        params_all_np[2, i] = indi['tlad'].value
+        params_all_np[3, i] = indi['vgain'].value
+    perf_nums_np = conf.perf_num * np.ones(score_all_np.shape[0])
+    np.savez_compressed(filename, lap_times=score_all_np, params=params_all_np, perf_nums=perf_nums_np)
+    _run.add_artifact(filename)

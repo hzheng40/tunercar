@@ -1,5 +1,0 @@
-INFO:TunerCar:Running command 'run'
-INFO:TunerCar:Started run with ID "1"
-__main__
-maps/map_0
-INFO:TunerCar:Completed after 0:00:00
