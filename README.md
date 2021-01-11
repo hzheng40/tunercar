@@ -18,7 +18,7 @@ If you find this code useful in your work, please consider citing:
 }
 ```
 
-This implementation also uses the F1TENTH Gym environment from: [https://github.com/f1tenth/f1tenth_gym/tree/exp_py]()
+This implementation also uses the F1TENTH Gym environment from: [https://github.com/f1tenth/f1tenth_gym/tree/exp_py](https://github.com/f1tenth/f1tenth_gym/tree/exp_py)
 
 If you find the simulator useful in your work, please consider citing:
 
