@@ -3,24 +3,73 @@ This is the reference implementation for our paper:
 
 <em><b>TunerCar: A Superoptimization Toolchain for Autonomous Racing</b></em>
  
-#### Citing
+## Citing
 
 If you find this code useful in your work, please consider citing:
 
 ```
-@article{otunercar,
-  title={TUNERCAR: A Superoptimization Toolchain for Autonomous Racing},
-  author={O’Kelly, Matthew and Zheng, Hongrui and Auckley, Joseph and Jain, Achin and Luong, Kim and Mangharam, Rahul}
+@inproceedings{o2020tunercar,
+  title={TunerCar: A superoptimization toolchain for autonomous racing},
+  author={O’Kelly, Matthew and Zheng, Hongrui and Jain, Achin and Auckley, Joseph and Luong, Kim and Mangharam, Rahul},
+  booktitle={2020 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages={5356--5362},
+  year={2020},
+  organization={IEEE}
 }
 ```
 
-This implementation also uses the F1/10 simulator from: [https://github.com/hzheng40/f110_gym]()
+This implementation also uses the F1TENTH Gym environment from: [https://github.com/f1tenth/f1tenth_gym/tree/exp_py]()
 
 If you find the simulator useful in your work, please consider citing:
 
 ```
-@article{TODO,
-  title={TODO},
-  author={TODO}
+@inproceedings{o2020textscf1tenth,
+  title={textscF1TENTH: An Open-source Evaluation Environment for Continuous Control and Reinforcement Learning},
+  author={O’Kelly, Matthew and Zheng, Hongrui and Karthik, Dhruv and Mangharam, Rahul},
+  booktitle={NeurIPS 2019 Competition and Demonstration Track},
+  pages={77--89},
+  year={2020},
+  organization={PMLR}
 }
+```
+
+## Installation
+You can install all dependencies through pip with:
+
+```bash
+$ pip3 install gym \
+               ray \
+               sacred \
+               tqdm \
+               numpy \
+               scipy \
+               numba \
+               pyyaml \
+               nevergrad
+```
+
+## Configuration and Running Experiments
+
+### Example experiment
+
+An example experiment can be ran by:
+```bash
+$ cd tunercar/es
+$ python3 experiment.py with map0
+```
+
+This will create a directory ```tunercar/es/tunercar_runs``` that contains all the logs and files created during the experiment.
+
+To change a configuration of an experiment, please checkout ```experiment.py```. You can add an named configuration by providing a yaml file in the ```tunercar/es/configs``` directory (For an example, see ```config_map0.yaml```), and adding a function in ```experiment.py```:
+
+```python
+@ex.named_config
+def custom_config():
+    ex.add_config('configs/custom_config.yaml')
+```
+
+Then an experiment with the custom config can be ran by:
+```bash
+$ cd tunercar/es
+$ python3 experiment.py with custom_config
 ```
