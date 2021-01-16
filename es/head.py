@@ -29,6 +29,7 @@ def run_tunercar(conf: Namespace, _run=None):
         tlad=ng.p.Scalar(lower=conf.tlad_min, upper=conf.tlad_max),
         vgain=ng.p.Scalar(lower=conf.vgain_min, upper=conf.vgain_max))
     optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget)
+    optim._popsize = conf.popsize
 
     if conf.optim_method == 'CMA':
         popsize = optim._popsize

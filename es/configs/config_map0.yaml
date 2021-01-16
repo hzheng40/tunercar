@@ -1,7 +1,7 @@
 # TunerCar opt parameters
 
 # metadata
-run_name: 'map0'
+run_name: 'map0_1000pop'
 # characteristic number for map
 perf_num: 8
 
@@ -35,8 +35,9 @@ tlad_max: 5.
 vgain_min: 0.5
 vgain_max: 1.5
 
-# computation budget (can think of it as gen_num times pop_size)
-budget: 1000
+# computation budget (can think of it as gen_num times popsize)
+popsize: 1000
+budget: 50000
 
 # optimization method
 optim_method: 'CMA'
