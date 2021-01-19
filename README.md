@@ -46,6 +46,10 @@ $ pip3 install gym \
                numba \
                pyyaml \
                nevergrad
+$ git clone https://github.com/f1tenth/f1tenth_gym.git
+$ cd f1tenth_gym
+$ git checkout exp_py
+$ pip3 install -e gym/
 ```
 
 ## Configuration and Running Experiments
