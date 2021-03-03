@@ -31,7 +31,7 @@ def perturb(vec, waypoints, track_width, smoothing=20):
     new_waypoints = waypoints + np.multiply(perps, vec)
 
     # re-interpolate
-    tck, u = scipy.interpolate.splprep([new_waypoints[:, 0], new_waypoints[:, 1]], s=smoothing, k=5, per=True)
+    tck, u = scipy.interpolate.splprep([new_waypoints[:, 0], new_waypoints[:, 1]], s=smoothing, k=5, per=True, quiet=3)
     unew = np.arange(0, 1.0, 0.001)
     out_smooth = np.asarray(scipy.interpolate.splev(unew, tck)).T
 
@@ -49,7 +49,7 @@ def get_curvature(waypoints):
     """
     
     # no smoothing, since the given waypoints should already be smoothed
-    tck, u = scipy.interpolate.splprep([waypoints[:, 0], waypoints[:, 1]], s=0, k=5, per=True)
+    tck, u = scipy.interpolate.splprep([waypoints[:, 0], waypoints[:, 1]], s=0, k=5, per=True, quiet=3)
     unew = np.arange(0, 1.0, 0.001)
     derivs = scipy.interpolate.spalde(unew, tck)
 
@@ -123,12 +123,11 @@ class PerturbTest(unittest.TestCase):
         plt.scatter(new_waypoints1[:, 0], new_waypoints1[:, 1], c='blue')
         plt.scatter(new_waypoints2[:, 0], new_waypoints2[:, 1])
         plt.scatter(new_waypoints[:, 0], new_waypoints[:, 1])
-        plt.axes().set_aspect('equal')
         plt.show()
 
     def test_curvature(self):
         vec = np.zeros(self.waypoints.shape[0])
-        new_waypoints = perturb(vec, self.waypoints, self.track_width)
+        new_waypoints = perturb(vec, self.waypoints, self.track_width, smoothing=0)
         curvature = get_curvature(new_waypoints)
         plt.scatter(new_waypoints[:, 0], new_waypoints[:, 1], c=curvature)
         plt.show()
@@ -136,7 +135,7 @@ class PerturbTest(unittest.TestCase):
 
     def test_vel_interp(self):
         vec = np.zeros(self.waypoints.shape[0])
-        new_waypoints = perturb(vec, self.waypoints, self.track_width)
+        new_waypoints = perturb(vec, self.waypoints, self.track_width, smoothing=0)
         vel = interpolate_velocity(self.min_vel, self.max_vel, new_waypoints)
         plt.scatter(new_waypoints[:, 0], new_waypoints[:, 1], c=vel)
         plt.show()
