@@ -1,0 +1,86 @@
+# metadata
+run_name: 'default_spielberg_normalized_popsize96'
+
+# map paths
+map_path: '/home/billyzheng/tunercar/es/maps/f1tenth_racetracks/Spielberg/Spielberg_map'
+map_ext: '.png'
+
+# starting pose for map
+start_ind: 0
+# deprecated, use index in current waypoint now
+sx: -0.81
+sy: -0.10
+stheta: 1.82
+
+# centerline path and indices
+wpt_path: 'maps/f1tenth_racetracks/Spielberg/Spielberg_centerline.csv'
+wpt_delim: ','
+wpt_rowskip: 1
+# index for corredponding columns
+wpt_sind: 0
+wpt_xind: 1
+wpt_yind: 2
+wpt_thind: 3
+wpt_kapind: 4
+wpt_vind: 5
+
+# varied params bound
+# physical params
+mass_min: 3.0
+mass_max: 4.0
+lf_min: 0.147
+lf_max: 0.170
+# waypoint perturb control
+num_ctrl: 100
+left_bound: -0.5
+right_bound: 0.5
+track_width: 1.1
+# general controller params
+v_lower_min: 0.5
+v_lower_max: 2.0
+v_upper_min: 6.0
+v_upper_max: 15.0
+# controller params (Pure pursuit)
+tlad_min: 0.2
+tlad_max: 2.
+# controller params (Stanley)
+kpath_min: 5.0
+kpath_max: 10.0
+# controller params (LQR)
+q1_min: 0.1
+q1_max: 7.0
+q2_min: 0.0
+q2_max: 0.3
+q3_min: 0.0
+q3_max: 10.0
+q4_min: 0.0
+q4_max: 0.5
+r_min: 1.0
+r_max: 35.0
+# controller params (LQR), not varied
+iteration: 50
+eps: 0.001
+
+# controller selection
+controller: pp
+
+# computation budget (can think of it as gen_num times pop_size)
+budget: 9600
+
+# optimization method
+optim_method: 'CMA'
+
+# optimization method hyper params for chosen optim_method
+optim_params:
+  # popsize for population based optims, int or 'default' for default setting
+  popsize: 96
+
+# seed
+seed: 12345
+
+# debug
+render: false
+render_worker_id: 0
+
+# normalize
+normalize_param: true

@@ -2,7 +2,7 @@
 This is the reference implementation for our paper:
 
 <em><b>TunerCar: A Superoptimization Toolchain for Autonomous Racing</b></em>
- 
+
 ## Citing
 
 If you find this code useful in your work, please consider citing:
@@ -54,12 +54,21 @@ $ pip3 install -e gym/
 
 ## Configuration and Running Experiments
 
+### Setup
+
+Before running all experiments, you'll have to clone the race tracks repo that contains all scaled-down Formula 1 race tracks:
+
+```bash
+$ cd tunercar/es/maps
+$ git clone https://github.com/f1tenth/f1tenth_racetracks.git
+```
+
 ### Example experiment
 
 An example experiment can be ran by:
 ```bash
 $ cd tunercar/es
-$ python3 experiment.py with map0
+$ python3 experiment.py with default
 ```
 
 This will create a directory ```tunercar/es/tunercar_runs``` that contains all the logs and files created during the experiment.
