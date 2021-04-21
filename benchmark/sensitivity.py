@@ -10,6 +10,7 @@ from reconstruction_utils import recover_params
 import sys
 import os
 import gym
+from tqdm import tqdm
 
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(curr_dir + '/../es')
@@ -29,7 +30,10 @@ parser.add_argument('--npz_dir', type=str, default='../es/tunercar_runs/npzs/')
 parser.add_argument('--pkl_dir', type=str, default='../es/tunercar_runs/optims_pkl/')
 parser.add_argument('--seed', type=int, default=12345)
 parser.add_argument('--num_jostle', type=int, default=100)
+parser.add_argument('--noise_scale', type=float, default=0.1)
 parser.add_argument('--conf', type=str, required=True)
+parser.add_argument('--rerun', type=str2bool, default=True)
+parser.add_argument('--saved_npz', type=str)
 args = parser.parse_args()
 
 def main():
@@ -44,7 +48,7 @@ def main():
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
     conf = Namespace(**conf_dict)
 
-    if not conf.nomalize_param:
+    if not conf.normalize_param:
         raise NotImplementedError('Unnormalized analysis not supported yet.')
 
     # new rng
@@ -59,7 +63,7 @@ def main():
 
     # jostle around recommendation
     # gaussian noise, stddev 0.1 centered at 0
-    noise = rng.normal(loc=0.0, scale=0.1, size=(args.num_jostle, rec_np.shape[0]))
+    noise = rng.normal(loc=0.0, scale=args.noise_scale, size=(args.num_jostle, rec_np.shape[0]))
     rec_mat = np.tile(rec_np, (args.num_jostle, 1))
     jostled_rec = rec_mat + noise
 
@@ -82,10 +86,78 @@ def main():
     env = gym.make('f110_gym:f110-v0', seed=conf.seed, map=conf.map_path, map_ext=conf.map_ext, num_agents=1)
     _, _, _, _ = env.reset(np.array([[0., 0., 0.]]))
 
+    # book keeping
+    all_score = []
+    all_collision = []
+    all_traj_x = []
+    all_traj_y = []
+    all_traj_th = []
+
     # loop across all noises
-    for i in range(args.num_jostle):
+    for i in tqdm(range(args.num_jostle)):
+        # book keeping
+        traj_x = []
+        traj_y = []
+        traj_th = []
         # recover actual parameters
         work = recover_params(jostled_rec[i, :], conf)
+        # perturb waypoints
+        planner.reset_waypoints()
+        sub_ind = subsample(planner.waypoints.shape[0], conf.num_ctrl)
+        pert_waypoints = perturb(work['perturb'], planner.waypoints[sub_ind, :], conf.track_width)
+        vel = interpolate_velocity(work['vel_min'], work['vel_max'], pert_waypoints[:, 4], method='sigmoid')
+        new_waypoints = np.hstack((pert_waypoints, vel[:, None]))
+        planner.waypoints = new_waypoints
+        # start pose
+        start_x = new_waypoints[conf.start_ind, conf.wpt_xind]
+        start_y = new_waypoints[conf.start_ind, conf.wpt_yind]
+        start_th = new_waypoints[conf.start_ind, conf.wpt_thind]
+        # new params update
+        new_params = {'mu': 1.0489, 'C_Sf': 4.718, 'C_Sr': 5.4562, 'lf': work['lf'], 'lr': wb - work['lf'], 'h': 0.074, 'm': work['mass'], 'I': 0.04712, 's_min': -0.4189, 's_max': 0.4189, 'sv_min': -3.2, 'sv_max': 3.2, 'v_switch': 7.319, 'a_max': 9.51, 'v_min': -5.0, 'v_max': 20.0, 'width': 0.31, 'length': 0.58}
+        env.update_params(new_params)
+        # reset env
+        obs, step_reward, done, info = env.reset(np.array([[start_x, start_y, start_th]]))
+        laptime = 0.0
+        # sim loop
+        while not done:
+            # actuation from planner
+            if conf.controller == 'stanley':
+                speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], work['kpath'])
+            elif conf.controller == 'lqr':
+                speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], env.timestep, work['q1'], work['q2'], work['q3'], work['q4'], work['r'], conf.iteration, conf.eps)
+            else:
+                # default to pure pursuit
+                speed, steer = planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], work['tlad'])
+            # step with action
+            obs, step_reward, done, info = env.step(np.array([[steer, speed]]))
+            laptime += step_reward
+            # book keeping
+            traj_x.append(obs['poses_x'][0])
+            traj_y.append(obs['poses_y'][0])
+            traj_th.append(obs['poses_theta'][0])
+
+        # book keeping
+        all_collision.append(obs['collisions'][0])
+        laptime = np.around(laptime, 2)
+        all_score.append(laptime)
+        all_traj_x.append(traj_x)
+        all_traj_y.append(traj_y)
+        all_traj_th.append(traj_th)
+
+    np.savez_compressed(args.exp_name + '_scale' + str(args.noise_scale) + '_' + str(args.num_jostle) + '_points_around.npz',
+                        score=np.array(all_score),
+                        collision=np.array(all_collision),
+                        x=np.array(all_traj_x),
+                        y=np.array(all_traj_y),
+                        theta=np.array(all_traj_th))
+
+def visualize(npz):
+    pass
 
 if __name__ == '__main__':
-    main()
+    if args.rerun:
+        main()
+    else:
+        if args.saved_npz is None:
+            raise Exception('Please specify saved npz path.')
+        visualize(args.saved_npz)

@@ -13,7 +13,7 @@ sy: -0.10
 stheta: 1.82
 
 # centerline path and indices
-wpt_path: 'maps/f1tenth_racetracks/Spielberg/Spielberg_centerline.csv'
+wpt_path: '/home/billyzheng/tunercar/es/maps/f1tenth_racetracks/Spielberg/Spielberg_centerline.csv'
 wpt_delim: ','
 wpt_rowskip: 1
 # index for corredponding columns
