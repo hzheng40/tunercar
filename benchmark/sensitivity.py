@@ -33,7 +33,7 @@ parser.add_argument('--num_jostle', type=int, default=100)
 parser.add_argument('--noise_scale', type=float, default=0.1)
 parser.add_argument('--conf', type=str, required=True)
 parser.add_argument('--rerun', type=str2bool, default=True)
-parser.add_argument('--saved_npz', type=str)
+parser.add_argument('--saved_npz', type=str, nargs='+')
 args = parser.parse_args()
 
 def main():
@@ -89,16 +89,16 @@ def main():
     # book keeping
     all_score = []
     all_collision = []
-    all_traj_x = []
-    all_traj_y = []
-    all_traj_th = []
+    # all_traj_x = []
+    # all_traj_y = []
+    # all_traj_th = []
 
     # loop across all noises
     for i in tqdm(range(args.num_jostle)):
         # book keeping
-        traj_x = []
-        traj_y = []
-        traj_th = []
+        # traj_x = []
+        # traj_y = []
+        # traj_th = []
         # recover actual parameters
         work = recover_params(jostled_rec[i, :], conf)
         # perturb waypoints
@@ -132,27 +132,49 @@ def main():
             obs, step_reward, done, info = env.step(np.array([[steer, speed]]))
             laptime += step_reward
             # book keeping
-            traj_x.append(obs['poses_x'][0])
-            traj_y.append(obs['poses_y'][0])
-            traj_th.append(obs['poses_theta'][0])
+            # traj_x.append(obs['poses_x'][0])
+            # traj_y.append(obs['poses_y'][0])
+            # traj_th.append(obs['poses_theta'][0])
 
         # book keeping
         all_collision.append(obs['collisions'][0])
         laptime = np.around(laptime, 2)
         all_score.append(laptime)
-        all_traj_x.append(traj_x)
-        all_traj_y.append(traj_y)
-        all_traj_th.append(traj_th)
+        # all_traj_x.append(traj_x)
+        # all_traj_y.append(traj_y)
+        # all_traj_th.append(traj_th)
 
     np.savez_compressed(args.exp_name + '_scale' + str(args.noise_scale) + '_' + str(args.num_jostle) + '_points_around.npz',
                         score=np.array(all_score),
                         collision=np.array(all_collision),
-                        x=np.array(all_traj_x),
-                        y=np.array(all_traj_y),
-                        theta=np.array(all_traj_th))
+                        scale=np.array(args.noise_scale),
+                        noisy_rec=jostled_rec)
 
-def visualize(npz):
-    pass
+def visualize(npz_list):
+    scales = []
+    nocrash_per = []
+    df = pd.DataFrame(columns=['Noise Std. dev.', 'Success rate'])
+    for npz in npz_list:
+        # load
+        data = np.load(npz)
+        score = data['score']
+        collision = data['collision']
+        df = df.append({'Noise Std. dev.': data['scale'], 'Success rate': 1 - np.sum(collision)/collision.shape[0]}, ignore_index=True)
+        scales.append(data['scale'])
+        nocrash_per.append(1 - np.sum(collision)/collision.shape[0])
+
+    # visualize
+    print(df)
+    sns.set_style('white')
+    sns.set_style('ticks')
+    sns.set_context('poster')
+    # sns.lineplot(data=df, x='Noise Std. dev.', y='Success rate', palette='Paired')
+    # sns.lineplot(data=df, markers=True)
+    plt.plot(scales, nocrash_per, marker='^', markersize=30)
+    plt.xlabel('Noise Standard Deviation')
+    plt.ylabel('Success Rate')
+    plt.xscale('log')
+    plt.show()
 
 if __name__ == '__main__':
     if args.rerun:
