@@ -1,12 +1,12 @@
 # TunerCar opt parameters
 
 # metadata
-run_name: 'map0_1000pop'
+run_name: 'map0'
 # characteristic number for map
 perf_num: 8
 
 # map paths
-map_path: '/home/f1tenth-eval/tunercar/es/maps/map0'
+map_path: '/home/brandon/tunercar_ws/src/tunercar/es/maps/map0'
 map_ext: '.png'
 
 # starting pose for map
@@ -34,13 +34,21 @@ tlad_min: 0.2
 tlad_max: 5.
 vgain_min: 0.5
 vgain_max: 1.5
+v_min: 0.001
+v_max: 8.0
+v_init: 2.0
+
+num_subsampled_wpts: 150
 
 # computation budget (can think of it as gen_num times popsize)
-popsize: 1000
-budget: 50000
+popsize: 48
+budget: 2500
 
 # optimization method
 optim_method: 'CMA'
+#optim_method: 'PSO'
+#optim_method: 'TwoPointsDE'
+#optim_method: 'ScrHammersleySearch'
 
 # seed
 seed: 12345

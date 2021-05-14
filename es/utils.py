@@ -21,6 +21,7 @@ def perturb(vec, waypoints, track_width, smoothing=20):
     perps = np.zeros(diffs.shape)
     perps[:, 0] = diffs[:, 1]
     perps[:, 1] = -1 * diffs[:, 0]
+
     # normalize
     norm = np.linalg.norm(perps, axis=1)
     perps[:, 0] = perps[:, 0]/norm
@@ -32,7 +33,7 @@ def perturb(vec, waypoints, track_width, smoothing=20):
 
     # re-interpolate
     tck, u = scipy.interpolate.splprep([new_waypoints[:, 0], new_waypoints[:, 1]], s=smoothing, k=5, per=True, quiet=3)
-    unew = np.arange(0, 1.0, 0.001)
+    unew = np.arange(0, 1.0, 0.001) #TODO: Why always 1000 waypoints?
     out_smooth = np.asarray(scipy.interpolate.splev(unew, tck)).T
 
     return out_smooth
@@ -101,7 +102,7 @@ class PerturbTest(unittest.TestCase):
         # load waypoints
         raw_waypoints = np.loadtxt('maps/f1tenth_racetracks/Austin/Austin_map_waypoints.csv', delimiter=',', skiprows=1)
         self.waypoints = raw_waypoints[:, 0:2]
-        self.track_width = raw_waypoints[0, 2] = raw_waypoints[0, 3]
+        self.track_width = raw_waypoints[0, 2] = raw_waypoints[0, 3] #TODO: why is there a = sign?
 
         # min max vel
         self.min_vel = 2.0

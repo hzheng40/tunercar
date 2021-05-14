@@ -1,21 +1,21 @@
 # TunerCar opt parameters
 
 # metadata
-run_name: 'map1'
+run_name: 'silverstone_map'
 # characteristic number for map
-perf_num: 5
+perf_num: 8
 
 # map paths
-map_path: '/home/brandon/tunercar_ws/src/tunercar/es/maps/map1'
+map_path: '/home/brandon/tunercar_ws/src/tunercar/es/maps/f1tenth_racetracks/Silverstone/Silverstone_map'
 map_ext: '.png'
 
 # starting pose for map
 sx: 0.0
 sy: 0.0
-stheta: 0.261799
+stheta: 1.57079632679
 
 # raceline path and indices
-wpt_path: 'maps/map1_raceline.csv'
+wpt_path: 'maps/f1tenth_racetracks/Silverstone/Silverstone_raceline.csv'
 wpt_delim: ';'
 wpt_rowskip: 3
 wpt_xind: 1
@@ -34,12 +34,19 @@ tlad_min: 0.2
 tlad_max: 5.
 vgain_min: 0.5
 vgain_max: 1.5
+v_min: 0.001
+v_max: 8.0
+v_init: 2.0
 
-# computation budget (can think of it as gen_num times pop_size)
-budget: 1000
+# computation budget (can think of it as gen_num times popsize)
+popsize: 48
+budget: 2500
 
 # optimization method
 optim_method: 'CMA'
+#optim_method: 'PSO'
+#optim_method: 'TwoPointsDE'
+#optim_method: 'ScrHammersleySearch'
 
 # seed
 seed: 12345

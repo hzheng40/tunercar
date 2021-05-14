@@ -6,7 +6,7 @@ run_name: 'map4'
 perf_num: 6
 
 # map paths
-map_path: '/home/f1tenth-eval/tunercar/es/maps/map4'
+map_path: '/home/brandon/tunercar_ws/src/tunercar/es/maps/map4'
 map_ext: '.png'
 
 # starting pose for map

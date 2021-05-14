@@ -17,8 +17,8 @@ def run_tunercar(conf: Namespace, _run=None):
         os.makedirs('tunercar_runs/npzs')
     if not os.path.exists('tunercar_runs/optims_pkl'):
         os.makedirs('tunercar_runs/optims_pkl')
-    filename = 'tunercar_runs/npzs/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '.npz'
-    filename_optim = 'tunercar_runs/optims_pkl/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '_optim.pkl'
+    filename = 'tunercar_runs/npzs/' + conf.run_name + 'vel' + str(int(conf.v_init)) + '_' + conf.optim_method + '_pop' + str(conf.popsize) + '_budget' + str(conf.budget) + '.npz'
+    filename_optim = 'tunercar_runs/optims_pkl/' + conf.run_name + 'vel' + str(int(conf.v_init))  + '_' + conf.optim_method + '_pop' + str(conf.popsize) + '_budget' + str(conf.budget) + '_optim.pkl'
 
     num_cores = mp.cpu_count()
 
@@ -27,7 +27,9 @@ def run_tunercar(conf: Namespace, _run=None):
         mass=ng.p.Scalar(lower=conf.mass_min, upper=conf.mass_max),
         lf=ng.p.Scalar(lower=conf.lf_min, upper=conf.lf_max),
         tlad=ng.p.Scalar(lower=conf.tlad_min, upper=conf.tlad_max),
-        vgain=ng.p.Scalar(lower=conf.vgain_min, upper=conf.vgain_max))
+        xy=ng.p.Array(init=np.zeros(conf.num_subsampled_wpts)).set_bounds(-1, 1),
+        velocities=ng.p.Array(init=conf.v_init*np.ones(1000,)).set_bounds(conf.v_min, conf.v_max))
+        # vgain=ng.p.Scalar(lower=conf.vgain_min, upper=conf.vgain_max))
     optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget)
     optim._popsize = conf.popsize
 
@@ -73,14 +75,18 @@ def run_tunercar(conf: Namespace, _run=None):
 
     # storing as npz, while running as sacred experiment, the directory tunercar_runs should've been created
     score_all_np = np.asarray(all_scores)
-    params_all_np = np.empty((len(param.args[0].keys()), score_all_np.shape[0]))
+    params_all_np = np.empty((len(param.args[0].keys())-1, score_all_np.shape[0]))
+    xy_np = np.empty((param.args[0]['xy'].shape[0], score_all_np.shape[0]))
+    velocities_np = np.empty((param.args[0]['velocities'].shape[0], score_all_np.shape[0]))
     for i, indi in enumerate(all_individuals):
         params_all_np[0, i] = indi['mass'].value
         params_all_np[1, i] = indi['lf'].value
         params_all_np[2, i] = indi['tlad'].value
-        params_all_np[3, i] = indi['vgain'].value
+        # params_all_np[3, i] = indi['vgain'].value
+        xy_np[:, i] = indi['xy'].value
+        velocities_np[:, i] = indi['velocities'].value
     perf_nums_np = conf.perf_num * np.ones(score_all_np.shape[0])
-    np.savez_compressed(filename, lap_times=score_all_np, params=params_all_np, perf_nums=perf_nums_np)
+    np.savez_compressed(filename, lap_times=score_all_np, params=params_all_np, xy=xy_np, velocities=velocities_np, perf_nums=perf_nums_np)
     _run.add_artifact(filename)
     optim.dump(filename_optim)
     _run.add_artifact(filename_optim)

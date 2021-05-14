@@ -1,7 +1,11 @@
 import ray
 import gym
 import numpy as np
-from planners import PurePursuitPlanner
+import warnings
+from scipy.signal import resample
+
+from planners import PurePursuitPlanner, load_waypoints
+from utils import perturb
 
 @ray.remote
 class GymWorker:
@@ -42,7 +46,21 @@ class GymWorker:
         mass = work['mass']
         lf = work['lf']
         tlad = work['tlad']
-        vgain = work['vgain']
+        xy = work['xy']
+        velocities = work['velocities']
+        vgain = 1
+        # vgain = work['vgain']
+
+        track_width = 1.1
+        og_xy_wpts = load_waypoints(self.conf)[:, [self.conf.wpt_xind, self.conf.wpt_yind]]
+        og_xy_wpts_subsampled = resample(og_xy_wpts, self.conf.num_subsampled_wpts)
+        xy_wpts = perturb(xy, og_xy_wpts_subsampled, track_width, smoothing=20)
+
+        new_wpts = np.zeros([xy_wpts.shape[0], self.planner.waypoints.shape[1]])
+        new_wpts[:, self.conf.wpt_vind] = velocities
+        new_wpts[:, [self.conf.wpt_xind, self.conf.wpt_yind]] = xy_wpts
+        self.planner.waypoints = new_wpts
+
 
         # set new params
         wheelbase = self.params['lf'] + self.params['lr']
@@ -65,8 +83,21 @@ class GymWorker:
             # get actuation from planner
             speed, steer = self.planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], tlad, vgain)
 
-            # step environment
-            obs, step_reward, done, info = self.env.step(np.array([[steer, speed]]))
+            is_catch_warning = True
+            # is_catch_warning = False
+            if is_catch_warning:
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('error')
+                    try:
+                        # step environment
+                        obs, step_reward, done, info = self.env.step(np.array([[steer, speed]]))
+                    except:
+                        f_name = '/home/brandon/tunercar_ws/src/tunercar/es/tunercar_runs/npzs/work_load.npz'
+                        np.savez_compressed(f_name, mass=mass, lf=lf, tlad=tlad, xy=xy, velocities=velocities, og_xy_wpts=og_xy_wpts, new_wpts=new_wpts)
+                        print('Saving work load')
+                        exit()
+            else:
+                obs, step_reward, done, info = self.env.step(np.array([[steer, speed]]))
 
             # increment laptime
             cummulated_laptime += step_reward

@@ -2,17 +2,18 @@ import numpy as np
 
 import pure_pursuit_utils
 
+
+def load_waypoints(conf):
+    return np.loadtxt(conf.wpt_path, delimiter=conf.wpt_delim, skiprows=conf.wpt_rowskip)
+
 class PurePursuitPlanner:
     def __init__(self, conf, wb):
         self.wheelbase = wb
         self.conf = conf
-        self.load_waypoints(conf)
+        self.waypoints = load_waypoints(conf)
         self.max_reacquire = 20.
 
-    def load_waypoints(self, conf):
-        # load waypoints
-        self.waypoints = np.loadtxt(conf.wpt_path, delimiter=conf.wpt_delim, skiprows=conf.wpt_rowskip)
-
+    # TODO: This method doesn't use theta
     def _get_current_waypoint(self, waypoints, lookahead_distance, position, theta):
         wpts = np.vstack((self.waypoints[:, self.conf.wpt_xind], self.waypoints[:, self.conf.wpt_yind])).T
         nearest_point, nearest_dist, t, i = pure_pursuit_utils.nearest_point_on_trajectory_py2(position, wpts)
@@ -33,6 +34,7 @@ class PurePursuitPlanner:
 
     def plan(self, pose_x, pose_y, pose_theta, lookahead_distance, vgain):
         position = np.array([pose_x, pose_y])
+        # TODO: Why pass self.waypoints as a method argument?
         lookahead_point = self._get_current_waypoint(self.waypoints, lookahead_distance, position, pose_theta)
 
         if lookahead_point is None:

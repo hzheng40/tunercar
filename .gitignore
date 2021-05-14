@@ -3,4 +3,5 @@
 __pycache__
 .vscode/
 *.npz
-tunercar_runs/
+es/tunercar_runs/
+es/maps/f1tenth_racetracks/
