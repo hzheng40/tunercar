@@ -1,0 +1,30 @@
+# Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
+
+# metadata
+run_name: 'default_quad'
+fdm_bin: '$HOME/flight-dynamics-model/bin/new_fdm'
+propeller_path: '$HOME/fdm-wrapper/propeller'
+
+# compute budget
+budget: 9600
+
+# operation range of parameters
+# arm length of propulsion block
+arm_length_min: 0.5
+arm_length_max: 10.0
+
+# number of batteries
+num_batteries_min: 1
+num_batteries_max: 4
+
+# Li-Po types (voltage)
+battery_type:
+  - 3.7
+  - 7.4
+  - 11.1
+
+# battery capacity (mAh)
+battery_capacity_min: 1000
+battery_capacity_max: 5000
+battery_mass_min: 0.01
+battery_mass_max: 1.0
