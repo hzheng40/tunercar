@@ -1,51 +1,59 @@
 import ray
-
-# import gym
-# import numpy as np
-# from planners import PurePursuitPlanner, StanleyPlanner, LQRPlanner
-# from utils import perturb, interpolate_velocity, subsample
+import numpy as np
+import os
+import sys
 
 @ray.remote
 class QuadWorker:
     """
-    Ray remote gym worker, each worker has its own gym instance
+    Ray remote worker, each worker has its own simulation/binary instance
+    Objective values are max_distance and max_hover_time
     """
     def __init__(self, conf, worker_id):
-        # score
-        self.curr_laptime = 0.0
-        self.rollout_done = False
+        # score keeping
+        self.max_distance = 0.0
+        self.max_hover_time = 0.0
+        self.eval_done = False
 
         self.conf = conf
         self.worker_id = worker_id
 
-        # default params
-        self.params = {'mu': 1.0489, 'C_Sf': 4.718, 'C_Sr': 5.4562, 'lf': 0.15875, 'lr': 0.17145, 'h': 0.074, 'm': 3.74, 'I': 0.04712, 's_min': -0.4189, 's_max': 0.4189, 'sv_min': -3.2, 'sv_max': 3.2, 'v_switch': 7.319, 'a_max': 9.51, 'v_min':-5.0, 'v_max': 20.0, 'width': 0.31, 'length': 0.58}
-        self.wb = self.params['lf'] + self.params['lr']
-
-        # init worker's associated gym instance
-        self.env = gym.make('f110_gym:f110-v0', seed=conf.seed, map=conf.map_path, map_ext=conf.map_ext, num_agents=1)
-        self.env.update_params(self.params)
-        # reset gym instance
-        obs, step_reward, done, info = self.env.reset(np.array([[conf.sx, conf.sy, conf.stheta]]))
-
-        if conf.controller == 'stanley':
-            self.planner = StanleyPlanner(conf, self.wb)
-        elif conf.controller == 'lqr':
-            self.planner = LQRPlanner(conf, self.wb)
-        else:
-            # init pure pursuit planner with raceline
-            self.planner = PurePursuitPlanner(conf, self.wb)
+        self.sim = None
 
     def run_sim(self, raw_work):
         """
         Run simulation with given work
 
         Args:
-            work (dict): genome to be evaluated
+            raw_work (numpy.ndarray [N, ]): genome to be evaluated, zeroth index is current eval_id
 
         Returns:
             None
         """
+
+        if self.sim is None:
+            # initialize simulation
+            wrapper_path = self.conf.fdm_wrapper_path
+            sys.path.append(wrapper_path)
+            from fdm_wrapper.components.propulsion_block import PropulsionBlock
+            from fdm_wrapper.components.battery import Battery
+            from fdm_wrapper.simulation import Simulation
+            from fdm_wrapper.design import Design
+            self.sim = Simulation(eval_id=raw_work[0], create_folder=False)
+
+        # TODO: extract current genome
+        # TODO: create design for eval
+        design = Design()
+        # TODO: add components to desgin
+        # TODO: finalize desgin
+        design.finalize()
+        # TODO: assign propulsion blocks to a battery
+        # TODO: fdm eval
+        responses = self.sim.evaluate_design(design)
+        # TODO: store multi-objective score
+        self.max_distance = responses['max_distance']
+        self.max_hover_time = responses['max_hover_time']
+        self.eval_done = True
 
         if self.conf.normalize_param:
             # print(raw_work)

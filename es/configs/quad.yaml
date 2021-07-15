@@ -3,16 +3,23 @@
 # metadata
 run_name: 'default_quad'
 fdm_bin: '$HOME/flight-dynamics-model/bin/new_fdm'
+fdm_wrapper_path: '$HOME/fdm-wrapper'
 propeller_path: '$HOME/fdm-wrapper/propeller'
 
+# optim settings
 # compute budget
 budget: 9600
+optim_method: 'CMA'
+optim_params:
+  popsize: 'default'
+seed: 12345
 
 # operation range of parameters
 # arm length of propulsion block
 arm_length_min: 0.5
 arm_length_max: 10.0
 
+# battery parameters, all battery are the same if using multiple
 # number of batteries
 num_batteries_min: 1
 num_batteries_max: 4
@@ -26,5 +33,5 @@ battery_type:
 # battery capacity (mAh)
 battery_capacity_min: 1000
 battery_capacity_max: 5000
-battery_mass_min: 0.01
-battery_mass_max: 1.0
+battery_mass_min: 0.001
+battery_mass_max: 0.15
