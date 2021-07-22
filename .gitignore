@@ -5,3 +5,5 @@ __pycache__
 *.npz
 tunercar_runs/
 es/maps/f1tenth_racetracks/
+fdm-wrapper/
+flight-dynamics-model/
