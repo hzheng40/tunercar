@@ -20,40 +20,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM ubuntu:20.04
+FROM rayproject/ray:latest
 
 ARG DEBIAN_FRONTEND="noninteractive"
+USER $RAY_UID
 
-RUN apt-get update --fix-missing && \
-    apt-get install -y \
-    python3-dev python3-pip
+RUN sudo apt-get update --fix-missing && \
+    sudo apt-get install -y python3-dev python3-pip
 
-RUN apt-get install -y nano \
-                       git \
-                       unzip \
-                       build-essential \
-                       autoconf \
-                       libtool \
-                       cmake \
+RUN sudo apt-get install -y git \
                        vim \
-                       tmux
+                       tmux \
+                       automake \
+                       build-essential \
+                       gfortran
 
 RUN pip3 install --upgrade pip
 
 RUN pip3 install numpy \
                  scipy \
                  numba \
-                 Pillow \
-                 gym \
                  pyyaml \
-                 pyglet
+                 sacred \
+                 nevergrad \
+                 f90nml
 
-RUN mkdir /f1tenth_gym
-COPY . /f1tenth_gym
+RUN mkdir -p $HOME/tunercar/es
+RUN mkdir $HOME/flight-dynamics-model
+RUN mkdir $HOME/fdm-wrapper
+COPY ./es $HOME/tunercar/es
+COPY ./flight-dynamics-model $HOME/flight-dynamics-model
+COPY ./fdm-wrapper $HOME/fdm-wrapper
 
-RUN cd /f1tenth_gym && \
-    pip3 install -e gym/
+RUN cd $HOME/flight-dynamics-model && ./configure && make
 
-WORKDIR /f1tenth_gym
-
+ENV PROPELLER_DIR=$HOME/fdm-wrapper/propeller
+ENV FDM_EXECUTABLE=$HOME/flight-dynamics-model/bin/new_fdm
+WORKDIR $HOME/tunercar/es
 ENTRYPOINT ["/bin/bash"]

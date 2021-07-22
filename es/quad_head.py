@@ -32,15 +32,13 @@ def run_quad_fdm(conf: Namespace, _run=None):
 
     param = ng.p.Dict(
         arm_length=ng.p.Scalar(lower=conf.arm_length_min, upper=conf.arm_length_max),
-        num_batt=,
-        batt_v=,
-        batt_cap=,
-        batt_m=)
+        num_batt=ng.p.Choice(conf.num_batteries),
+        batt_v=ng.p.Choice(conf.battery_voltage),
+        batt_cap=ng.p.Scalar(lower=conf.battery_capacity_min, upper=conf.battery_capacity_max),
+        batt_m=ng.p.Scalar(lower=conf.battery_mass_min, upper=conf.battery_mass_max))
 
     # setting up optimizer with hyperparams
-    
-
-    # setting up optimizer with hyperparams
+    # TODO: currently only checks if the popsize is default
     if conf.optim_method == 'CMA' and conf.optim_params['popsize'] != 'default':
         # configured CMA, popsize tested and working
         optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
@@ -66,7 +64,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     print('Optimizer: ', optim)
 
     # setting up workers
-    workers = [GymWorker.remote(conf, worker_id) for worker_id in range(num_cores)]
+    workers = [QuadWorker.remote(conf, worker_id) for worker_id in range(num_cores)]
 
     # all scores
     all_scores = []

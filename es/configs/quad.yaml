@@ -21,11 +21,14 @@ arm_length_max: 10.0
 
 # battery parameters, all battery are the same if using multiple
 # number of batteries
-num_batteries_min: 1
-num_batteries_max: 4
+num_batteries:
+  - 1
+  - 2
+  - 3
+  - 4
 
 # Li-Po types (voltage)
-battery_type:
+battery_voltage:
   - 3.7
   - 7.4
   - 11.1

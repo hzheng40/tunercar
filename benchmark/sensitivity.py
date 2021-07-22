@@ -34,6 +34,7 @@ parser.add_argument('--noise_scale', type=float, default=0.1)
 parser.add_argument('--conf', type=str, required=True)
 parser.add_argument('--rerun', type=str2bool, default=True)
 parser.add_argument('--saved_npz', type=str, nargs='+')
+parser.add_argument('--portion', type=str, default='all')
 args = parser.parse_args()
 
 def main():
@@ -65,7 +66,19 @@ def main():
     # gaussian noise, stddev 0.1 centered at 0
     noise = rng.normal(loc=0.0, scale=args.noise_scale, size=(args.num_jostle, rec_np.shape[0]))
     rec_mat = np.tile(rec_np, (args.num_jostle, 1))
-    jostled_rec = rec_mat + noise
+    
+    # move rec around depending on portion arg
+    if args.portion == 'all':
+        jostled_rec = rec_mat + noise
+    elif args.portion == 'physical':
+        jostled_rec = rec_mat[:, conf.num_ctrl:conf.num_ctrl + 2] + noise[:, conf.num_ctrl:conf.num_ctrl + 2]
+    elif args.portion == 'path':
+        jostled_rec = rec_mat[:, :conf.num_ctrl] + noise[:, :conf.num_ctrl]
+    elif args.portion == 'control':
+        jostled_rec = rec_mat[:, conf.num_ctrl + 2:] + noise[:, conf.num_ctrl + 2:]
+    else:
+        # default to all
+        jostled_rec = rec_mat + noise
 
     assert jostled_rec.shape[0] == args.num_jostle
     assert jostled_rec.shape[1] == rec_np.shape[0]
@@ -143,8 +156,8 @@ def main():
         # all_traj_x.append(traj_x)
         # all_traj_y.append(traj_y)
         # all_traj_th.append(traj_th)
-
-    np.savez_compressed(args.exp_name + '_scale' + str(args.noise_scale) + '_' + str(args.num_jostle) + '_points_around.npz',
+    fname = args.exp_name + '_scale' + str(args.noise_scale) + '_' + str(args.num_jostle) + '_points_around.npz' if args.portion == 'all' else 'portion' + args.portion + '_' + args.exp_name + '_scale' + str(args.noise_scale) + '_' + str(args.num_jostle) + '_points_around.npz'
+    np.savez_compressed(fname,
                         score=np.array(all_score),
                         collision=np.array(all_collision),
                         scale=np.array(args.noise_scale),
