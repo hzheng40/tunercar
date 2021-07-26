@@ -2,9 +2,9 @@
 
 # metadata
 run_name: 'default_quad'
-fdm_bin: '$HOME/flight-dynamics-model/bin/new_fdm'
-fdm_wrapper_path: '$HOME/fdm-wrapper'
-propeller_path: '$HOME/fdm-wrapper/propeller'
+fdm_bin: '/home/ray/flight-dynamics-model/bin/new_fdm'
+fdm_wrapper_path: '/home/ray/fdm-wrapper'
+propeller_path: '/home/ray/fdm-wrapper/propeller'
 
 # optim settings
 # compute budget
@@ -22,10 +22,10 @@ arm_length_max: 10.0
 # battery parameters, all battery are the same if using multiple
 # number of batteries
 num_batteries:
-  - 1
-  - 2
-  - 3
-  - 4
+  - 1 # all propulsion to 1
+  - 2 # 1,2 to 1, 3,4 to 2
+  - 3 # 1 to 1, 2 to 2, 3,4 to 3
+  - 4 # each propulsion gets one
 
 # Li-Po types (voltage)
 battery_voltage:

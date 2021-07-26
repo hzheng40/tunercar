@@ -2,6 +2,7 @@ import ray
 import numpy as np
 import os
 import sys
+from itertools import cycle
 
 @ray.remote
 class QuadWorker:
@@ -11,8 +12,9 @@ class QuadWorker:
     """
     def __init__(self, conf, worker_id):
         # score keeping
-        self.max_distance = 0.0
-        self.max_hover_time = 0.0
+        # self.max_distance = 0.0
+        # self.max_hover_time = 0.0
+        self.score = []
         self.eval_done = False
 
         self.conf = conf
@@ -25,168 +27,57 @@ class QuadWorker:
         Run simulation with given work
 
         Args:
-            raw_work (numpy.ndarray [N, ]): genome to be evaluated, zeroth index is current eval_id
+            raw_work (dict): 
 
         Returns:
             None
         """
 
-        if self.sim is None:
-            # initialize simulation
-            wrapper_path = self.conf.fdm_wrapper_path
-            sys.path.append(wrapper_path)
-            from fdm_wrapper.components.propulsion_block import PropulsionBlock
-            from fdm_wrapper.components.battery import Battery
-            from fdm_wrapper.simulation import Simulation
-            from fdm_wrapper.design import Design
-            self.sim = Simulation(eval_id=raw_work[0], create_folder=False)
+        # if self.sim is None:
+        # initialize simulation
+        wrapper_path = self.conf.fdm_wrapper_path
+        sys.path.append(wrapper_path)
+        from fdm_wrapper.components.propulsion_block import PropulsionBlock
+        from fdm_wrapper.components.battery import Battery
+        from fdm_wrapper.simulation import Simulation
+        from fdm_wrapper.design import Design
+        self.sim = Simulation(eval_id=raw_work['eval_id'], create_folder=True)
 
-        # TODO: extract current genome
-        # TODO: create design for eval
+        # extract current genome
+        arm_length = raw_work['arm_length']
+        num_batt = raw_work['num_batt']
+        batt_v = raw_work['batt_v']
+        batt_cap = raw_work['batt_cap']
+        batt_m = raw_work['batt_m']
+
+        # create design for eval
         design = Design()
-        # TODO: add components to desgin
-        # TODO: finalize desgin
+
+        # create and add components to design
+        prob_blocks = [PropulsionBlock(arm_length=arm_length)] * 4
+        for prob in prob_blocks:
+            design.add_propulsion_block(prob)
+        batteries = [Battery(mass=batt_m, voltage=batt_v, capacity=batt_cap,
+                             c_peak=150.0, c_continuous=75.0, rm=13.0)] * num_batt
+        for batt in batteries:
+            design.add_battery(batt)
+
+        # finalize desgin
         design.finalize()
-        # TODO: assign propulsion blocks to a battery
-        # TODO: fdm eval
+        
+        # assign propulsion blocks to a battery
+        zipped_prop = zip(cycle([*range(1, num_batt + 1)]), prob_blocks)
+        for zip_batt, zip_prob in zipped_prop:
+            zip_prob.assign_to_battery(zip_batt)
+
+        # fdm eval
         responses = self.sim.evaluate_design(design)
-        # TODO: store multi-objective score
-        self.max_distance = responses['max_distance']
-        self.max_hover_time = responses['max_hover_time']
+        
+        # store multi-objective score, negate because want to maximize
+        max_dist = responses['max_distance']
+        max_hov = responses['max_hover_time']
+        self.score = [0.0 if (np.isnan(max_dist) or np.isinf(max_dist)) else -max_dist, 0.0 if (np.isnan(max_hov) or np.isinf(max_hov)) else -max_hov]
         self.eval_done = True
-
-        if self.conf.normalize_param:
-            # print(raw_work)
-            # reconstruct work dict if normalization is used
-            work = {}
-            # general
-            work['perturb'] = self.conf.left_bound + raw_work[:self.conf.num_ctrl]*(self.conf.right_bound - self.conf.left_bound)
-            work['mass'] = self.conf.mass_min + raw_work[self.conf.num_ctrl]*(self.conf.mass_max - self.conf.mass_min)
-            work['lf'] = self.conf.lf_min + raw_work[self.conf.num_ctrl + 1]*(self.conf.lf_max - self.conf.lf_min)
-            work['vel_min'] = self.conf.v_lower_min + raw_work[self.conf.num_ctrl + 2]*(self.conf.v_lower_max - self.conf.v_lower_min)
-            work['vel_max'] = self.conf.v_upper_min + raw_work[self.conf.num_ctrl + 3]*(self.conf.v_upper_max - self.conf.v_upper_min)
-            # controller
-            if self.conf.controller == 'stanley':
-                work['kpath'] = self.conf.kpath_min + raw_work[-1]*(self.conf.kpath_max - self.conf.kpath_min)
-            elif self.conf.controller == 'lqr':
-                work['q1'] = self.conf.q1_min + raw_work[-5]*(self.conf.q1_max - self.conf.q1_min)
-                work['q2'] = self.conf.q2_min + raw_work[-4]*(self.conf.q2_max - self.conf.q2_min)
-                work['q3'] = self.conf.q3_min + raw_work[-3]*(self.conf.q3_max - self.conf.q3_min)
-                work['q4'] = self.conf.q4_min + raw_work[-2]*(self.conf.q4_max - self.conf.q4_min)
-                work['r'] = self.conf.r_min + raw_work[-1]*(self.conf.r_max - self.conf.r_min)
-            else:
-                # default to pure pursuit
-                work['tlad'] = self.conf.tlad_min + raw_work[-1]*(self.conf.tlad_max - self.conf.tlad_min)
-        else:
-            work = raw_work
-
-        if self.conf.controller == 'stanley':
-            kpath = work['kpath']
-        elif self.conf.controller == 'lqr':
-            q1 = work['q1']
-            q2 = work['q2']
-            q3 = work['q3']
-            q4 = work['q4']
-            r = work['r']
-        else:
-            # default to pure pursuit
-            tlad = work['tlad']
-
-        # reset waypoints in planner to centerline
-        self.planner.reset_waypoints()
-
-        # perturb waypoints, TODO: might need to do rejection sampling
-        sub_ind = subsample(self.planner.waypoints.shape[0], self.conf.num_ctrl)
-        try:
-            pert_waypoints = perturb(work['perturb'], self.planner.waypoints[sub_ind, :], self.conf.track_width)
-        except:
-            self.curr_laptime = np.around(99999., 2)
-            self.rollout_done = True
-            return
-
-        vel = interpolate_velocity(work['vel_min'], work['vel_max'], pert_waypoints[:, 4], method='sigmoid')
-        new_waypoints = np.hstack((pert_waypoints, vel[:, None]))
-
-        # import matplotlib.pyplot as plt
-        # plt.scatter(new_waypoints[:, 1], new_waypoints[:, 2], s=0.5)
-        # plt.show()
-        # print(work['perturb'])
-        # print(work)
-
-        # update planner waypoints
-        self.planner.waypoints = new_waypoints
-
-        # get starting pose from conf, should default to 0
-        start_x = new_waypoints[self.conf.start_ind, self.conf.wpt_xind]
-        start_y = new_waypoints[self.conf.start_ind, self.conf.wpt_yind]
-        start_th = new_waypoints[self.conf.start_ind, self.conf.wpt_thind]
-
-        # set new params
-        new_params = {'mu': 1.0489, 'C_Sf': 4.718, 'C_Sr': 5.4562, 'lf': work['lf'], 'lr': self.wb - work['lf'], 'h': 0.074, 'm': work['mass'], 'I': 0.04712, 's_min': -0.4189, 's_max': 0.4189, 'sv_min': -3.2, 'sv_max': 3.2, 'v_switch': 7.319, 'a_max': 9.51, 'v_min':-5.0, 'v_max': 20.0, 'width': 0.31, 'length': 0.58}
-
-        # update params for gym instance
-        self.env.update_params(new_params)
-
-        # reset env
-        obs, step_reward, done, info = self.env.reset(np.array([[start_x, start_y, start_th]]))
-
-        # reset score
-        self.curr_laptime = 0.0
-        self.rollout_done = False
-
-        cummulated_laptime = 0.0
-        if self.worker_id == self.conf.render_worker_id and self.conf.render:
-            self.env.render('human')
-            self.env.render_waypoints(new_waypoints[:, 1:3])
-        while not done:
-            # get actuation from planner
-            if self.conf.controller == 'stanley':
-                speed, steer = self.planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], kpath)
-            elif self.conf.controller == 'lqr':
-                speed, steer = self.planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], obs['linear_vels_x'][0], self.env.timestep, q1, q2, q3, q4, r, self.conf.iteration, self.conf.eps)
-            else:
-                # default to pure pursuit
-                speed, steer = self.planner.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], tlad)
-
-            # step environment
-            obs, step_reward, done, info = self.env.step(np.array([[steer, speed]]))
-
-            # render worker_id 0
-            if self.worker_id == self.conf.render_worker_id and self.conf.render:
-                self.env.render('human')
-
-            # increment laptime
-            cummulated_laptime += step_reward
-
-            if cummulated_laptime >= 240.:
-                cummulated_laptime = 99999.
-                break
-
-        # out of sim loop, check if collision
-        if obs['collisions'][0]:
-            cummulated_laptime = 99999.
-            # cummulated_laptime = 600 - cummulated_laptime
-            # cummulated_laptime = 240.
-        else:
-            pass
-
-        self.curr_laptime = np.around(cummulated_laptime, 2)
-
-        # # catch short laptime error
-        # if self.curr_laptime < 10.:
-        #     # TODO: error is that spline goes insane, and car was reset at zeroth index
-        #     print(obs)
-        #     import matplotlib.pyplot as plt
-        #     plt.scatter(new_waypoints[:, 1], new_waypoints[:, 2], s=0.5)
-        #     plt.show()
-        #     print(work)
-        #     raise(KeyboardInterrupt)
-
-        # if self.curr_laptime < 300:
-        #     print('something worked')
-
-        self.rollout_done = True
-        # print('Lap time:', cummulated_laptime)
 
     def collect(self):
         """
@@ -199,6 +90,6 @@ class QuadWorker:
         Returns:
             curr_laptime (float): score/laptime of the current rollout
         """
-        while not self.rollout_done:
+        while not self.eval_done:
             continue
-        return self.curr_laptime
+        return self.score

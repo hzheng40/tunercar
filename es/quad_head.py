@@ -25,7 +25,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     # setting up parameter space
     # 5 parameters:
     #   arm length: float
-    #   num batteries: int
+    #   num batteries: choice
     #   battery voltage: choice
     #   battery capacity: float
     #   battery mass: float
@@ -59,6 +59,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
     else:
         optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
 
+    # setting number of objectives
+    optim.num_objectives = 2
+
     # seeding
     optim.parametrization.random_state = np.random.RandomState(conf.seed)
     print('Optimizer: ', optim)
@@ -71,13 +74,17 @@ def run_quad_fdm(conf: Namespace, _run=None):
     all_individuals = []
 
     # work distribution loop
+    eval_id = 0
     for _ in tqdm(range(conf.budget//num_cores)):
         individuals = [optim.ask() for _ in range(num_cores)]
         results = []
 
         # distribute
         for ind, worker in zip(individuals, workers):
-            worker.run_sim.remote(ind.args[0])
+            work = ind.args[0]
+            work['eval_id'] = eval_id
+            worker.run_sim.remote(work)
+            eval_id += 1
 
         # collect
         future_results = [worker.collect.remote() for worker in workers]
@@ -91,46 +98,16 @@ def run_quad_fdm(conf: Namespace, _run=None):
         all_scores.extend(results)
         all_individuals.extend(individuals)
 
-    # storing as npz, while running as sacred experiment, the directory tunercar_runs should've been created
-    score_all_np = np.asarray(all_scores)
-    params_general_scalars_np = np.empty((4, score_all_np.shape[0]))
-    num_controller_params = 5 if conf.controller=='lqr' else 1
-    params_controller_np = np.empty((num_controller_params, score_all_np.shape[0]))
-    params_perturb_np = np.empty((conf.num_ctrl, score_all_np.shape[0]))
+    # storing as npz, while running as sacred experiment, the directory quad_fdm_runs should've been created
+    # column 0 is max distance, column 1 is max hover time, negate to return actual seconds
+    score_all_np = -np.asarray(all_scores)
+    arm_length_np = np.asarray([indi['arm_length'] for indi in all_individuals])
+    num_batt_np = np.asarray([indi['num_batt'] for indi in all_individuals])
+    batt_v_np = np.asarray([indi['batt_v'] for indi in all_individuals])
+    batt_cap_np = np.asarray([indi['batt_cap'] for indi in all_individuals])
+    batt_m_np = np.asarray([indi['batt_m'] for indi in all_individuals])
 
-    for i, indi in enumerate(all_individuals):
-        if conf.normalize_param:
-            params_np = indi.value
-            params_perturb_np[:, i] = params_np[:conf.num_ctrl]
-            params_general_scalars_np[:, i] = params_np[conf.num_ctrl:conf.num_ctrl + 4]
-            if conf.controller == 'lqr':
-                params_controller_np[:, i] = params_np[-6:-1]
-            else:
-                params_controller_np[:, i] = params_np[-1]
-        else:
-            # log common scalar parameters
-            params_general_scalars_np[0, i] = indi['mass'].value
-            params_general_scalars_np[1, i] = indi['lf'].value
-            params_general_scalars_np[2, i] = indi['vel_min'].value
-            params_general_scalars_np[3, i] = indi['vel_max'].value
-
-            # log controller specific parameters
-            if conf.controller == 'stanley':
-                params_controller_np[0, i] = indi['kpath'].value
-            elif conf.controller == 'lqr':
-                params_controller_np[0, i] = indi['q1'].value
-                params_controller_np[1, i] = indi['q2'].value
-                params_controller_np[2, i] = indi['q3'].value
-                params_controller_np[3, i] = indi['q4'].value
-                params_controller_np[4, i] = indi['r'].value
-            else:
-                params_controller_np[0, i] = indi['tlad'].value
-
-            # log perturb vector parameters
-            params_perturb_np[:, i] = indi['perturb'].value
-
-        # log vector parameters, perturb
-    np.savez_compressed(filename, lap_times=score_all_np, general_params=params_general_scalars_np, controller_params=params_controller_np, perturb_params=params_perturb_np, controller=np.array([conf.controller]))
+    np.savez_compressed(filename, scores=score_all_np, arm_length=arm_length_np, num_batt=num_batt_np, batt_v=batt_v_np, batt_cap=batt_cap_np, batt_m=batt_m_np)
     _run.add_artifact(filename)
     optim.dump(filename_optim)
     _run.add_artifact(filename_optim)

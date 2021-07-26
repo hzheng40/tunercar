@@ -1,7 +1,7 @@
 import ray
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
-from head import run_tunercar
+from quad_head import run_quad_fdm
 from argparse import Namespace
 
 ex = Experiment('QuadFDM')
@@ -15,4 +15,4 @@ def default():
 def run(_run, _config):
     ray.init()
     conf = Namespace(**_config)
-    run_tunercar(conf, _run)
+    run_quad_fdm(conf, _run)
