@@ -22,10 +22,10 @@ arm_length_max: 10.0
 # battery parameters, all battery are the same if using multiple
 # number of batteries
 num_batteries:
-  - 1 # all propulsion to 1
-  - 2 # 1,2 to 1, 3,4 to 2
-  - 3 # 1 to 1, 2 to 2, 3,4 to 3
-  - 4 # each propulsion gets one
+  - 1
+  - 2
+  - 3
+  - 4
 
 # Li-Po types (voltage)
 battery_voltage:
