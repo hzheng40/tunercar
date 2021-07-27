@@ -101,11 +101,11 @@ def run_quad_fdm(conf: Namespace, _run=None):
     # storing as npz, while running as sacred experiment, the directory quad_fdm_runs should've been created
     # column 0 is max distance, column 1 is max hover time, negate to return actual seconds
     score_all_np = -np.asarray(all_scores)
-    arm_length_np = np.asarray([indi['arm_length'] for indi in all_individuals])
-    num_batt_np = np.asarray([indi['num_batt'] for indi in all_individuals])
-    batt_v_np = np.asarray([indi['batt_v'] for indi in all_individuals])
-    batt_cap_np = np.asarray([indi['batt_cap'] for indi in all_individuals])
-    batt_m_np = np.asarray([indi['batt_m'] for indi in all_individuals])
+    arm_length_np = np.asarray([indi.args[0]['arm_length'] for indi in all_individuals])
+    num_batt_np = np.asarray([indi.args[0]['num_batt'] for indi in all_individuals])
+    batt_v_np = np.asarray([indi.args[0]['batt_v'] for indi in all_individuals])
+    batt_cap_np = np.asarray([indi.args[0]['batt_cap'] for indi in all_individuals])
+    batt_m_np = np.asarray([indi.args[0]['batt_m'] for indi in all_individuals])
 
     np.savez_compressed(filename, scores=score_all_np, arm_length=arm_length_np, num_batt=num_batt_np, batt_v=batt_v_np, batt_cap=batt_cap_np, batt_m=batt_m_np)
     _run.add_artifact(filename)
