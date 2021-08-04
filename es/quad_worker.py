@@ -24,6 +24,18 @@ class QuadWorker:
 
     def run_sim(self, raw_work):
         """
+        Runs the full SwRI simulation with LQR parameters
+
+        Args:
+            raw_work (numpy.ndarray (N, )): sampled current candidate, size dependends on vehicle
+
+        Returns:
+            None
+        """
+        pass
+
+    def run_sim_simple(self, raw_work):
+        """
         Run simulation with given work
 
         Args:
