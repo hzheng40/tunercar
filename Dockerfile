@@ -28,19 +28,17 @@ USER $RAY_UID
 RUN sudo apt-get update --fix-missing && \
     sudo apt-get install -y python3-dev python3-pip
 
-RUN sudo apt-get install -y software-properties-common
-RUN sudo add-apt-repository ppa:freecad-maintainers/freecad-stable
-RUN sudo apt-get update
-
-RUN sudo apt-get install -y git \
-                       vim \
-                       tmux \
-                       automake \
-                       build-essential \
-                       gfortran \
-                       freecad \
-                       wget \
-                       unzip
+# RUN sudo apt-get install -y software-properties-common
+# RUN sudo add-apt-repository -y ppa:freecad-maintainers/freecad-stable
+RUN sudo apt-get update && apt-get install -y git \
+                                              vim \
+                                              tmux \
+                                              automake \
+                                              build-essential \
+                                              gfortran \
+                                              freecad \
+                                              wget \
+                                              unzip
 
 RUN pip3 install --upgrade pip
 
@@ -53,10 +51,13 @@ RUN pip3 install numpy>=1.20.2 \
                  f90nml==1.3.1 \
                  pandas==1.0.3 \
                  networkx==2.5 \
-                 parea==0.1.1
+                 parea==0.1.1 \
+                 matplotlib \
+                 pyside6
 
 RUN cd /tmp && wget https://github.com/Zolko-123/FreeCAD_Assembly4/archive/master.zip
-RUN unzip /tmp/FreeCAD_Assembly4-master.zip -d /lib/freecad/Mod/
+RUN unzip /tmp/master.zip -d /usr/lib/freecad-python3/Mod/
+RUN sed -i '23s/.*/from PySide6 import QtGui, QtCore/' /usr/lib/freecad-python3/Mod/FreeCAD_Assembly4-master/libAsm4.py
 
 RUN mkdir -p $HOME/tunercar/es
 RUN mkdir $HOME/swri-uav-pipeline
@@ -72,7 +73,13 @@ RUN cd $HOME/flight-dynamics-model && ./configure && make
 ENV PROPELLER_DIR=$HOME/fdm-wrapper/propeller
 ENV FDM_EXECUTABLE=$HOME/flight-dynamics-model/bin/new_fdm
 ENV CAD_DIR=$HOME/swri-uav-pipeline/uav-cad-models
-ENV PATH_TO_FREECAD_LIBDIR=/lib/freecad-python3/lib
-# TODO: confirm how to import freecad, having trouble on both macos and ubuntu
+ENV PATH_TO_FREECAD_LIBDIR=/lib/freecad/lib
+ENV PYTHONPATH=$HOME/swri-uav-pipeline/design-generator:$HOME/swri-uav-pipeline/uav-design-simulator
+
+RUN sed -i "13s/.*/#/" $HOME/swri-uav-pipeline/uav-design-simulator/uav_simulator/assembly/generate_assembly.py
+RUN sed -i "15s/.*/import sys, os\nsys.path.append(os.environ.get('PATH_TO_FREECAD_LIBDIR'))\nimport FreeCAD/" $HOME/swri-uav-pipeline/uav-design-simulator/uav_simulator/assembly/generate_assembly.py
+RUN sed -i "14s/.*/#/" $HOME/swri-uav-pipeline/uav-design-simulator/uav_simulator/assembly/compute_metrics.py
+RUN sed -i "17s/.*/import sys, os\nsys.path.append(os.environ.get('PATH_TO_FREECAD_LIBDIR'))\nimport FreeCAD/" $HOME/swri-uav-pipeline/uav-design-simulator/uav_simulator/assembly/compute_metrics.py
+
 WORKDIR $HOME/tunercar/es
 ENTRYPOINT ["/bin/bash"]
