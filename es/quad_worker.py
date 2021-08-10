@@ -4,6 +4,17 @@ import os
 import sys
 from itertools import cycle
 
+from quadspider import construct_baseline_quad_spider_design
+from quad import construct_baseline_quad_rotor_design
+from hcopter import construct_baseline_hcopter_design
+from hexring import construct_baseline_hexring_design
+from hex import construct_baseline_hex_rotor_design
+from hplane import construct_baseline_hplane_design
+from prob_design_generator.space import DesignSpace
+from uav_simulator.simulation import Simulation
+import pickle as pk
+import os
+
 @ray.remote
 class QuadWorker:
     """
@@ -14,13 +25,22 @@ class QuadWorker:
         # score keeping
         # self.max_distance = 0.0
         # self.max_hover_time = 0.0
-        self.score = []
+        self.score = None
         self.eval_done = False
 
         self.conf = conf
         self.worker_id = worker_id
 
         self.sim = None
+
+        self.mapping = {
+            "quadspider": construct_baseline_quad_spider_design,
+            "quad": construct_baseline_quad_rotor_design,
+            "hcopter": construct_baseline_hcopter_design,
+            "hexring": construct_baseline_hexring_design,
+            "hplane": construct_baseline_hplane_design,
+            "hex": construct_baseline_hex_rotor_design,
+        }
 
     def run_sim(self, raw_work):
         """
@@ -32,7 +52,20 @@ class QuadWorker:
         Returns:
             None
         """
-        pass
+        callback = self.mapping[self.conf.vehicle]
+        space = DesignSpace(self.conf.acel_path)
+        design_graph = callback(space)
+        simulation = Simulation(eval_id=raw_work['eval_id'],
+                                base_folder=self.conf.base_folder,
+                                create_folder=True)
+
+        responses = simulation.evaluate_design(design_graph)
+        self.score = responses[1]['score'] + responses[3]['score'] + responses[4]['score'] + responses[5]['score']
+
+        output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
+        with open(output_path, "wb") as fout:
+            pk.dump(design_graph, fout)
+        self.eval_done = True
 
     def run_sim_simple(self, raw_work):
         """

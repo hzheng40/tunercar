@@ -8,8 +8,28 @@ ex = Experiment('QuadFDM')
 ex.observers.append(FileStorageObserver('quad_fdm_runs'))
 
 @ex.named_config
-def default():
+def quad():
     ex.add_config('configs/quad.yaml')
+
+@ex.named_config
+def quadspider():
+    ex.add_config('configs/quadspider.yaml')
+
+@ex.named_config
+def hcopter():
+    ex.add_config('configs/hcopter.yaml')
+
+@ex.named_config
+def hexring():
+    ex.add_config('configs/hexring.yaml')
+
+@ex.named_config
+def hplane():
+    ex.add_config('configs/hplane.yaml')
+
+@ex.named_config
+def hex():
+    ex.add_config('configs/hex.yaml')
 
 @ex.automain
 def run(_run, _config):

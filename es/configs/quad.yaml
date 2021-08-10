@@ -1,10 +1,10 @@
 # Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
 
 # metadata
-run_name: 'default_quad'
-fdm_bin: '/home/ray/flight-dynamics-model/bin/new_fdm'
-fdm_wrapper_path: '/home/ray/fdm-wrapper'
-propeller_path: '/home/ray/fdm-wrapper/propeller'
+run_name: 'quad'
+fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
+fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
+propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
 # compute budget
@@ -14,6 +14,9 @@ optim_params:
   popsize: 'default'
 seed: 12345
 
+# path to design space file
+acel_path: '/home/tunercar/swri-uav-pipeline/desgin-generator/assets/uav_design_space_v3.acel'
+
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
 vehicle: 'quad'
@@ -22,19 +25,24 @@ vehicle: 'quad'
 # TODO
 # new way of sampling parameters is through a selected vector
 # e.g. for quad
-# [batt,
-#  esc1, esc2, esc3, esc4
-#  arm1_tube, arm2_tube, arm3_tube, arm4_tube,
-#  prop1, prop2, prop3, prop4,
-#  motor1, motor2, motor3, motor4,
-#  support1, support2, support3, support4,
-#  arm1_length, arm2_length, arm3_length, arm4_length,
-#  support1_length, support2_length, support3_length, support4_length,
+# [batt, 27 choices
+#  esc1, esc2, esc3, esc4, 20 choices
+#  arm1_tube, arm2_tube, arm3_tube, arm4_tube, 2 choices
+#  prop1, prop2, prop3, prop4, 417 choices
+#  motor1, motor2, motor3, motor4, 83 choices
+#  support1, support2, support3, support4, 2 choices, same as tubes
+#  arm1_length, arm2_length, arm3_length, arm4_length, float
+#  support1_length, support2_length, support3_length, support4_length, float
+
+# parameters not used yet
 #  Q_position,
 #  Q_velocity,
 #  Q_angular_velocity,
 #  Q_angles,
 #  control_R]
+
+
+# Parameters for simple fdm wrapper
 
 # arm length of propulsion block
 arm_length_min: 0.5
