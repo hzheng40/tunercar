@@ -73,15 +73,15 @@ RUN pip install numpy>=1.20.2 \
 RUN cd /tmp && wget https://github.com/Zolko-123/FreeCAD_Assembly4/archive/master.zip
 RUN unzip /tmp/master.zip -d $HOME
 
+# create mount point
 RUN mkdir -p $HOME/tunercar/es
-# COPY ./es /tunercar/es
 
+# copy and compile uav pipeline
 COPY ./swri-uav-pipeline $HOME/swri-uav-pipeline
 COPY ./flight-dynamics-model $HOME/flight-dynamics-model
-# RUN sed -i 's/PER3_11X45MR.dat/PER3_11x45MR.dat/g' $HOME/swri-uav-pipeline/uav-design-simulator/uav_simulator/design.py
-
 RUN cd $HOME/flight-dynamics-model && autoreconf -f -i && ./configure && make
 
+# environment variables
 ENV PROPELLER_DIR=$HOME/swri-uav-pipeline/uav-design-simulator/propeller
 ENV FDM_EXECUTABLE=$HOME/flight-dynamics-model/bin/new_fdm
 ENV CAD_DIR=$HOME/swri-uav-pipeline/uav-cad-models
