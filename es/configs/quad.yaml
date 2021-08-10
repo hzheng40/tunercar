@@ -22,7 +22,6 @@ acel_path: '/home/tunercar/swri-uav-pipeline/desgin-generator/assets/uav_design_
 vehicle: 'quad'
 
 # operation range of parameters
-# TODO
 # new way of sampling parameters is through a selected vector
 # e.g. for quad
 # [batt, 27 choices
@@ -33,7 +32,23 @@ vehicle: 'quad'
 #  support1, support2, support3, support4, 2 choices, same as tubes
 #  arm1_length, arm2_length, arm3_length, arm4_length, float
 #  support1_length, support2_length, support3_length, support4_length, float
-
+design_space:
+  battery:
+    27
+  esc:
+    [20, 20, 20, 20]
+  arm:
+    [2, 2, 2, 2]
+  prop:
+    [417, 417, 417, 417]
+  motor:
+    [83, 83, 83, 83]
+  support:
+    [2, 2, 2, 2]
+  arm_length:
+    [10.0, 10.0, 10.0, 10.0]
+  support_length:
+    [10.0, 10.0, 10.0, 10.0]
 # parameters not used yet
 #  Q_position,
 #  Q_velocity,

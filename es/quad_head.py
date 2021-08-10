@@ -30,9 +30,10 @@ def run_quad_fdm(conf: Namespace, _run=None):
     #   battery capacity: float
     #   battery mass: float
 
+    # TODO: easier way instead of writing everything out?
     param = ng.p.Dict(
-        arm_length=ng.p.Scalar(lower=conf.arm_length_min, upper=conf.arm_length_max),
-        num_batt=ng.p.Choice(conf.num_batteries),
+        battery=ng.p.Choice(np.arange(conf.design_space.battery)),
+        esc=ng.p.Choice(conf.design_space.esc[0]),
         batt_v=ng.p.Choice(conf.battery_voltage),
         batt_cap=ng.p.Scalar(lower=conf.battery_capacity_min, upper=conf.battery_capacity_max),
         batt_m=ng.p.Scalar(lower=conf.battery_mass_min, upper=conf.battery_mass_max))
