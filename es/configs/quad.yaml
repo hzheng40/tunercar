@@ -15,7 +15,10 @@ optim_params:
 seed: 12345
 
 # path to design space file
-acel_path: '/home/tunercar/swri-uav-pipeline/desgin-generator/assets/uav_design_space_v3.acel'
+acel_path: '/home/tunercar/swri-uav-pipeline/design-generator/assets/uav_design_space_v3.acel'
+
+# path for saving the input output file
+base_folder: '/home/tunercar/tunercar/es/evals'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
@@ -46,16 +49,19 @@ design_space:
   support:
     [2, 2, 2, 2]
   arm_length:
-    [10.0, 10.0, 10.0, 10.0]
+    [1000.0, 1000.0, 1000.0, 1000.0]
   support_length:
-    [10.0, 10.0, 10.0, 10.0]
-# parameters not used yet
-#  Q_position,
-#  Q_velocity,
-#  Q_angular_velocity,
-#  Q_angles,
-#  control_R]
-
+    [1000.0, 1000.0, 1000.0, 1000.0]
+  Q_position:
+    10.0
+  Q_velocity:
+    10.0
+  Q_angular_velocity:
+    10.0
+  Q_angles:
+    10.0
+  control_R:
+    10.0
 
 # Parameters for simple fdm wrapper
 

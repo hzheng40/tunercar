@@ -19,6 +19,8 @@ def run_quad_fdm(conf: Namespace, _run=None):
         os.makedirs('quad_fdm_runs/optims_pkl')
     filename = 'quad_fdm_runs/npzs/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '.npz'
     filename_optim = 'quad_fdm_runs/optims_pkl/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '_optim.pkl'
+    if not os.path.exists(conf.base_folder):
+        os.makedirs(conf.base_folder)
 
     num_cores = mp.cpu_count()
 
@@ -32,35 +34,40 @@ def run_quad_fdm(conf: Namespace, _run=None):
 
     # TODO: easier way instead of writing everything out?
     param = ng.p.Dict(
-        battery=ng.p.Choice(np.arange(conf.design_space.battery, dtype=int)),
-        esc1=ng.p.Choice(np.arange(conf.design_space.esc[0], dtype=int)),
-        esc2=ng.p.Choice(np.arange(conf.design_space.esc[1], dtype=int)),
-        esc3=ng.p.Choice(np.arange(conf.design_space.esc[2], dtype=int)),
-        esc4=ng.p.Choice(np.arange(conf.design_space.esc[3], dtype=int)),
-        arm1=ng.p.Choice(np.arange(conf.design_space.arm[0], dtype=int)),
-        arm2=ng.p.Choice(np.arange(conf.design_space.arm[1], dtype=int)),
-        arm3=ng.p.Choice(np.arange(conf.design_space.arm[2], dtype=int)),
-        arm4=ng.p.Choice(np.arange(conf.design_space.arm[3], dtype=int)),
-        prop1=ng.p.Choice(np.arange(conf.design_space.prop[0], dtype=int)),
-        prop2=ng.p.Choice(np.arange(conf.design_space.prop[1], dtype=int)),
-        prop3=ng.p.Choice(np.arange(conf.design_space.prop[2], dtype=int)),
-        prop4=ng.p.Choice(np.arange(conf.design_space.prop[3], dtype=int)),
-        motor1=ng.p.Choice(np.arange(conf.design_space.motor[0], dtype=int)),
-        motor2=ng.p.Choice(np.arange(conf.design_space.motor[1], dtype=int)),
-        motor3=ng.p.Choice(np.arange(conf.design_space.motor[2], dtype=int)),
-        motor4=ng.p.Choice(np.arange(conf.design_space.motor[3], dtype=int)),
-        support1=ng.p.Choice(np.arange(conf.design_space.support[0], dtype=int)),
-        support2=ng.p.Choice(np.arange(conf.design_space.support[1], dtype=int)),
-        support3=ng.p.Choice(np.arange(conf.design_space.support[2], dtype=int)),
-        support4=ng.p.Choice(np.arange(conf.design_space.support[3], dtype=int)),
-        arm_length1=ng.p.Scalar(lower=0.01, upper=conf.design_space.arm_length[0]),
-        arm_length2=ng.p.Scalar(lower=0.01, upper=conf.design_space.arm_length[1]),
-        arm_length3=ng.p.Scalar(lower=0.01, upper=conf.design_space.arm_length[2]),
-        arm_length4=ng.p.Scalar(lower=0.01, upper=conf.design_space.arm_length[3]),
-        support_length1=ng.p.Scalar(lower=0.01, upper=conf.design_space.support_length[0]),
-        support_length2=ng.p.Scalar(lower=0.01, upper=conf.design_space.support_length[1]),
-        support_length3=ng.p.Scalar(lower=0.01, upper=conf.design_space.support_length[2]),
-        support_length4=ng.p.Scalar(lower=0.01, upper=conf.design_space.support_length[3]))
+        battery=ng.p.Choice(np.arange(conf.design_space['battery'], dtype=int)),
+        esc1=ng.p.Choice(np.arange(conf.design_space['esc'][0], dtype=int)),
+        esc2=ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int)),
+        esc3=ng.p.Choice(np.arange(conf.design_space['esc'][2], dtype=int)),
+        esc4=ng.p.Choice(np.arange(conf.design_space['esc'][3], dtype=int)),
+        arm1=ng.p.Choice(np.arange(conf.design_space['arm'][0], dtype=int)),
+        arm2=ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int)),
+        arm3=ng.p.Choice(np.arange(conf.design_space['arm'][2], dtype=int)),
+        arm4=ng.p.Choice(np.arange(conf.design_space['arm'][3], dtype=int)),
+        prop1=ng.p.Choice(np.arange(conf.design_space['prop'][0], dtype=int)),
+        prop2=ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int)),
+        prop3=ng.p.Choice(np.arange(conf.design_space['prop'][2], dtype=int)),
+        prop4=ng.p.Choice(np.arange(conf.design_space['prop'][3], dtype=int)),
+        motor1=ng.p.Choice(np.arange(conf.design_space['motor'][0], dtype=int)),
+        motor2=ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int)),
+        motor3=ng.p.Choice(np.arange(conf.design_space['motor'][2], dtype=int)),
+        motor4=ng.p.Choice(np.arange(conf.design_space['motor'][3], dtype=int)),
+        support1=ng.p.Choice(np.arange(conf.design_space['support'][0], dtype=int)),
+        support2=ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int)),
+        support3=ng.p.Choice(np.arange(conf.design_space['support'][2], dtype=int)),
+        support4=ng.p.Choice(np.arange(conf.design_space['support'][3], dtype=int)),
+        arm_length1=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][0]),
+        arm_length2=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][1]),
+        arm_length3=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][2]),
+        arm_length4=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][3]),
+        support_length1=ng.p.Scalar(lower=100.0, upper=conf.design_space['support_length'][0]),
+        support_length2=ng.p.Scalar(lower=100.0, upper=conf.design_space['support_length'][1]),
+        support_length3=ng.p.Scalar(lower=100.0, upper=conf.design_space['support_length'][2]),
+        support_length4=ng.p.Scalar(lower=100.0, upper=conf.design_space['support_length'][3]),
+        Q_position=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_position']),
+        Q_velocity=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_velocity']),
+        Q_angular_velocity=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_angular_velocity']),
+        Q_angles=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_angles']),
+        control_R=ng.p.Scalar(lower=0.0, upper=conf.design_space['control_R']))
 
     # setting up optimizer with hyperparams
     # TODO: currently only checks if the popsize is default

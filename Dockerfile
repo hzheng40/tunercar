@@ -67,7 +67,8 @@ RUN pip install numpy>=1.20.2 \
                 nevergrad \
                 f90nml==1.3.1 \
                 parea==0.1.1 \
-                matplotlib
+                matplotlib \
+                tqdm
 
 # Assembly 4 Bench
 RUN cd /tmp && wget https://github.com/Zolko-123/FreeCAD_Assembly4/archive/master.zip

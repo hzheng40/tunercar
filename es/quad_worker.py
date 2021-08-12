@@ -83,24 +83,30 @@ class QuadWorker:
                            raw_work['support_length2'],
                            raw_work['support_length3'],
                            raw_work['support_length4'],
-                           0.0, 0.0, 0.0, 0.0, 0.0]
+                           raw_work['Q_position'],
+                           raw_work['Q_velocity'],
+                           raw_work['Q_angular_velocity'],
+                           raw_work['Q_angles'],
+                           raw_work['control_R']]
 
         callback = self.mapping[self.conf.vehicle]
-        space = DesignSpace(self.conf.acel_path)
-        design_graph = callback(space, selected_vector, is_selected=True)
-        simulation = Simulation(eval_id=raw_work['eval_id'],
-                                base_folder=self.conf.base_folder,
-                                create_folder=True)
+        try:
+            space = DesignSpace(self.conf.acel_path)
+            design_graph = callback(space, selected_vector, is_selected=True)
+            simulation = Simulation(eval_id=raw_work['eval_id'],
+                                    base_folder=self.conf.base_folder,
+                                    create_folder=True)
 
-        responses = simulation.evaluate_design(design_graph)
-        self.score = [responses[1]['score'],
-                      responses[3]['score'],
-                      responses[4]['score'],
-                      responses[5]['score']]
-
-        output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
-        with open(output_path, "wb") as fout:
-            pk.dump(design_graph, fout)
+            responses = simulation.evaluate_design(design_graph)
+            self.score = [responses[1]['score'],
+                          responses[3]['score'],
+                          responses[4]['score'],
+                          responses[5]['score']]
+            output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
+            with open(output_path, "wb") as fout:
+                pk.dump(design_graph, fout)
+        except:
+            self.score = [0.0, 0.0, 0.0, 0.0]
         self.eval_done = True
 
     def run_sim_simple(self, raw_work):
