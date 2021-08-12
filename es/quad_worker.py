@@ -25,7 +25,7 @@ class QuadWorker:
         # score keeping
         # self.max_distance = 0.0
         # self.max_hover_time = 0.0
-        self.score = None
+        self.score = []
         self.eval_done = False
 
         self.conf = conf
@@ -52,15 +52,51 @@ class QuadWorker:
         Returns:
             None
         """
+
+        # extract the selected vector
+        selected_vector = [raw_work['battery'],
+                           raw_work['esc1'],
+                           raw_work['esc2'],
+                           raw_work['esc3'],
+                           raw_work['esc4'],
+                           raw_work['arm1'],
+                           raw_work['arm2'],
+                           raw_work['arm3'],
+                           raw_work['arm4'],
+                           raw_work['prop1'],
+                           raw_work['prop2'],
+                           raw_work['prop3'],
+                           raw_work['prop4'],
+                           raw_work['motor1'],
+                           raw_work['motor2'],
+                           raw_work['motor3'],
+                           raw_work['motor4'],
+                           raw_work['support1'],
+                           raw_work['support2'],
+                           raw_work['support3'],
+                           raw_work['support4'],
+                           raw_work['arm_length1'],
+                           raw_work['arm_length2'],
+                           raw_work['arm_length3'],
+                           raw_work['arm_length4'],
+                           raw_work['support_length1'],
+                           raw_work['support_length2'],
+                           raw_work['support_length3'],
+                           raw_work['support_length4'],
+                           0.0, 0.0, 0.0, 0.0, 0.0]
+
         callback = self.mapping[self.conf.vehicle]
         space = DesignSpace(self.conf.acel_path)
-        design_graph = callback(space)
+        design_graph = callback(space, selected_vector, is_selected=True)
         simulation = Simulation(eval_id=raw_work['eval_id'],
                                 base_folder=self.conf.base_folder,
                                 create_folder=True)
 
         responses = simulation.evaluate_design(design_graph)
-        self.score = responses[1]['score'] + responses[3]['score'] + responses[4]['score'] + responses[5]['score']
+        self.score = [responses[1]['score'],
+                      responses[3]['score'],
+                      responses[4]['score'],
+                      responses[5]['score']]
 
         output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
         with open(output_path, "wb") as fout:
