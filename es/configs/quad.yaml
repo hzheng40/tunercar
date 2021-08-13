@@ -51,7 +51,7 @@ design_space:
   arm_length:
     [1000.0, 1000.0, 1000.0, 1000.0]
   support_length:
-    [1000.0, 1000.0, 1000.0, 1000.0]
+    [0.0, 0.0, 0.0, 0.0]
   Q_position:
     10.0
   Q_velocity:
