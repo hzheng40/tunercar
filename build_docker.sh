@@ -5,4 +5,5 @@ git clone git@github.com:DARPA-SystemicGenerativeEngineering/swri-uav-pipeline.g
 cd swri-uav-pipeline
 git submodule init && git submodule update
 cd ..
-sudo docker build -t tunercar:fdm -f Dockerfile .
+git clone git@github.com:DARPA-SystemicGenerativeEngineering/Conditional-Graph-Completion.git
+sudo docker build -t tunercar:gvae -f Dockerfile .

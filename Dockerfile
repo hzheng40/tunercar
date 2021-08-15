@@ -24,6 +24,7 @@ FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG PATH="/root/miniconda3/bin:${PATH}"
+ARG CUDA="cpu"
 ENV PATH="/root/miniconda3/bin:${PATH}"
 
 # apt packages
@@ -70,6 +71,20 @@ RUN pip install numpy>=1.20.2 \
                 matplotlib \
                 tqdm
 
+# torch
+RUN pip install torch==1.9.0+cpu \
+                torchvision==0.10.0+cpu \
+                torchaudio==0.9.0 \
+                -f https://download.pytorch.org/whl/torch_stable.html
+
+# torch extensions
+RUN pip install torch-scatter \
+                torch-sparse \
+                -f https://pytorch-geometric.com/whl/torch-1.9.0+${CUDA}.html
+
+RUN pip install torch-geometric \
+                rdkit-pypi
+
 # Assembly 4 Bench
 RUN cd /tmp && wget https://github.com/Zolko-123/FreeCAD_Assembly4/archive/master.zip
 RUN unzip /tmp/master.zip -d $HOME
@@ -81,6 +96,9 @@ RUN mkdir -p $HOME/tunercar/es
 COPY ./swri-uav-pipeline $HOME/swri-uav-pipeline
 COPY ./flight-dynamics-model $HOME/flight-dynamics-model
 RUN cd $HOME/flight-dynamics-model && autoreconf -f -i && ./configure && make
+
+# copy gvae pipeline
+COPY ./Conditional-Graph-Completion $HOME/Conditional-Graph-Completion
 
 # environment variables
 ENV PROPELLER_DIR=$HOME/swri-uav-pipeline/uav-design-simulator/propeller
