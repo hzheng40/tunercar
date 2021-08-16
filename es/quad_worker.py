@@ -12,6 +12,8 @@ from hex import construct_baseline_hex_rotor_design
 from hplane import construct_baseline_hplane_design
 from prob_design_generator.space import DesignSpace
 from uav_simulator.simulation import Simulation
+from multiprocessing import Process
+from multiprocessing import Manager
 import pickle as pk
 import os
 
@@ -98,7 +100,14 @@ class QuadWorker:
                                     base_folder=self.conf.base_folder,
                                     create_folder=True)
 
-            responses = simulation.evaluate_design(design_graph)
+            manager = Manager()
+            responses = manager.dict()
+            process = Process(target=simulation.evaluate_design,
+                              args=(design_graph, responses))
+            process.start()
+            process.join()
+            print(responses)
+            # responses = simulation.evaluate_design(design_graph)
             self.score = [responses[1]['score'],
                           responses[3]['score'],
                           responses[4]['score'],
