@@ -54,6 +54,8 @@ class QuadWorker:
         Returns:
             None
         """
+        # reset score before sim
+        self.score = []
 
         # extract the selected vector
         selected_vector = [raw_work['battery'],
@@ -85,9 +87,9 @@ class QuadWorker:
                            raw_work['support_length2'],
                            raw_work['support_length3'],
                            raw_work['support_length4'],
-                           *(raw_work['lqr_vector'].value),
-                           *(raw_work['lat_vel'].value),
-                           *(raw_work['vert_vel'].value)
+                           *raw_work['lqr_vector'],
+                           *raw_work['lat_vel'],
+                           *raw_work['vert_vel']
                            ]
 
         callback = self.mapping[self.conf.vehicle]
@@ -106,16 +108,18 @@ class QuadWorker:
             process.join()
             # print(responses)
             # responses = simulation.evaluate_design(design_graph)
-            self.score = [responses[1]['score'],
-                          responses[3]['score'],
-                          responses[4]['score'],
-                          responses[5]['score']]
+            # self.score = [responses[1]['score'],
+            #               responses[3]['score'],
+            #               responses[4]['score'],
+            #               responses[5]['score']]
+            for key in responses:
+                self.score.append(responses[key]['score'])
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
         except Exception as e:
             print(e)
-            self.score = [0.0, 0.0, 0.0, 0.0]
+            self.score = [-100.0, -100.0, -100.0, -100.0]
         self.eval_done = True
 
     def run_sim_simple(self, raw_work):
