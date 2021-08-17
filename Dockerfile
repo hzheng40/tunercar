@@ -86,7 +86,7 @@ RUN cd $HOME/flight-dynamics-model && autoreconf -f -i && ./configure && make
 ENV PROPELLER_DIR=$HOME/swri-uav-pipeline/uav-design-simulator/propeller
 ENV FDM_EXECUTABLE=$HOME/flight-dynamics-model/bin/new_fdm
 ENV CAD_DIR=$HOME/swri-uav-pipeline/uav-cad-models
-ENV PYTHONPATH=$HOME/swri-uav-pipeline/design-generator:$HOME/swri-uav-pipeline/design-generator/examples:$HOME/swri-uav-pipeline/uav-design-simulator:$HOME/FreeCAD_Assembly4-master
+ENV PYTHONPATH=$HOME/swri-uav-pipeline/design-generator:$HOME/swri-uav-pipeline/swri-uav-exploration:$HOME/swri-uav-pipeline/uav-design-simulator:$HOME/FreeCAD_Assembly4-master
 
 WORKDIR $HOME
 RUN conda init bash
