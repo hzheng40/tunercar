@@ -115,7 +115,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
         for ind, worker in zip(individuals, workers):
             work = ind.args[0]
             work['eval_id'] = eval_id
-            ind.args[0]['eval_id'] = eval_id
+            #ind.args[0]['eval_id'] = eval_id
             worker.run_sim.remote(work)
             eval_id += 1
 
@@ -170,9 +170,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
                          indi['Q_angles'],
                          indi['control_R']] for indi in all_individuals]
     vector_all_np = np.asarray(selected_vectors)
-    eval_id = [indi['eval_id'] for indi in all_individuals]
-    eval_id_np = np.array(eval_id)
-    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, eval_id=eval_id_np)
+    #eval_id = [indi['eval_id'] for indi in all_individuals]
+    #eval_id_np = np.array(eval_id)
+    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)#, eval_id=eval_id_np)
     _run.add_artifact(filename)
     optim.dump(filename_optim)
     _run.add_artifact(filename_optim)
