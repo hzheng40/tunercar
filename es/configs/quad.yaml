@@ -62,7 +62,7 @@ design_space:
     [100.0, 100.0, 100.0, 100.0]
   LQR:
     # shape, min, max
-    [20, 0.0, 10.0]
+    [20, 0.05, 5.0]
   lateral_velocity:
     # shape, min, max
     [4, 0.0, 20.0]
