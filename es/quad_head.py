@@ -105,7 +105,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
 
     # work distribution loop
     eval_id = 0
-    for _ in tqdm(range(conf.budget // num_cores)):
+    for prog in tqdm(range(conf.budget // num_cores)):
         individuals = [optim.ask() for _ in range(num_cores)]
         results = []
 
@@ -129,6 +129,49 @@ def run_quad_fdm(conf: Namespace, _run=None):
         # collect all
         all_scores.extend(results)
         all_individuals.extend(individuals)
+
+        if prog % 5 == 0:
+            score_all_np = np.asarray(all_scores)
+            print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
+            selected_vectors = [[indi['battery'],
+                                 indi['esc1'],
+                                 indi['esc2'],
+                                 indi['esc3'],
+                                 indi['esc4'],
+                                 indi['arm1'],
+                                 indi['arm2'],
+                                 indi['arm3'],
+                                 indi['arm4'],
+                                 indi['prop1'],
+                                 indi['prop2'],
+                                 indi['prop3'],
+                                 indi['prop4'],
+                                 indi['motor1'],
+                                 indi['motor2'],
+                                 indi['motor3'],
+                                 indi['motor4'],
+                                 indi['support1'],
+                                 indi['support2'],
+                                 indi['support3'],
+                                 indi['support4'],
+                                 indi['arm_length1'],
+                                 indi['arm_length2'],
+                                 indi['arm_length3'],
+                                 indi['arm_length4'],
+                                 indi['support_length1'],
+                                 indi['support_length2'],
+                                 indi['support_length3'],
+                                 indi['support_length4'],
+                                 *(indi['lqr_vector'].value),
+                                 *(indi['lat_vel'].value),
+                                 *(indi['vert_vel'].value)] for indi in all_individuals]
+            vector_all_np = np.asarray(selected_vectors)
+            #eval_id = [indi['eval_id'] for indi in all_individuals]
+            #eval_id_np = np.array(eval_id)
+            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)#, eval_id=eval_id_np)
+            _run.add_artifact(filename)
+            optim.dump(filename_optim)
+            _run.add_artifact(filename_optim)
 
     # storing as npz, while running as sacred experiment, the directory quad_fdm_runs should've been created
     # column 0 is eval 1 score, column 1-3 is eval 3-5 score
