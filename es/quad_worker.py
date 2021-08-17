@@ -114,7 +114,8 @@ class QuadWorker:
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
-        except:
+        except Exception as e:
+            print(e)
             self.score = [0.0, 0.0, 0.0, 0.0]
         self.eval_done = True
 

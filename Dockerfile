@@ -42,6 +42,7 @@ RUN apt-get update \
                           gcc \
                           zip \
                           unzip \
+                          dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 # conda
@@ -80,6 +81,12 @@ RUN mkdir -p $HOME/tunercar/es
 # copy and compile uav pipeline
 COPY ./swri-uav-pipeline $HOME/swri-uav-pipeline
 COPY ./flight-dynamics-model $HOME/flight-dynamics-model
+
+RUN pushd . \
+    && cd $HOME/flight-dynamics-model \
+    && dos2unix configure configure.ac Makefile.am Makefile.in \
+    && popd
+
 RUN cd $HOME/flight-dynamics-model && autoreconf -f -i && ./configure && make
 
 # environment variables
@@ -91,3 +98,4 @@ ENV PYTHONPATH=$HOME/swri-uav-pipeline/design-generator:$HOME/swri-uav-pipeline/
 WORKDIR $HOME
 RUN conda init bash
 ENTRYPOINT ["/bin/bash"]
+

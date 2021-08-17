@@ -15,7 +15,7 @@ optim_params:
 seed: 12345
 
 # path to design space file
-acel_path: '/home/tunercar/swri-uav-pipeline/design-generator/assets/uav_design_space_v3.acel'
+acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
 base_folder: '/home/tunercar/tunercar/es/evals'
