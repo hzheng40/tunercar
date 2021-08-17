@@ -63,11 +63,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
         support_length2=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][1]),
         support_length3=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][2]),
         support_length4=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][3]),
-        Q_position=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_position']),
-        Q_velocity=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_velocity']),
-        Q_angular_velocity=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_angular_velocity']),
-        Q_angles=ng.p.Scalar(lower=0.0, upper=conf.design_space['Q_angles']),
-        control_R=ng.p.Scalar(lower=0.0, upper=conf.design_space['control_R']))
+        lqr_vector=ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2]),
+        lat_vel=ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2]),
+        vert_vel=ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2]))
 
     # setting up optimizer with hyperparams
     # TODO: currently only checks if the popsize is default
@@ -164,11 +162,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
                          indi['support_length2'],
                          indi['support_length3'],
                          indi['support_length4'],
-                         indi['Q_position'],
-                         indi['Q_velocity'],
-                         indi['Q_angular_velocity'],
-                         indi['Q_angles'],
-                         indi['control_R']] for indi in all_individuals]
+                         *(indi['lqr_vector'].value),
+                         *(indi['lat_vel'].value),
+                         *(indi['vert_vel'].value)] for indi in all_individuals]
     vector_all_np = np.asarray(selected_vectors)
     #eval_id = [indi['eval_id'] for indi in all_individuals]
     #eval_id_np = np.array(eval_id)

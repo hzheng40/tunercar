@@ -85,11 +85,10 @@ class QuadWorker:
                            raw_work['support_length2'],
                            raw_work['support_length3'],
                            raw_work['support_length4'],
-                           raw_work['Q_position'],
-                           raw_work['Q_velocity'],
-                           raw_work['Q_angular_velocity'],
-                           raw_work['Q_angles'],
-                           raw_work['control_R']]
+                           *(raw_work['lqr_vector'].value),
+                           *(raw_work['lat_vel'].value),
+                           *(raw_work['vert_vel'].value)
+                           ]
 
         callback = self.mapping[self.conf.vehicle]
         try:
