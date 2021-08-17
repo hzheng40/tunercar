@@ -81,11 +81,10 @@ class QuadWorker:
                            raw_work['arm_length2'],
                            raw_work['arm_length3'],
                            raw_work['arm_length4'],
-                           # raw_work['support_length1'],
-                           # raw_work['support_length2'],
-                           # raw_work['support_length3'],
-                           # raw_work['support_length4'],
-                           0.0, 0.0, 0.0, 0.0,
+                           raw_work['support_length1'],
+                           raw_work['support_length2'],
+                           raw_work['support_length3'],
+                           raw_work['support_length4'],
                            raw_work['Q_position'],
                            raw_work['Q_velocity'],
                            raw_work['Q_angular_velocity'],
@@ -106,7 +105,7 @@ class QuadWorker:
                               args=(design_graph, responses))
             process.start()
             process.join()
-            print(responses)
+            # print(responses)
             # responses = simulation.evaluate_design(design_graph)
             self.score = [responses[1]['score'],
                           responses[3]['score'],
