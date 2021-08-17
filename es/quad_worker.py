@@ -106,17 +106,16 @@ class QuadWorker:
                               args=(design_graph, responses))
             process.start()
             process.join()
-            # print(responses)
             # responses = simulation.evaluate_design(design_graph)
             # self.score = [responses[1]['score'],
             #               responses[3]['score'],
             #               responses[4]['score'],
             #               responses[5]['score']]
             if not bool(responses):
-                self.score = [-500.0, -500.0, -500.0, -500.0]
+                self.score = [0.0, 0.0, 0.0, 0.0]
             else:
                 for key in responses:
-                    self.score.append(responses[key]['score'])
+                    self.score.append(responses[key]['score'] + 10.)
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)

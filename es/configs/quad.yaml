@@ -12,7 +12,7 @@ budget: 9600
 optim_method: 'CMA'
 optim_params:
   popsize: 'default'
-seed: 12345
+seed: 123
 
 # path to design space file
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
@@ -62,13 +62,13 @@ design_space:
     [100.0, 100.0, 100.0, 100.0]
   LQR:
     # shape, min, max
-    [20, 0.05, 5.0]
+    [20, 0.05, 3.0]
   lateral_velocity:
     # shape, min, max
     [4, 0.0, 20.0]
   vertical_velocity:
     # shape, min, max
-    [4, -10.0, 10.0]
+    [4, -5.0, 5.0]
 
 # Parameters for simple fdm wrapper
 
