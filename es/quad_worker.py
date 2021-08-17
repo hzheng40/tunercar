@@ -112,14 +112,17 @@ class QuadWorker:
             #               responses[3]['score'],
             #               responses[4]['score'],
             #               responses[5]['score']]
-            for key in responses:
-                self.score.append(responses[key]['score'])
+            if not bool(responses):
+                self.score = [-500.0, -500.0, -500.0, -500.0]
+            else:
+                for key in responses:
+                    self.score.append(responses[key]['score'])
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
         except Exception as e:
             print(e)
-            self.score = [-100.0, -100.0, -100.0, -100.0]
+            self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
         self.eval_done = True
 
     def run_sim_simple(self, raw_work):
