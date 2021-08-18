@@ -56,6 +56,7 @@ class QuadWorker:
         """
         # reset score before sim
         self.score = []
+        self.eval_done = False
 
         # extract the selected vector
         # selected_vector = [raw_work['battery'],
@@ -129,3 +130,16 @@ class QuadWorker:
             print(e)
             self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
         self.eval_done = True
+
+    def collect(self):
+        """
+        Collect function, called when lap time is requested
+        Resets worker instance after called
+        Args:
+            None
+        Returns:
+            curr_laptime (float): score/laptime of the current rollout
+        """
+        while not self.eval_done:
+            continue
+        return self.score
