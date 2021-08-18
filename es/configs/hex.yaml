@@ -1,7 +1,7 @@
-# Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
+# Default configuration file for optimization with a hex
 
 # metadata
-run_name: 'quad'
+run_name: 'hex'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
@@ -9,11 +9,9 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 # optim settings
 # compute budget
 budget: 9600
-optim_method: 'Chaining'
+optim_method: 'CMA'
 optim_params:
   popsize: 'default'
-  chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
-  chain_budget: [3200, 6400]
 seed: 123
 
 # path to design space file
@@ -24,7 +22,7 @@ base_folder: '/home/tunercar/tunercar/es/evals'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
-vehicle: 'quad'
+vehicle: 'hex'
 
 # design space
 design_space:
@@ -33,25 +31,25 @@ design_space:
     [1, 27]
   esc:
     # shape, num_selection
-    [4, 20]
+    [6, 20]
   arm:
     # shape, num selection
-    [4, 2]
+    [6, 2]
   prop:
     # shape, num selection
-    [4, 417]
+    [6, 417]
   motor:
     # shape, num selection
-    [4, 83]
+    [6, 83]
   support:
     # shape, num selection
-    [4, 2]
+    [6, 2]
   arm_length:
     # shape, min, max
-    [4, 100.0, 1000.0]
+    [6, 100.0, 1000.0]
   support_length:
     # shape, min, max
-    [4, 0.0, 100.0]
+    [6, 0.0, 100.0]
   LQR:
     # shape, min, max
     [20, 0.05, 3.0]
