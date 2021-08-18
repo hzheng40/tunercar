@@ -44,7 +44,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
         for i in range(conf.design_space['support_length'][0]):
             param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
         param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
-        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2]),
+        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
         param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
     else:
         param = ng.p.Dict()
@@ -77,48 +77,10 @@ def run_quad_fdm(conf: Namespace, _run=None):
         for i in range(conf.design_space['wing_chord'][0]):
             param['wing_chord' + str(i)] = ng.p.Scalar(lower=conf.design_space['wing_chord'][1], upper=conf.design_space['wing_chord'][2])
         param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
-        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2]),
+        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
         param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
 
-
-
-
-    # param = ng.p.Dict(
-    #     battery=ng.p.Choice(np.arange(conf.design_space['battery'], dtype=int)),
-    #     esc1=ng.p.Choice(np.arange(conf.design_space['esc'][0], dtype=int)),
-    #     esc2=ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int)),
-    #     esc3=ng.p.Choice(np.arange(conf.design_space['esc'][2], dtype=int)),
-    #     esc4=ng.p.Choice(np.arange(conf.design_space['esc'][3], dtype=int)),
-    #     arm1=ng.p.Choice(np.arange(conf.design_space['arm'][0], dtype=int)),
-    #     arm2=ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int)),
-    #     arm3=ng.p.Choice(np.arange(conf.design_space['arm'][2], dtype=int)),
-    #     arm4=ng.p.Choice(np.arange(conf.design_space['arm'][3], dtype=int)),
-    #     prop1=ng.p.Choice(np.arange(conf.design_space['prop'][0], dtype=int)),
-    #     prop2=ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int)),
-    #     prop3=ng.p.Choice(np.arange(conf.design_space['prop'][2], dtype=int)),
-    #     prop4=ng.p.Choice(np.arange(conf.design_space['prop'][3], dtype=int)),
-    #     motor1=ng.p.Choice(np.arange(conf.design_space['motor'][0], dtype=int)),
-    #     motor2=ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int)),
-    #     motor3=ng.p.Choice(np.arange(conf.design_space['motor'][2], dtype=int)),
-    #     motor4=ng.p.Choice(np.arange(conf.design_space['motor'][3], dtype=int)),
-    #     support1=ng.p.Choice(np.arange(conf.design_space['support'][0], dtype=int)),
-    #     support2=ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int)),
-    #     support3=ng.p.Choice(np.arange(conf.design_space['support'][2], dtype=int)),
-    #     support4=ng.p.Choice(np.arange(conf.design_space['support'][3], dtype=int)),
-    #     arm_length1=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][0]),
-    #     arm_length2=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][1]),
-    #     arm_length3=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][2]),
-    #     arm_length4=ng.p.Scalar(lower=100.0, upper=conf.design_space['arm_length'][3]),
-    #     support_length1=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][0]),
-    #     support_length2=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][1]),
-    #     support_length3=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][2]),
-    #     support_length4=ng.p.Scalar(lower=0.0, upper=conf.design_space['support_length'][3]),
-    #     lqr_vector=ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2]),
-    #     lat_vel=ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2]),
-    #     vert_vel=ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2]))
-
     # setting up optimizer with hyperparams
-    # TODO: currently only checks if the popsize is default
     if conf.optim_method == 'CMA' and conf.optim_params['popsize'] != 'default':
         # configured CMA, popsize tested and working
         optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
@@ -145,9 +107,6 @@ def run_quad_fdm(conf: Namespace, _run=None):
         optim = chain(parametrization=param, budget=conf.budget, num_workers=num_cores)
     else:
         optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
-
-    # setting number of objectives
-    # optim.num_objectives = 2
 
     # seeding
     optim.parametrization.random_state = np.random.RandomState(conf.seed)
@@ -201,42 +160,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
                     else:
                         current_vec.append(d[key])
                 selected_vectors.append(current_vec)
-            # selected_vectors = [[indi.args[0]['battery'],
-            #                      indi.args[0]['esc1'],
-            #                      indi.args[0]['esc2'],
-            #                      indi.args[0]['esc3'],
-            #                      indi.args[0]['esc4'],
-            #                      indi.args[0]['arm1'],
-            #                      indi.args[0]['arm2'],
-            #                      indi.args[0]['arm3'],
-            #                      indi.args[0]['arm4'],
-            #                      indi.args[0]['prop1'],
-            #                      indi.args[0]['prop2'],
-            #                      indi.args[0]['prop3'],
-            #                      indi.args[0]['prop4'],
-            #                      indi.args[0]['motor1'],
-            #                      indi.args[0]['motor2'],
-            #                      indi.args[0]['motor3'],
-            #                      indi.args[0]['motor4'],
-            #                      indi.args[0]['support1'],
-            #                      indi.args[0]['support2'],
-            #                      indi.args[0]['support3'],
-            #                      indi.args[0]['support4'],
-            #                      indi.args[0]['arm_length1'],
-            #                      indi.args[0]['arm_length2'],
-            #                      indi.args[0]['arm_length3'],
-            #                      indi.args[0]['arm_length4'],
-            #                      indi.args[0]['support_length1'],
-            #                      indi.args[0]['support_length2'],
-            #                      indi.args[0]['support_length3'],
-            #                      indi.args[0]['support_length4'],
-            #                      *(indi.args[0]['lqr_vector']),
-            #                      *(indi.args[0]['lat_vel']),
-            #                      *(indi.args[0]['vert_vel'])] for indi in all_individuals]
+
             vector_all_np = np.asarray(selected_vectors)
-            #eval_id = [indi['eval_id'] for indi in all_individuals]
-            #eval_id_np = np.array(eval_id)
-            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)#, eval_id=eval_id_np)
+            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)
             _run.add_artifact(filename)
             optim.dump(filename_optim)
             _run.add_artifact(filename_optim)
@@ -254,42 +180,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
             else:
                 current_vec.append(d[key])
         selected_vectors.append(current_vec)
-    # selected_vectors = [[indi.args[0]['battery'],
-    #                      indi.args[0]['esc1'],
-    #                      indi.args[0]['esc2'],
-    #                      indi.args[0]['esc3'],
-    #                      indi.args[0]['esc4'],
-    #                      indi.args[0]['arm1'],
-    #                      indi.args[0]['arm2'],
-    #                      indi.args[0]['arm3'],
-    #                      indi.args[0]['arm4'],
-    #                      indi.args[0]['prop1'],
-    #                      indi.args[0]['prop2'],
-    #                      indi.args[0]['prop3'],
-    #                      indi.args[0]['prop4'],
-    #                      indi.args[0]['motor1'],
-    #                      indi.args[0]['motor2'],
-    #                      indi.args[0]['motor3'],
-    #                      indi.args[0]['motor4'],
-    #                      indi.args[0]['support1'],
-    #                      indi.args[0]['support2'],
-    #                      indi.args[0]['support3'],
-    #                      indi.args[0]['support4'],
-    #                      indi.args[0]['arm_length1'],
-    #                      indi.args[0]['arm_length2'],
-    #                      indi.args[0]['arm_length3'],
-    #                      indi.args[0]['arm_length4'],
-    #                      indi.args[0]['support_length1'],
-    #                      indi.args[0]['support_length2'],
-    #                      indi.args[0]['support_length3'],
-    #                      indi.args[0]['support_length4'],
-    #                      *(indi.args[0]['lqr_vector']),
-    #                      *(indi.args[0]['lat_vel']),
-    #                      *(indi.args[0]['vert_vel'])] for indi in all_individuals]
+    
     vector_all_np = np.asarray(selected_vectors)
-    #eval_id = [indi['eval_id'] for indi in all_individuals]
-    #eval_id_np = np.array(eval_id)
-    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)#, eval_id=eval_id_np)
+    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)
     _run.add_artifact(filename)
     optim.dump(filename_optim)
     _run.add_artifact(filename_optim)

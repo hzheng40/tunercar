@@ -15,7 +15,6 @@ from uav_simulator.simulation import Simulation
 from multiprocessing import Process
 from multiprocessing import Manager
 import pickle as pk
-import os
 
 @ray.remote
 class QuadWorker:
@@ -58,44 +57,12 @@ class QuadWorker:
         self.score = []
         self.eval_done = False
 
-        # extract the selected vector
-        # selected_vector = [raw_work['battery'],
-        #                    raw_work['esc1'],
-        #                    raw_work['esc2'],
-        #                    raw_work['esc3'],
-        #                    raw_work['esc4'],
-        #                    raw_work['arm1'],
-        #                    raw_work['arm2'],
-        #                    raw_work['arm3'],
-        #                    raw_work['arm4'],
-        #                    raw_work['prop1'],
-        #                    raw_work['prop2'],
-        #                    raw_work['prop3'],
-        #                    raw_work['prop4'],
-        #                    raw_work['motor1'],
-        #                    raw_work['motor2'],
-        #                    raw_work['motor3'],
-        #                    raw_work['motor4'],
-        #                    raw_work['support1'],
-        #                    raw_work['support2'],
-        #                    raw_work['support3'],
-        #                    raw_work['support4'],
-        #                    raw_work['arm_length1'],
-        #                    raw_work['arm_length2'],
-        #                    raw_work['arm_length3'],
-        #                    raw_work['arm_length4'],
-        #                    raw_work['support_length1'],
-        #                    raw_work['support_length2'],
-        #                    raw_work['support_length3'],
-        #                    raw_work['support_length4'],
-        #                    *raw_work['lqr_vector'],
-        #                    *raw_work['lat_vel'],
-        #                    *raw_work['vert_vel']
-        #                    ]
         selected_vector = []
         for key in raw_work:
             if isinstance(raw_work[key], np.ndarray):
                 selected_vector.extend(list(raw_work[key]))
+            elif key == 'eval_id':
+                continue
             else:
                 selected_vector.append(raw_work[key])
 
@@ -113,11 +80,7 @@ class QuadWorker:
                               args=(design_graph, responses))
             process.start()
             process.join()
-            # responses = simulation.evaluate_design(design_graph)
-            # self.score = [responses[1]['score'],
-            #               responses[3]['score'],
-            #               responses[4]['score'],
-            #               responses[5]['score']]
+
             if not bool(responses):
                 self.score = [0.0, 0.0, 0.0, 0.0]
             else:
