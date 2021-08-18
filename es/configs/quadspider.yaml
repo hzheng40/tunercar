@@ -1,0 +1,97 @@
+# Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
+
+# metadata
+run_name: 'quadspider'
+fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
+fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
+propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
+
+# optim settings
+# compute budget
+budget: 9600
+optim_method: 'CMA'
+optim_params:
+  popsize: 'default'
+seed: 123
+
+# path to design space file
+acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
+
+# path for saving the input output file
+base_folder: '/home/tunercar/tunercar/es/evals'
+
+# vehicle types:
+# quadspider, quad, hcopter, hexring, hplane, hex
+vehicle: 'quadspider'
+
+# operation range of parameters
+# new way of sampling parameters is through a selected vector
+# e.g. for quad
+# [batt, 27 choices
+#  esc1, esc2, esc3, esc4, 20 choices
+#  arm1_tube, arm2_tube, arm3_tube, arm4_tube, 2 choices
+#  prop1, prop2, prop3, prop4, 417 choices
+#  motor1, motor2, motor3, motor4, 83 choices
+#  support1, support2, support3, support4, 2 choices, same as tubes
+#  arm1_length, arm2_length, arm3_length, arm4_length, float
+#  support1_length, support2_length, support3_length, support4_length, float
+design_space:
+  battery:
+    # num_selection
+    27
+  esc:
+    # num_selection each
+    [20, 20, 20, 20]
+  arm:
+    # num selection each
+    [2, 2, 2, 2]
+  prop:
+    # num selection each
+    [417, 417, 417, 417]
+  motor:
+    # num selection each
+    [83, 83, 83, 83]
+  support:
+    # num selection each
+    [2, 2, 2, 2]
+  arm_length:
+    # max each
+    [1000.0, 1000.0, 1000.0, 1000.0]
+  support_length:
+    # max each
+    [100.0, 100.0, 100.0, 100.0]
+  LQR:
+    # shape, min, max
+    [20, 0.05, 3.0]
+  lateral_velocity:
+    # shape, min, max
+    [4, 0.0, 20.0]
+  vertical_velocity:
+    # shape, min, max
+    [4, -5.0, 5.0]
+
+# Parameters for simple fdm wrapper
+
+# arm length of propulsion block
+arm_length_min: 0.5
+arm_length_max: 10.0
+
+# battery parameters, all battery are the same if using multiple
+# number of batteries
+num_batteries:
+  - 1
+  - 2
+  - 3
+  - 4
+
+# Li-Po types (voltage)
+battery_voltage:
+  - 3.7
+  - 7.4
+  - 11.1
+
+# battery capacity (mAh)
+battery_capacity_min: 1000
+battery_capacity_max: 5000
+battery_mass_min: 0.10
+battery_mass_max: 0.20
