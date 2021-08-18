@@ -139,8 +139,10 @@ def run_quad_fdm(conf: Namespace, _run=None):
         # chaining optimizers
         chain_optims = []
         for name in conf.optim_params['chain_optims']:
-            chain_optims.append(ng.optimizers.registry[name](parametrization=param, num_workers=num_cores))
-        optim = ng.optimizers.Chaining(chain_optims, conf.optim_params['chain_budget'])
+            chain_optims.append(eval('ng.optimizers.' + name))
+        chain = ng.optimizers.Chaining(chain_optims, conf.optim_params['chain_budget'])
+        # chain = ng.optimizers.Chaining([ng.optimizers.PortfolioDiscreteOnePlusOne, ng.optimizers.CMA], ['third'])
+        optim = chain(parametrization=param, budget=conf.budget, num_workers=num_cores)
     else:
         optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
 

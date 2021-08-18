@@ -1,7 +1,7 @@
 # Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
 
 # metadata
-run_name: 'quad'
+run_name: 'quad_PDOPO_CMA'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
@@ -13,14 +13,14 @@ optim_method: 'Chaining'
 optim_params:
   popsize: 'default'
   chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
-  chain_budget: [3200, 6400]
+  chain_budget: ['third']
 seed: 123
 
 # path to design space file
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals'
+base_folder: '/home/tunercar/tunercar/es/evals_chain_PDOPO_CMA'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
