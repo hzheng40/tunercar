@@ -58,39 +58,45 @@ class QuadWorker:
         self.score = []
 
         # extract the selected vector
-        selected_vector = [raw_work['battery'],
-                           raw_work['esc1'],
-                           raw_work['esc2'],
-                           raw_work['esc3'],
-                           raw_work['esc4'],
-                           raw_work['arm1'],
-                           raw_work['arm2'],
-                           raw_work['arm3'],
-                           raw_work['arm4'],
-                           raw_work['prop1'],
-                           raw_work['prop2'],
-                           raw_work['prop3'],
-                           raw_work['prop4'],
-                           raw_work['motor1'],
-                           raw_work['motor2'],
-                           raw_work['motor3'],
-                           raw_work['motor4'],
-                           raw_work['support1'],
-                           raw_work['support2'],
-                           raw_work['support3'],
-                           raw_work['support4'],
-                           raw_work['arm_length1'],
-                           raw_work['arm_length2'],
-                           raw_work['arm_length3'],
-                           raw_work['arm_length4'],
-                           raw_work['support_length1'],
-                           raw_work['support_length2'],
-                           raw_work['support_length3'],
-                           raw_work['support_length4'],
-                           *raw_work['lqr_vector'],
-                           *raw_work['lat_vel'],
-                           *raw_work['vert_vel']
-                           ]
+        # selected_vector = [raw_work['battery'],
+        #                    raw_work['esc1'],
+        #                    raw_work['esc2'],
+        #                    raw_work['esc3'],
+        #                    raw_work['esc4'],
+        #                    raw_work['arm1'],
+        #                    raw_work['arm2'],
+        #                    raw_work['arm3'],
+        #                    raw_work['arm4'],
+        #                    raw_work['prop1'],
+        #                    raw_work['prop2'],
+        #                    raw_work['prop3'],
+        #                    raw_work['prop4'],
+        #                    raw_work['motor1'],
+        #                    raw_work['motor2'],
+        #                    raw_work['motor3'],
+        #                    raw_work['motor4'],
+        #                    raw_work['support1'],
+        #                    raw_work['support2'],
+        #                    raw_work['support3'],
+        #                    raw_work['support4'],
+        #                    raw_work['arm_length1'],
+        #                    raw_work['arm_length2'],
+        #                    raw_work['arm_length3'],
+        #                    raw_work['arm_length4'],
+        #                    raw_work['support_length1'],
+        #                    raw_work['support_length2'],
+        #                    raw_work['support_length3'],
+        #                    raw_work['support_length4'],
+        #                    *raw_work['lqr_vector'],
+        #                    *raw_work['lat_vel'],
+        #                    *raw_work['vert_vel']
+        #                    ]
+        selected_vector = []
+        for key in raw_work:
+            if isinstance(raw_work[key], np.ndarray):
+                selected_vector.extend(list(raw_work[key]))
+            else:
+                selected_vector.append(raw_work[key])
 
         callback = self.mapping[self.conf.vehicle]
         try:
@@ -123,75 +129,3 @@ class QuadWorker:
             print(e)
             self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
         self.eval_done = True
-
-    def run_sim_simple(self, raw_work):
-        """
-        Run simulation with given work
-
-        Args:
-            raw_work (dict): 
-
-        Returns:
-            None
-        """
-
-        # if self.sim is None:
-        # initialize simulation
-        wrapper_path = self.conf.fdm_wrapper_path
-        sys.path.append(wrapper_path)
-        from fdm_wrapper.components.propulsion_block import PropulsionBlock
-        from fdm_wrapper.components.battery import Battery
-        from fdm_wrapper.simulation import Simulation
-        from fdm_wrapper.design import Design
-        self.sim = Simulation(eval_id=raw_work['eval_id'], create_folder=True)
-
-        # extract current genome
-        arm_length = raw_work['arm_length']
-        num_batt = raw_work['num_batt']
-        batt_v = raw_work['batt_v']
-        batt_cap = raw_work['batt_cap']
-        batt_m = raw_work['batt_m']
-
-        # create design for eval
-        design = Design()
-
-        # create and add components to design
-        prob_blocks = [PropulsionBlock(arm_length=arm_length)] * 4
-        for prob in prob_blocks:
-            design.add_propulsion_block(prob)
-        batteries = [Battery(mass=batt_m, voltage=batt_v, capacity=batt_cap,
-                             c_peak=150.0, c_continuous=75.0, rm=13.0)] * num_batt
-        for batt in batteries:
-            design.add_battery(batt)
-
-        # finalize desgin
-        design.finalize()
-        
-        # assign propulsion blocks to a battery
-        zipped_prop = zip(cycle([*range(1, num_batt + 1)]), prob_blocks)
-        for zip_batt, zip_prob in zipped_prop:
-            zip_prob.assign_to_battery(zip_batt)
-
-        # fdm eval
-        responses = self.sim.evaluate_design(design)
-        
-        # store multi-objective score, negate because want to maximize
-        max_dist = responses['max_distance']
-        max_hov = responses['max_hover_time']
-        self.score = [0.0 if (np.isnan(max_dist) or np.isinf(max_dist)) else -max_dist, 0.0 if (np.isnan(max_hov) or np.isinf(max_hov)) else -max_hov]
-        self.eval_done = True
-
-    def collect(self):
-        """
-        Collect function, called when lap time is requested
-        Resets worker instance after called
-
-        Args:
-            None
-
-        Returns:
-            curr_laptime (float): score/laptime of the current rollout
-        """
-        while not self.eval_done:
-            continue
-        return self.score
