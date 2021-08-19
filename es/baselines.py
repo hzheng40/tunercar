@@ -39,6 +39,7 @@ quad_baseline2 = np.array([ 2.60000000e+01,  1.90000000e+01,  1.30000000e+01,  0
                        8.67978904e-01])
 quad_scores2 = np.array([364.,  10.,  10., 277.])
 
+# hexring baseline1 is highest scoring with PortfolioDiscreteOnePlusOne seed 456
 hexring_baseline1 = np.array([ 2.30000000e+01,  1.40000000e+01,  1.70000000e+01,  1.40000000e+01,
                                6.00000000e+00,  3.00000000e+00,  2.00000000e+00,  1.00000000e+00,
                                1.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,

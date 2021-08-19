@@ -2,6 +2,7 @@ import ray
 import numpy as np
 import os
 import sys
+import shutil
 from itertools import cycle
 
 from quadspider import construct_baseline_quad_spider_design
@@ -91,6 +92,7 @@ class QuadWorker:
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
+            shutil.rmtree(os.path.join(simulation.eval_folder, "/assembly/"))
         except Exception as e:
             print(e)
             self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
