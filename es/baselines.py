@@ -3,6 +3,15 @@ Baselines found by random searching, passes some of the tests, but have bad lqr 
 """
 import numpy as np
 
+# default control params, should be general enough to work on most cases
+default_lqr = np.ones(20, )
+default_latvel = np.array([10.0, 0.0, 3.0, 5.0])
+default_vertvel = np.array([0.0, -2.0, 3.0, 5.0])
+
+# default quad continous params
+quad_arm_lengths = 450.0 * np.ones(4, )
+quad_support_lengths = 120.0 * np.ones(4, )
+
 # quad_baseline1 is highest scoring with RandomSearch seed 123
 quad_baseline1 = np.array([ 2.60000000e+01,  1.70000000e+01,  5.00000000e+00,  4.00000000e+00,
                        1.00000000e+01,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00,
@@ -39,6 +48,10 @@ quad_baseline2 = np.array([ 2.60000000e+01,  1.90000000e+01,  1.30000000e+01,  0
                        8.67978904e-01])
 quad_scores2 = np.array([364.,  10.,  10., 277.])
 
+# default hexring continous params
+hexring_arm_lengths = 450.0 * np.ones(9, )
+hexring_support_lengths = 60.0 * np.ones(6, )
+
 # hexring baseline1 is highest scoring with PortfolioDiscreteOnePlusOne seed 456
 hexring_baseline1 = np.array([ 2.30000000e+01,  1.40000000e+01,  1.70000000e+01,  1.40000000e+01,
                                6.00000000e+00,  3.00000000e+00,  2.00000000e+00,  1.00000000e+00,
@@ -61,3 +74,7 @@ hexring_baseline1 = np.array([ 2.30000000e+01,  1.40000000e+01,  1.70000000e+01,
                                8.97167202e+00, -1.61946782e-01, -5.23129612e-01,  1.15548249e+00,
                               -2.43736024e+00])
 hexring_scores1 = np.array([410., 310.,  10., 210.])
+
+# default hcopter continous params
+hcopter_arm_lengths = np.array([100.0, 100.0, 210.0, 210.0, 210.0, 210.0])
+hcopter_support_lengths = 320.0 * np.ones(4, )

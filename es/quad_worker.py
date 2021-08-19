@@ -66,6 +66,8 @@ class QuadWorker:
                 continue
             elif key == 'discrete_baseline':
                 selected_vector = [*(raw_work[key]), *selected_vector]
+            elif key == 'continunous_baseline':
+                selected_vector.extend(raw_work[key])
             else:
                 selected_vector.append(raw_work[key])
 

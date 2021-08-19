@@ -8,6 +8,7 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 
 # optim settings
 warm_start: True
+discrete_only: True
 warm_start_params:
   baseline: 'hexring_baseline1'
 budget: 9600

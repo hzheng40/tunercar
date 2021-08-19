@@ -44,13 +44,24 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
 
             # continuous parameters
-            for i in range(conf.design_space['arm_length'][0]):
-                param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
-            for i in range(conf.design_space['support_length'][0]):
-                param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
-            param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
-            param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
-            param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+            if not conf.discrete_only:
+                for i in range(conf.design_space['arm_length'][0]):
+                    param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+                for i in range(conf.design_space['support_length'][0]):
+                    param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
+                param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
+                param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
+                param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+            else:
+                import baselines
+                # use general continuous params
+                lqr = list(eval('baselines.default_lqr'))
+                latvel = list(eval('baselines.default_latvel'))
+                vertvel = list(eval('baselines.default_vertvel'))
+                arm_lengths = list(eval('baselines.' + conf.vehicle + '_arm_lengths'))
+                support_lengths = list(eval('baselines.' + conf.vehicle + '_support_lengths'))
+                continunous_baseline = [*arm_lengths, *support_lengths, *lqr, *latvel, *vertvel]
+                param['continunous_baseline'] = continunous_baseline
             
         else:
             # continuous parameters
