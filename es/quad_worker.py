@@ -63,6 +63,8 @@ class QuadWorker:
                 selected_vector.extend(list(raw_work[key]))
             elif key == 'eval_id':
                 continue
+            elif key == 'discrete_baseline':
+                selected_vector = [*(raw_work[key]), *selected_vector]
             else:
                 selected_vector.append(raw_work[key])
 

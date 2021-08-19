@@ -27,25 +27,54 @@ def run_quad_fdm(conf: Namespace, _run=None):
     # setting up parameter space, hplane has more nodes
     if conf.vehicle != 'hplane':
         param = ng.p.Dict()
-        for i in range(conf.design_space['battery'][0]):
-            param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
-        for i in range(conf.design_space['esc'][0]):
-            param['esc' + str(i)] = ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int))
-        for i in range(conf.design_space['arm'][0]):
-            param['arm' + str(i)] = ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int))
-        for i in range(conf.design_space['prop'][0]):
-            param['prop' + str(i)] = ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int))
-        for i in range(conf.design_space['motor'][0]):
-            param['motor' + str(i)] = ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int))
-        for i in range(conf.design_space['support'][0]):
-            param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
-        for i in range(conf.design_space['arm_length'][0]):
-            param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
-        for i in range(conf.design_space['support_length'][0]):
-            param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
-        param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
-        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
-        param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+
+        if not conf.warm_start:
+            # include discrete choices if not warm start
+            for i in range(conf.design_space['battery'][0]):
+                param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
+            for i in range(conf.design_space['esc'][0]):
+                param['esc' + str(i)] = ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int))
+            for i in range(conf.design_space['arm'][0]):
+                param['arm' + str(i)] = ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int))
+            for i in range(conf.design_space['prop'][0]):
+                param['prop' + str(i)] = ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int))
+            for i in range(conf.design_space['motor'][0]):
+                param['motor' + str(i)] = ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int))
+            for i in range(conf.design_space['support'][0]):
+                param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
+
+            # continuous parameters
+            for i in range(conf.design_space['arm_length'][0]):
+                param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+            for i in range(conf.design_space['support_length'][0]):
+                param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
+            param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
+            param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
+            param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+            
+        else:
+            # continuous parameters
+            for i in range(conf.design_space['arm_length'][0]):
+                param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+            for i in range(conf.design_space['support_length'][0]):
+                param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
+            param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
+            param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
+            param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+            
+            from baselines import *
+            # load warm start baseline for discrete parameters
+            num_discrete = conf.design_space['battery'][0] + conf.design_space['esc'][0] + conf.design_space['arm'][0] + conf.design_space['prop'][0] + conf.design_space['motor'][0] + conf.design_space['support'][0]
+            discrete_baseline = (eval(conf.warm_start_params['baseline'])[:num_discrete]).astype(int)
+            param['discrete_baseline'] = discrete_baseline
+            # initialize continuous params from baseline
+            vert_size = conf.design_space['vertical_velocity'][0]
+            lat_size = conf.design_space['lateral_velocity'][0]
+            lqr_size = conf.design_space['LQR'][0]
+            param['vert_vel'].value = eval(conf.warm_start_params['baseline'])[-vert_size]
+            param['lat_vel'].value = eval(conf.warm_start_params['baseline'])[-(vert_size + lat_size):-vert_size]
+            param['lqr_vector'].value = eval(conf.warm_start_params['baseline'])[-(vert_size + lat_size + lqr_size):-(vert_size + lat_size)]
+
     else:
         param = ng.p.Dict()
         for i in range(conf.design_space['battery'][0]):

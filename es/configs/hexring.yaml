@@ -1,24 +1,28 @@
 # Default configuration file for optimization with a hexring
 
 # metadata
-run_name: 'hexring'
+run_name: 'hexring_warmstarted_baseline1'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
-# compute budget
+warm_start: True
+warm_start_params:
+  baseline: 'hexring_baseline1'
 budget: 9600
 optim_method: 'CMA'
 optim_params:
   popsize: 'default'
-seed: 123
+  chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
+  chain_budget: ['third']
+seed: 456
 
 # path to design space file
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals'
+base_folder: '/home/tunercar/tunercar/es/evals_hexring_warmstarted_baseline1'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
