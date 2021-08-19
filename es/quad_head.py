@@ -61,19 +61,20 @@ def run_quad_fdm(conf: Namespace, _run=None):
             param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
             param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
             param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
-            
-            from baselines import *
+
+            import baselines
             # load warm start baseline for discrete parameters
             num_discrete = conf.design_space['battery'][0] + conf.design_space['esc'][0] + conf.design_space['arm'][0] + conf.design_space['prop'][0] + conf.design_space['motor'][0] + conf.design_space['support'][0]
-            discrete_baseline = (eval(conf.warm_start_params['baseline'])[:num_discrete]).astype(int)
+            discrete_baseline = list((eval('baselines.' + conf.warm_start_params['baseline'])[:num_discrete]).astype(int))
+            print(discrete_baseline)
             param['discrete_baseline'] = discrete_baseline
             # initialize continuous params from baseline
             vert_size = conf.design_space['vertical_velocity'][0]
             lat_size = conf.design_space['lateral_velocity'][0]
             lqr_size = conf.design_space['LQR'][0]
-            param['vert_vel'].value = eval(conf.warm_start_params['baseline'])[-vert_size]
-            param['lat_vel'].value = eval(conf.warm_start_params['baseline'])[-(vert_size + lat_size):-vert_size]
-            param['lqr_vector'].value = eval(conf.warm_start_params['baseline'])[-(vert_size + lat_size + lqr_size):-(vert_size + lat_size)]
+            param['vert_vel'].value = eval('baselines.' + conf.warm_start_params['baseline'])[-vert_size:]
+            param['lat_vel'].value = eval('baselines.' + conf.warm_start_params['baseline'])[-(vert_size + lat_size):-vert_size]
+            param['lqr_vector'].value = eval('baselines.' + conf.warm_start_params['baseline'])[-(vert_size + lat_size + lqr_size):-(vert_size + lat_size)]
 
     else:
         param = ng.p.Dict()
@@ -184,7 +185,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 current_vec = []
                 d = indi.args[0]
                 for key in d:
-                    if isinstance(d[key], np.ndarray):
+                    if isinstance(d[key], np.ndarray) or isinstance(d[key], list):
                         current_vec.extend(list(d[key]))
                     else:
                         current_vec.append(d[key])
