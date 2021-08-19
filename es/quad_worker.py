@@ -76,7 +76,6 @@ class QuadWorker:
             simulation = Simulation(eval_id=raw_work['eval_id'],
                                     base_folder=self.conf.base_folder,
                                     create_folder=True)
-
             manager = Manager()
             responses = manager.dict()
             process = Process(target=simulation.evaluate_design,
@@ -92,7 +91,8 @@ class QuadWorker:
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
-            shutil.rmtree(os.path.join(simulation.eval_folder, "/assembly/"))
+
+            shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
             print(e)
             self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
