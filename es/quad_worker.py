@@ -44,6 +44,34 @@ class QuadWorker:
             "hex": construct_baseline_hex_rotor_design,
         }
 
+    def _get_trim_score(self, responses):
+        """
+        Updates the worker's score when in trim only scenario
+
+        Args:
+            responses (dict{pandas.DataFrame}): return from simulation
+
+        Returns:
+            None
+        """
+        # forward trim
+        forward_df = responses['forward']
+        forward_dist_obj = (2000.0 - forward_df['Distance']).sum()
+        forward_time_obj = (410.0 - forward_df['Flight time']).sum()
+        forward_frac_obj = 500.0 * (forward_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
+
+        # turn radius 500 trim
+        turn_500_df = responses['turn_500']
+        turn_500_dist_obj = (3142.0 - turn_500_df['Distance']).sum()
+        turn_500_frac_obj = 500.0 * (turn_500_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
+
+        # turn radius 300 trim
+        turn_300_df = responses['turn_300']
+        turn_300_dist_obj = (3500.0 - turn_300_df['Distance']).sum()
+        turn_300_frac_obj = 500.0 * (turn_300_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
+
+        self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_frac_obj]
+
     def run_sim(self, raw_work):
         """
         Runs the full SwRI simulation with LQR parameters
@@ -66,7 +94,7 @@ class QuadWorker:
                 continue
             elif key == 'discrete_baseline':
                 selected_vector = [*(raw_work[key]), *selected_vector]
-            elif key == 'continunous_baseline':
+            elif key == 'continunous_baseline' or key == 'trim_baseline':
                 selected_vector.extend(raw_work[key])
             else:
                 selected_vector.append(raw_work[key])
@@ -81,22 +109,24 @@ class QuadWorker:
             manager = Manager()
             responses = manager.dict()
             process = Process(target=simulation.evaluate_design,
-                              args=(design_graph, responses))
+                              args=(design_graph, not self.conf.trim_only, responses))
             process.start()
             process.join()
 
             if not bool(responses):
                 self.score = [0.0, 0.0, 0.0, 0.0]
             else:
-                for key in responses:
-                    self.score.append(responses[key]['score'] + 10.)
+                if self.conf.trim_only:
+                    self._get_trim_score(responses)
+                else:
+                    for key in responses:
+                        self.score.append(responses[key]['score'] + 10.)
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
 
             shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
-        except Exception as e:
-            print(e)
+        except Exception:
             self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
         self.eval_done = True
 
