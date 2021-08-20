@@ -1,19 +1,19 @@
 # Default configuration file for optimization with a hcopter
 
 # metadata
-run_name: 'hcopter'
+run_name: 'hcopter_warmstarted'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
 # compute budget
-warm_start: False
+warm_start: True
 discrete_only: True
 warm_start_params:
   baseline: 'hcopter_baseline1'
 budget: 9600
-optim_method: 'PortfolioDiscreteOnePlusOne'
+optim_method: 'CMA'
 optim_params:
   popsize: 'default'
   chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
@@ -24,7 +24,7 @@ seed: 123
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals'
+base_folder: '/home/tunercar/tunercar/es/evals_warmstarted_hcopter'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
@@ -40,7 +40,7 @@ design_space:
     [4, 20]
   arm:
     # shape, num selection
-    [6, 2]
+    [6, 1]
   prop:
     # shape, num selection
     [4, 417]
