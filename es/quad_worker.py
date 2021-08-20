@@ -110,7 +110,7 @@ class QuadWorker:
             manager = Manager()
             responses = manager.dict()
             process = Process(target=simulation.evaluate_design,
-                              args=(design_graph, not self.conf.trim_only, responses))
+                              args=(design_graph, True, [], not self.conf.trim_only, responses))
             process.start()
             process.join()
 
