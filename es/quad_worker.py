@@ -61,18 +61,18 @@ class QuadWorker:
 
         # forward trim
         forward_df = responses['forward']
-        forward_dist_obj = (2000.0 - forward_df['Distance']).max()
-        forward_time_obj = (410.0 - forward_df['Flight time']).max()
+        forward_dist_obj = (2000.0 - forward_df['Distance'].max())
+        forward_time_obj = (410.0 - forward_df['Flight time'].max())
         forward_frac_obj = 500.0 * (forward_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
 
         # turn radius 500 trim
         turn_500_df = responses['turn_500']
-        turn_500_dist_obj = (3142.0 - turn_500_df['Distance']).max()
+        turn_500_dist_obj = (3142.0 - turn_500_df['Distance'].max())
         turn_500_frac_obj = 500.0 * (turn_500_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
 
         # turn radius 300 trim
         turn_300_df = responses['turn_300']
-        turn_300_dist_obj = (3500.0 - turn_300_df['Distance']).max()
+        turn_300_dist_obj = (3500.0 - turn_300_df['Distance'].max())
         turn_300_speed_obj = - turn_300_df['Speed'].max()
         turn_300_frac_obj = 500.0 * (turn_300_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
 
