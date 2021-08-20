@@ -54,6 +54,11 @@ class QuadWorker:
         Returns:
             None
         """
+        # if response is empty, trim is not found
+        if not bool(responses):
+            self.score = 8 * [99999.]
+            return
+
         # forward trim
         forward_df = responses['forward']
         forward_dist_obj = (2000.0 - forward_df['Distance']).max()
@@ -114,7 +119,7 @@ class QuadWorker:
             process.start()
             process.join()
 
-            if not bool(responses):
+            if not bool(responses) and not self.conf.trim_only:
                 self.score = [0.0, 0.0, 0.0, 0.0]
             else:
                 if self.conf.trim_only:
