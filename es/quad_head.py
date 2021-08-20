@@ -194,7 +194,10 @@ def run_quad_fdm(conf: Namespace, _run=None):
         # update optimization
         # negate since we want to maximize scores
         for ind, score in zip(individuals, results):
-            optim.tell(ind, 1640.0 - np.sum(score))
+            if not conf.trim_only:
+                optim.tell(ind, 1640.0 - np.sum(score))
+            else:
+                optim.tell(ind, np.sum(score))
 
         # collect all
         all_scores.extend(results)
@@ -202,8 +205,12 @@ def run_quad_fdm(conf: Namespace, _run=None):
 
         if prog % 5 == 0:
             score_all_np = np.asarray(all_scores)
-            print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
-            print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
+            if not conf.trim_only:
+                print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
+                print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
+            else:
+                print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
+                print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
             selected_vectors = []
             for indi in all_individuals:
                 current_vec = []
@@ -224,6 +231,12 @@ def run_quad_fdm(conf: Namespace, _run=None):
     # storing as npz, while running as sacred experiment, the directory quad_fdm_runs should've been created
     # column 0 is eval 1 score, column 1-3 is eval 3-5 score
     score_all_np = np.asarray(all_scores)
+    if not conf.trim_only:
+        print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
+        print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
+    else:
+        print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
+        print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
     selected_vectors = []
     for indi in all_individuals:
         current_vec = []
