@@ -55,7 +55,7 @@ design_space:
     [4, 100.0, 1000.0]
   support_length:
     # shape, min, max
-    [4, 0.0, 100.0]
+    [4, 0.0, 200.0]
   LQR:
     # shape, min, max
     [20, 0.05, 3.0]
