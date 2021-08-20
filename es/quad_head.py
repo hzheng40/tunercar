@@ -64,7 +64,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 lqr = list(eval('baselines.default_lqr'))
                 latvel = list(eval('baselines.default_latvel'))
                 vertvel = list(eval('baselines.default_vertvel'))
-                trim_baseline = [*arm_lengths, *support_lengths, *lqr, *latvel, *vertvel]
+                trim_baseline = [*lqr, *latvel, *vertvel]
                 param['trim_baseline'] = trim_baseline
             if not conf.discrete_only:
                 for i in range(conf.design_space['arm_length'][0]):
