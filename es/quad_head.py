@@ -216,7 +216,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
         current_vec = []
         d = indi.args[0]
         for key in d:
-            if isinstance(d[key], np.ndarray):
+            if isinstance(d[key], np.ndarray) or isinstance(d[key], list):
                 current_vec.extend(list(d[key]))
             else:
                 current_vec.append(d[key])
