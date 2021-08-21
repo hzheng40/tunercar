@@ -93,7 +93,7 @@ class QuadWorker:
         self.eval_done = False
 
         selected_vector = []
-        if not self.conf.warm_start_with_trim:
+        if not self.conf.warm_start_with_trim and not self.conf.tune_one_path_only:
             for key in raw_work:
                 if isinstance(raw_work[key], np.ndarray):
                     selected_vector.extend(list(raw_work[key]))
