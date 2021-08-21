@@ -93,7 +93,7 @@ class QuadWorker:
         self.eval_done = False
 
         selected_vector = []
-        if not self.conf.trim_warmstart:
+        if not self.conf.warm_start_with_trim:
             for key in raw_work:
                 if isinstance(raw_work[key], np.ndarray):
                     selected_vector.extend(list(raw_work[key]))
@@ -107,12 +107,12 @@ class QuadWorker:
                     selected_vector.append(raw_work[key])
         else:
             selected_vector = raw_work['discrete_baseline']
-            selected_vector.extend[raw_work['lqr_vector1']]
-            selected_vector.extend[raw_work['lqr_vector3']]
-            selected_vector.extend[raw_work['lqr_vector4']]
-            selected_vector.extend[raw_work['lqr_vector5']]
-            selected_vector.extend[raw_work['lat_vel']]
-            selected_vector.extend[raw_work['vert_vel']]
+            selected_vector.extend(raw_work['lqr_vector1'])
+            selected_vector.extend(raw_work['lqr_vector3'])
+            selected_vector.extend(raw_work['lqr_vector4'])
+            selected_vector.extend(raw_work['lqr_vector5'])
+            selected_vector.extend(raw_work['lat_vel'])
+            selected_vector.extend(raw_work['vert_vel'])
 
         callback = self.mapping[self.conf.vehicle]
         try:

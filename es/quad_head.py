@@ -28,7 +28,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     if conf.vehicle != 'hplane':
         param = ng.p.Dict()
 
-        if not conf.warm_start and not conf.trim_warmstart:
+        if not conf.warm_start and not conf.warm_start_with_trim:
             # include discrete choices if not warm start
             for i in range(conf.design_space['battery'][0]):
                 param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
@@ -75,7 +75,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
                 param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
 
-        elif conf.trim_warmstart:
+        elif conf.warm_start_with_trim:
             # continuous parameters
             param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
             param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
@@ -89,14 +89,14 @@ def run_quad_fdm(conf: Namespace, _run=None):
             param['discrete_baseline'] = discrete_baseline
 
             # use preset velocities
-            param['lat_vel'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + '_latvel'))
-            param['vert_vel'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + '_vertvel'))
+            param['lat_vel'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'latvel'))
+            param['vert_vel'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'vertvel'))
 
             # initialize lqr params from baseline
-            param['lqr_vector1'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + '_lqr')[0:5])
-            param['lqr_vector3'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + '_lqr')[5:10])
-            param['lqr_vector4'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + '_lqr')[10:15])
-            param['lqr_vector5'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + '_lqr')[15:20])
+            param['lqr_vector1'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[0:5])
+            param['lqr_vector3'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[5:10])
+            param['lqr_vector4'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[10:15])
+            param['lqr_vector5'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[15:20])
             
         else:
             # continuous parameters
