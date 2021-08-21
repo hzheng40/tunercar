@@ -97,6 +97,30 @@ def run_quad_fdm(conf: Namespace, _run=None):
             param['lqr_vector3'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[5:10])
             param['lqr_vector4'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[10:15])
             param['lqr_vector5'].value = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[15:20])
+
+        elif conf.tune_one_path_only:
+            import baselines
+            # load warm start baseline for discrete parameters
+            num_discrete = conf.design_space['battery'][0] + conf.design_space['esc'][0] + conf.design_space['arm'][0] + conf.design_space['prop'][0] + conf.design_space['motor'][0] + conf.design_space['support'][0] + conf.design_space['arm_length'][0] + conf.design_space['support_length'][0]
+            discrete_baseline = list((eval('baselines.' + conf.warm_start_params['baseline'])[:num_discrete]).astype(int))
+            param['discrete_baseline'] = discrete_baseline
+
+            # continuous parameters
+
+            # initialize lqr params from baseline
+            param['lqr_vector1'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[0:5])
+            param['lqr_vector3'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[5:10])
+            param['lqr_vector4'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[10:15])
+            param['lqr_vector5'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'lqr')[15:20])
+
+            # change only the one to tune to parameter
+            param['lqr_vector' + str(conf.path_to_tune)] = ng.p.Array(shape=(conf.design_space['LQR_' + str(conf.path_to_tune)][0], ), lower=conf.design_space['LQR_' + str(conf.path_to_tune)][1], upper=conf.design_space['LQR_' + str(conf.path_to_tune)][2])
+
+            # use preset velocities
+            param['lat_vel'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'latvel'))
+            param['vert_vel'] = list(eval('baselines.' + conf.warm_start_params['lqr_baseline'] + 'vertvel'))
+
+
             
         else:
             # continuous parameters
