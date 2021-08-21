@@ -101,7 +101,7 @@ class QuadWorker:
                     continue
                 elif key == 'discrete_baseline':
                     selected_vector = [*(raw_work[key]), *selected_vector]
-                elif key == 'continunous_baseline' or key == 'trim_baseline':
+                elif key == 'continunous_baseline' or key == 'trim_baseline' or key == 'trim_discrete_baseline':
                     selected_vector.extend(raw_work[key])
                 else:
                     selected_vector.append(raw_work[key])
@@ -124,7 +124,7 @@ class QuadWorker:
             manager = Manager()
             responses = manager.dict()
             process = Process(target=simulation.evaluate_design,
-                              args=(design_graph, True, [], not self.conf.trim_only, responses))
+                              args=(design_graph, True, True, [], not self.conf.trim_only, responses))
             process.start()
             process.join()
 

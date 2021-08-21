@@ -12,7 +12,7 @@ quad_lqr = np.array([1.0, 1.0, 1.0, 1.0, 1.0,
                      1.0, 1.0, 1.0, 1.0, 1.0,
                      0.1, 0.5, 0.1, 0.1, 0.1,
                      4.68697096, 4.68697096, 4.68697096, 4.68697096, 4.68697096])
-quad_latvel = np.array([15.0, 14.0, 0.0, 30.0])
+quad_latvel = np.array([15.0, 14.0, 0.0, 28.0])
 quad_vertvel = np.array([0.0, 0.0, -2.0, 0.0])
 
 # default quad continous params
