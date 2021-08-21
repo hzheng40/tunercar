@@ -57,6 +57,9 @@ quad_baseline3 = np.array([ 21.,   9.,   8.,  18.,  15.,   0.,   0.,   1.,   0.,
                              3.,   5.])
 quad_scores3 = np.array([410.,  10.,  10.,  10.])
 
+# quad_baselin4 is the highest scoring from trim only using PortfolioDiscreteOnePlusOne with seed 123
+
+
 # default hexring continous params
 hexring_arm_lengths = 450.0 * np.ones(9, )
 hexring_support_lengths = 60.0 * np.ones(6, )
