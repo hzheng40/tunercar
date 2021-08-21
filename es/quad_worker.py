@@ -123,8 +123,9 @@ class QuadWorker:
                                     create_folder=True)
             manager = Manager()
             responses = manager.dict()
+            run_path = (not self.conf_trim_only) and (not self.trim_discrete_only)
             process = Process(target=simulation.evaluate_design,
-                              args=(design_graph, True, True, [], not self.conf.trim_only, responses))
+                              args=(design_graph, True, True, [], run_path, responses))
             process.start()
             process.join()
 
@@ -142,7 +143,7 @@ class QuadWorker:
 
             shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception:
-            if self.conf.trim_only:
+            if self.conf.trim_only or self.conf.trim_discrete_only:
                 self.score = 8 * [99999.]
             else:
                 self.score = [-1000.0, -1000.0, -1000.0, -1000.0]
