@@ -1,7 +1,7 @@
 # Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
 
 # metadata
-run_name: 'quad_trim_warmstart'
+run_name: 'quad_trim_warmstart_no134'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
@@ -63,16 +63,16 @@ design_space:
     [20, 0.05, 3.0]
   LQR_1:
     # shape, min, max
-    [5, 0.5, 1.5]
+    [5, 0.95, 1.05]
   LQR_3:
     # shape, min, max
-    [5, 0.5, 1.5]
+    [5, 0.95, 1.05]
   LQR_4:
     # shape, min, max
-    [5, 0.02, 1.0]
+    [5, 0.08, 0.6]
   LQR_5:
     # shape, min, max
-    [5, 2.0, 8.0]
+    [5, 3.0, 6.0]
   lateral_velocity:
     # shape, min, max
     [4, 0.0, 20.0]
