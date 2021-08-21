@@ -28,7 +28,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     if conf.vehicle != 'hplane':
         param = ng.p.Dict()
 
-        if not conf.warm_start and not conf.warm_start_with_trim:
+        if not conf.warm_start and not conf.warm_start_with_trim and not conf.tune_one_path_only:
             # include discrete choices if not warm start
             for i in range(conf.design_space['battery'][0]):
                 param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
