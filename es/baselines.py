@@ -16,7 +16,7 @@ quad_latvel = np.array([15.0, 14.0, 0.0, 28.0])
 quad_vertvel = np.array([0.0, 0.0, -2.0, 0.0])
 
 # default quad continous params
-quad_arm_lengths = 450.0 * np.ones(4, )
+quad_arm_lengths = 600.0 * np.ones(4, )
 quad_support_lengths = 120.0 * np.ones(4, )
 
 # quad_baseline1 is highest scoring with RandomSearch seed 123
