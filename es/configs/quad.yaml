@@ -9,12 +9,12 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 # optim settings
 warm_start: False
 warm_start_with_trim: False
-tune_one_path_only: False
+tune_one_path_only: True
 path_to_tune: 5
 discrete_only: False
 trim_only: False
 trim_discrete_only: False
-trim_arm_only: True
+trim_arm_only: False
 warm_start_params:
   baseline: 'quad_baseline5'
   lqr_baseline: 'quad_'
