@@ -1,15 +1,15 @@
 # Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
 
 # metadata
-run_name: 'quad_trim_arm_only_tune5'
+run_name: 'quad_trim_arm_only_tunelqr'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
 warm_start: False
-warm_start_with_trim: False
-tune_one_path_only: True
+warm_start_with_trim: True
+tune_one_path_only: False
 path_to_tune: 5
 discrete_only: False
 trim_only: False
@@ -30,7 +30,7 @@ seed: 123
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals_quad_trim_arm_only_tune5'
+base_folder: '/home/tunercar/tunercar/es/evals_quad_trim_arm_only_tunelqr'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex

@@ -31,8 +31,10 @@ def run_quad_fdm(conf: Namespace, _run=None):
         if conf.warm_start_with_trim:
             import baselines
             # load warm start baseline for discrete parameters
-            num_discrete = conf.design_space['battery'][0] + conf.design_space['esc'][0] + conf.design_space['arm'][0] + conf.design_space['prop'][0] + conf.design_space['motor'][0] + conf.design_space['support'][0] + conf.design_space['arm_length'][0] + conf.design_space['support_length'][0]
+            num_discrete = conf.design_space['battery'][0] + conf.design_space['esc'][0] + conf.design_space['arm'][0] + conf.design_space['prop'][0] + conf.design_space['motor'][0] + conf.design_space['support'][0]
             discrete_baseline = list((eval('baselines.' + conf.warm_start_params['baseline'])[:num_discrete]).astype(int))
+            num_lengths = conf.design_space['arm_length'][0] + conf.design_space['support_length'][0]
+            discrete_baseline.extend(list(eval('baselines.' + conf.warm_start_params['baseline'])[num_discrete:num_discrete + num_lengths]))
             param['discrete_baseline'] = discrete_baseline
 
             # continuous parameters
