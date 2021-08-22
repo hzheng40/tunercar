@@ -13,7 +13,7 @@ tune_one_path_only: False
 path_to_tune: 5
 discrete_only: False
 trim_only: False
-trim_discrete_only: True
+trim_discrete_only: False
 trim_arm_only: True
 warm_start_params:
   baseline: 'quad_baseline5'
