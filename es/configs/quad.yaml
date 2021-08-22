@@ -19,7 +19,7 @@ warm_start_params:
   baseline: 'quad_baseline5'
   lqr_baseline: 'quad_'
 budget: 9600
-optim_method: 'PortfolioDiscreteOnePlusOne'
+optim_method: 'CMA'
 optim_params:
   popsize: 'default'
   chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']

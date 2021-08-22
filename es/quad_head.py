@@ -273,7 +273,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
 
         if prog % 5 == 0:
             score_all_np = np.asarray(all_scores)
-            if (not conf.trim_only) and (not conf.trim_discrete_only):
+            if (not conf.trim_only) and (not conf.trim_discrete_only) and (not conf.trim_arm_only):
                 print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
                 print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
             else:
@@ -299,7 +299,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     # storing as npz, while running as sacred experiment, the directory quad_fdm_runs should've been created
     # column 0 is eval 1 score, column 1-3 is eval 3-5 score
     score_all_np = np.asarray(all_scores)
-    if (not conf.trim_only) and (not conf.trim_discrete_only):
+    if (not conf.trim_only) and (not conf.trim_discrete_only) and (not conf.trim_arm_only):
         print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
         print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
     else:
