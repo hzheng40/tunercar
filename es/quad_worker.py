@@ -143,7 +143,7 @@ class QuadWorker:
 
             shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
-            print(e)
+            # print(e)
             if self.conf.trim_only or self.conf.trim_discrete_only:
                 self.score = 8 * [99999.]
             else:

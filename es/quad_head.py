@@ -144,7 +144,18 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 vertvel = list(eval('baselines.default_vertvel'))
                 trim_discrete_baseline = [*arm_lengths, *support_lengths, *lqr, *latvel, *vertvel]
                 param['trim_discrete_baseline'] = trim_discrete_baseline
-            if not conf.discrete_only:
+            elif conf.trim_arm_only:
+                import baselines
+                for i in range(conf.design_space['arm_length'][0]):
+                    param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+                for i in range(conf.design_space['support_length'][0]):
+                    param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
+                lqr = list(eval('baselines.default_lqr'))
+                latvel = list(eval('baselines.default_latvel'))
+                vertvel = list(eval('baselines.default_vertvel'))
+                trim_discrete_baseline = [*lqr, *latvel, *vertvel]
+                param['trim_discrete_baseline'] = trim_discrete_baseline
+            else:
                 for i in range(conf.design_space['arm_length'][0]):
                     param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
                 for i in range(conf.design_space['support_length'][0]):
