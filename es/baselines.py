@@ -118,6 +118,25 @@ quad_baseline5 = np.array([ 2.50000000e+01,  1.80000000e+01,  1.30000000e+01,  2
 quad_scores5 = np.array([-8641.65,  -127.35,     0.  , -7476.17,     0.  , -7082.65,
                          -29.  ,     0.  ])
 
+# quad_baseline6 is highest scoring after tuning arm length based on quad_baseline5 with CMA
+quad_baseline6 = np.array([ 25.        ,  18.        ,  13.        ,   2.        ,
+                             7.        ,   0.        ,   1.        ,   0.        ,
+                             1.        , 309.        ,  22.        , 400.        ,
+                            27.        ,  43.        ,  55.        ,   8.        ,
+                            55.        ,   0.        ,   0.        ,   0.        ,
+                             1.        , 464.64145263, 535.13813264, 457.4638442 ,
+                           449.65284134,  63.51320652, 120.59789244,  65.68449722,
+                           106.02177575,   1.        ,   1.        ,   1.        ,
+                             1.        ,   1.        ,   1.        ,   1.        ,
+                             1.        ,   1.        ,   1.        ,   1.        ,
+                             1.        ,   1.        ,   1.        ,   1.        ,
+                             1.        ,   1.        ,   1.        ,   1.        ,
+                             1.        ,  10.        ,   0.        ,   3.        ,
+                             5.        ,   0.        ,  -2.        ,   3.        ,
+                             5.        ])
+quad_scores6 = np.array([-9453.78,  -148.3 ,     0.  , -8281.68,     0.  , -7890.33,
+                           -28.  ,     0.  ])
+
 # default hexring continous params
 hexring_arm_lengths = 450.0 * np.ones(9, )
 hexring_support_lengths = 60.0 * np.ones(6, )
