@@ -16,7 +16,7 @@ trim_only: False
 trim_discrete_only: True
 trim_arm_only: True
 warm_start_params:
-  baseline: 'quad_baseline4'
+  baseline: 'quad_baseline5'
   lqr_baseline: 'quad_'
 budget: 9600
 optim_method: 'PortfolioDiscreteOnePlusOne'

@@ -98,19 +98,20 @@ def run_quad_fdm(conf: Namespace, _run=None):
             param['lqr_vector'].value = eval('baselines.' + conf.warm_start_params['baseline'])[-(vert_size + lat_size + lqr_size):-(vert_size + lat_size)]
 
         else:
-            # include discrete choices if not warm start
-            for i in range(conf.design_space['battery'][0]):
-                param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
-            for i in range(conf.design_space['esc'][0]):
-                param['esc' + str(i)] = ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int))
-            for i in range(conf.design_space['arm'][0]):
-                param['arm' + str(i)] = ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int))
-            for i in range(conf.design_space['prop'][0]):
-                param['prop' + str(i)] = ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int))
-            for i in range(conf.design_space['motor'][0]):
-                param['motor' + str(i)] = ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int))
-            for i in range(conf.design_space['support'][0]):
-                param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
+            if not conf.trim_arm_only:
+                # include discrete choices if not warm start
+                for i in range(conf.design_space['battery'][0]):
+                    param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
+                for i in range(conf.design_space['esc'][0]):
+                    param['esc' + str(i)] = ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int))
+                for i in range(conf.design_space['arm'][0]):
+                    param['arm' + str(i)] = ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int))
+                for i in range(conf.design_space['prop'][0]):
+                    param['prop' + str(i)] = ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int))
+                for i in range(conf.design_space['motor'][0]):
+                    param['motor' + str(i)] = ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int))
+                for i in range(conf.design_space['support'][0]):
+                    param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
 
             # continuous parameters
             if conf.discrete_only:
@@ -146,6 +147,9 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 param['trim_discrete_baseline'] = trim_discrete_baseline
             elif conf.trim_arm_only:
                 import baselines
+                num_discrete = conf.design_space['battery'][0] + conf.design_space['esc'][0] + conf.design_space['arm'][0] + conf.design_space['prop'][0] + conf.design_space['motor'][0] + conf.design_space['support'][0]
+                discrete_baseline = list((eval('baselines.' + conf.warm_start_params['baseline'])[:num_discrete]).astype(int))
+                param['discrete_baseline'] = discrete_baseline
                 for i in range(conf.design_space['arm_length'][0]):
                     param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
                 for i in range(conf.design_space['support_length'][0]):
