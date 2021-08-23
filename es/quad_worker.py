@@ -11,6 +11,7 @@ from hcopter import construct_baseline_hcopter_design
 from hexring import construct_baseline_hexring_design
 from hex import construct_baseline_hex_rotor_design
 from hplane import construct_baseline_hplane_design
+from design1 import construct_design
 from prob_design_generator.space import DesignSpace
 from uav_simulator.simulation import Simulation
 from multiprocessing import Process
@@ -42,6 +43,7 @@ class QuadWorker:
             "hexring": construct_baseline_hexring_design,
             "hplane": construct_baseline_hplane_design,
             "hex": construct_baseline_hex_rotor_design,
+            "design1": construct_design
         }
 
     def _get_trim_score(self, responses):
@@ -143,7 +145,7 @@ class QuadWorker:
 
             shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
-            # print(e)
+            print(e)
             if self.conf.trim_only or self.conf.trim_discrete_only or self.conf.trim_arm_only:
                 self.score = 8 * [99999.]
             else:

@@ -31,6 +31,10 @@ def hplane():
 def hex():
     ex.add_config('configs/hex.yaml')
 
+@ex.named_config
+def design1():
+    ex.add_config('configs/design1.yaml')
+
 @ex.automain
 def run(_run, _config):
     ray.init()
