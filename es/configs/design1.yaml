@@ -1,0 +1,85 @@
+# Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
+
+# metadata
+run_name: 'design1_trim_only'
+fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
+fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
+propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
+
+# optim settings
+warm_start: False
+warm_start_with_trim: False
+tune_one_path_only: False
+path_to_tune: 5
+discrete_only: False
+trim_only: False
+trim_discrete_only: True
+trim_arm_only: False
+warm_start_params:
+  baseline: 'quad_baseline5'
+  lqr_baseline: 'quad_'
+budget: 9600
+optim_method: 'PortfolioDiscreteOnePlusOne'
+optim_params:
+  popsize: 'default'
+  chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
+  chain_budget: ['third']
+seed: 123
+
+# path to design space file
+acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
+
+# path for saving the input output file
+base_folder: '/home/tunercar/tunercar/es/evals_design1_trim_only'
+
+# vehicle types:
+# quadspider, quad, hcopter, hexring, hplane, hex
+vehicle: 'design1'
+
+# design space
+design_space:
+  battery:
+    # shape, num_selection
+    [1, 27]
+  esc:
+    # shape, num_selection
+    [4, 20]
+  arm:
+    # shape, num selection
+    [4, 2]
+  prop:
+    # shape, num selection
+    [4, 417]
+  motor:
+    # shape, num selection
+    [4, 83]
+  support:
+    # shape, num selection
+    [4, 2]
+  arm_length:
+    # shape, min, max
+    [4, 100.0, 1000.0]
+  support_length:
+    # shape, min, max
+    [4, 0.0, 200.0]
+  LQR:
+    # shape, min, max
+    [20, 0.05, 3.0]
+  LQR_1:
+    # shape, min, max
+    [5, 0.95, 1.05]
+  LQR_3:
+    # shape, min, max
+    [5, 0.95, 1.05]
+  LQR_4:
+    # shape, min, max
+    [5, 0.08, 0.6]
+  LQR_5:
+    # shape, min, max
+    [5, 0.05, 10.0]
+  lateral_velocity:
+    # shape, min, max
+    [4, 0.0, 20.0]
+  vertical_velocity:
+    # shape, min, max
+    [4, -5.0, 5.0]
