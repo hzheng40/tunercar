@@ -7,11 +7,14 @@ fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
+# num_meta_workers * num_workers < 128
+# meta_budget * budget needs to be reasonable (~10000)
 max_num_selections: 2000
 num_choices: 5
+num_meta_workers: 8
 meta_budget: 64
+num_workers: 16
 budget: 256
-
 
 warm_start: False
 warm_start_with_trim: False

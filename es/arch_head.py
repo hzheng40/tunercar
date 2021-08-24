@@ -24,26 +24,9 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
     num_cores = mp.cpu_count()
 
-    # setting up parameter space, choice
+    # setting up parameter space, choice for meta optimization
     param = ng.p.Choice(np.arange(conf.num_choices), repetitions=conf.num_max_selections)
 
-    # setting up optimizer with hyperparams
-    if conf.optim_method == 'CMA' and conf.optim_params['popsize'] != 'default':
-        # configured CMA, popsize tested and working
-        optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
-        optim._popsize = conf.optim_params['popsize']
-
-    elif conf.optim_method == 'NoisyDE' and conf.optim_params['popsize'] != 'default':
-        # configured DE, noisy recommendation
-        optim = ng.optimizers.DifferentialEvolution(recommendation='noisy', popsize=conf.optim_params['popsize'])(parametrization=param, budget=conf.budget, num_workers=num_cores)
-
-    elif conf.optim_method == 'TwoPointsDE' and conf.optim_params['popsize'] != 'default':
-        # configured DE, twopoints crossover
-        optim = ng.optimizers.DifferentialEvolution(crossover='twopoints', popsize=conf.optim_params['popsize'])(parametrization=param, budget=conf.budget, num_workers=num_cores)
-
-    elif conf.optim_method == 'PSO' and conf.optim_params['popsize'] != 'default':
-        # configured PSO
-        optim = ng.optimizers.ConfiguredPSO(popsize=conf.optim_params['popsize'])(parametrization=param, budget=conf.budget, num_workers=num_cores)
     if conf.optim_method == 'Chaining':
         # chaining optimizers
         chain_optims = []
@@ -53,7 +36,7 @@ def run_arch_fdm(conf: Namespace, _run=None):
         # chain = ng.optimizers.Chaining([ng.optimizers.PortfolioDiscreteOnePlusOne, ng.optimizers.CMA], ['third'])
         optim = chain(parametrization=param, budget=conf.budget, num_workers=num_cores)
     else:
-        optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.budget, num_workers=num_cores)
+        optim = ng.optimizers.registry[conf.optim_method](parametrization=param, budget=conf.meta_budget, num_workers=num_cores)
 
     # seeding
     optim.parametrization.random_state = np.random.RandomState(conf.seed)
