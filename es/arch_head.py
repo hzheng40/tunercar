@@ -59,21 +59,19 @@ def run_arch_fdm(conf: Namespace, _run=None):
         # distribute
         for ind, worker in zip(individuals, workers):
             work = list(ind.args[0])
-            # work['eval_id'] = eval_id
-            #ind.args[0]['eval_id'] = eval_id
-            worker.run_sim.remote(work)
+            worker.run_sim.remote(work, eval_id)
             eval_id += 1
 
         # collect
-        future_vectors = []
+        # future_vectors = []
         future_results = []
         for worker in workers:
-            vec, score = worker.collect.remote()
-            future_vectors.append(vec)
+            score = worker.collect.remote()
+            # future_vectors.append(vec)
             future_results.append(score)
         # future_results = [worker.collect.remote() for worker in workers]
         results = ray.get(future_results)
-        vectors = ray.get(future_vectors)
+        # vectors = ray.get(future_vectors)
 
         # update optimization, objective value is trim score
         for ind, score in zip(individuals, results):
@@ -81,20 +79,21 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
         # collect all
         all_scores.extend(results)
-        all_individuals.extend(individuals)
-        all_vectors.extend(vectors)
+        all_individuals.extend([ind.args[0] for ind in individuals])
+        # all_vectors.extend(vectors)
 
         if prog % 5 == 0:
             score_all_np = np.asarray(all_scores)
             print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
             print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
-            vector_all_np = -1 * np.ones((len(all_vectors), len(max(all_vectors, key = lambda x: len(x)))), dtype=int)
-            for i, j in enumerate(all_vectors):
-                vector_all_np[i][0:len(j)] = j
-            vector_all_np = vector_all_np.astype(int)
+            # vector_all_np = -1 * np.ones((len(all_vectors), len(max(all_vectors, key = lambda x: len(x)))), dtype=int)
+            # for i, j in enumerate(all_vectors):
+            #     vector_all_np[i][0:len(j)] = j
+            # vector_all_np = vector_all_np.astype(int)
             selection_all_np = np.array(all_individuals).astype(int)
 
-            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
+            # np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
+            np.savez_compressed(filename, scores=score_all_np, selections=selection_all_np)
             _run.add_artifact(filename)
             optim.dump(filename_optim)
             _run.add_artifact(filename_optim)

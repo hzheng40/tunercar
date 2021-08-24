@@ -61,7 +61,6 @@ class Design(object):
             None
         """
         selections.reverse()
-        print(selections)
         base_node = self._node_options[selections.pop()]
         node_name = f"{base_node}__{len(self.nodes)}"
         assert self.selections is None

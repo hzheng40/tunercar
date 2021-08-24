@@ -9,7 +9,7 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 # optim settings
 # num_meta_workers * num_workers < 128
 # meta_budget * budget needs to be reasonable (~10000)
-max_num_selections: 2000
+num_max_selections: 500
 num_choices: 5
 num_meta_workers: 8
 meta_budget: 64
@@ -25,7 +25,7 @@ tune_one_path_only: False
 path_to_tune: 5
 discrete_only: False
 trim_only: False
-trim_discrete_only: True
+trim_discrete_only: False
 trim_arm_only: False
 warm_start_params:
   baseline: 'quad_baseline5'
@@ -42,7 +42,7 @@ seed: 123
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals_quad_trim_discrete_only_DiscreteBSOOnePlusOne'
+base_folder: '/home/tunercar/tunercar/es/evals_arch'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
