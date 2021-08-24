@@ -155,15 +155,6 @@ quad_baseline7 = np.array([ 2.50000000e+01,  1.80000000e+01,  1.30000000e+01,  2
                             0.00000000e+00])
 quad_scores7 = np.array([410., 310., 410., 439.])
 
-# quad_baseline8 is highest scoring from discrete only RecombiningPortfolioOptimisticNoisyDiscreteOnePlusOne
-# eval 1053
-
-# quad_baseline9 is highest scoring from discrete only RecombiningPortfolioDiscreteOnePlusOne
-# eval 639
-
-# quad_baseline10 is highest scoring from discrete only RecombiningPortfolioDiscreteOnePlusOne
-# eval 568
-
 # default hexring continous params
 hexring_arm_lengths = 450.0 * np.ones(9, )
 hexring_support_lengths = 60.0 * np.ones(6, )
