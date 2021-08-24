@@ -97,7 +97,38 @@ class QuadWorker:
         self.eval_done = False
 
         selected_vector = []
-        if not self.conf.warm_start_with_trim and not self.conf.tune_one_path_only:
+        if self.conf.use_existing:
+            controls = {
+                "path1": {
+                    "Q_position": raw_work['lqr_vector1'][0], "Q_velocity": raw_work['lqr_vector1'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector1'][2],
+                    "Q_angles": raw_work['lqr_vector1'][3], "R": raw_work['lqr_vector1'][4],
+                    "latvel": raw_work['lat_vel'][0],
+                    "vertvel": raw_work['vert_vel'][0]
+                },
+                "path3": {
+                    "Q_position": raw_work['lqr_vector3'][0], "Q_velocity": raw_work['lqr_vector3'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector3'][2],
+                    "Q_angles": raw_work['lqr_vector3'][3], "R": raw_work['lqr_vector3'][4],
+                    "latvel": raw_work['lat_vel'][1],
+                    "vertvel": raw_work['vert_vel'][1]
+                },
+                "path4": {
+                    "Q_position": raw_work['lqr_vector4'][0], "Q_velocity": raw_work['lqr_vector4'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector4'][2],
+                    "Q_angles": raw_work['lqr_vector4'][3], "R": raw_work['lqr_vector4'][4],
+                    "latvel": raw_work['lat_vel'][2],
+                    "vertvel": raw_work['vert_vel'][2]
+                },
+                "path5": {
+                    "Q_position": raw_work['lqr_vector5'][0], "Q_velocity": raw_work['lqr_vector5'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector5'][2],
+                    "Q_angles": raw_work['lqr_vector5'][3], "R": raw_work['lqr_vector5'][4],
+                    "latvel": raw_work['lat_vel'][3],
+                    "vertvel": raw_work['vert_vel'][3]
+                }
+            }
+        elif not self.conf.warm_start_with_trim and not self.conf.tune_one_path_only:
             for key in raw_work:
                 if isinstance(raw_work[key], np.ndarray):
                     selected_vector.extend(list(raw_work[key]))
@@ -118,10 +149,15 @@ class QuadWorker:
             selected_vector.extend(raw_work['lat_vel'])
             selected_vector.extend(raw_work['vert_vel'])
 
-        callback = self.mapping[self.conf.vehicle]
         try:
-            space = DesignSpace(self.conf.acel_path)
-            design_graph = callback(space, selected_vector, is_selected=True)
+            if self.conf.use_existing:
+                with open(self.conf.existing_path, 'rb') as fin:
+                    design_graph = pk.load(fin)
+                    design_graph.graph = controls
+            else:
+                callback = self.mapping[self.conf.vehicle]
+                space = DesignSpace(self.conf.acel_path)
+                design_graph = callback(space, selected_vector, is_selected=True)
             simulation = Simulation(eval_id=raw_work['eval_id'],
                                     base_folder=self.conf.base_folder,
                                     create_folder=True)
@@ -129,7 +165,7 @@ class QuadWorker:
             responses = manager.dict()
             run_path = (not self.conf.trim_only) and (not self.conf.trim_discrete_only) and (not self.conf.trim_arm_only)
             process = Process(target=simulation.evaluate_design,
-                              args=(design_graph, True, True, [], run_path, responses))
+                              args=(design_graph, True, True, [], True, run_path, responses))
             process.start()
             process.join()
 

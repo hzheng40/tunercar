@@ -16,6 +16,9 @@ meta_budget: 64
 num_workers: 16
 budget: 256
 
+node_options: ["hub_2", "hub_3", "hub_4", "hub_5", "hub_6"]
+end_options: ["flange_side", "flange_side_2", "flange_bottom", "left_wing", "right_wing"]
+
 warm_start: False
 warm_start_with_trim: False
 tune_one_path_only: False

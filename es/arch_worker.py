@@ -9,6 +9,8 @@ from uav_simulator.simulation import Simulation
 import networkx as nx
 import pickle as pk
 from multiprocessing import Manager
+from quad_worker import QuadWorker
+from generate_design import Design
 
 @ray.remote
 class ArchWorker:
@@ -25,6 +27,11 @@ class ArchWorker:
         self.worker_id = worker_id
 
         self.sim = None
+
+        # trim workers
+        self.workers = [QuadWorker().remote(conf, i) for i in conf.num_workers]
+
+        self.space = DesignSpace(self.conf.acel_path)
 
     def _get_trim_score(self, responses):
         """
@@ -60,13 +67,16 @@ class ArchWorker:
 
         self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
 
+    def _generate_design(self, selections):
+        desgin = Design(self.conf.node_options, self.conf.end_options)
+        pass
 
-    def run_sim(self, raw_work):
+    def run_sim(self, selections):
         """
         Runs the full SwRI simulation with LQR parameters
 
         Args:
-            raw_work (numpy.ndarray (N, )): sampled current candidate, size dependends on vehicle
+            selections (list (N, )): sampled current candidate
 
         Returns:
             None
@@ -74,6 +84,8 @@ class ArchWorker:
         # reset score before sim
         self.score = []
         self.eval_done = False
+
+        design = self._generate_design(selections)
 
         selected_vector = []
         if not self.conf.warm_start_with_trim and not self.conf.tune_one_path_only:

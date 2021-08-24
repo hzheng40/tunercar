@@ -1,0 +1,56 @@
+# Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
+
+# metadata
+run_name: 'existing_biprop'
+fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
+fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
+propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
+
+# optim settings
+warm_start: False
+warm_start_with_trim: False
+tune_one_path_only: False
+discrete_only: False
+trim_only: False
+trim_discrete_only: False
+trim_arm_only: False
+use_existing: True
+existing_path: /home/tunercar/tunercar/es/design_graph_biprop.pk
+budget: 9600
+optim_method: 'CMA'
+optim_params:
+  popsize: 'default'
+  chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
+  chain_budget: ['third']
+seed: 123
+
+# path to design space file
+acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
+
+# path for saving the input output file
+base_folder: '/home/tunercar/tunercar/es/evals_biprop_tunelqr'
+
+# vehicle types:
+# quadspider, quad, hcopter, hexring, hplane, hex
+vehicle: 'existing'
+
+# design space
+design_space:
+  LQR_1:
+    # shape, min, max
+    [5, 0.95, 1.05]
+  LQR_3:
+    # shape, min, max
+    [5, 0.95, 1.05]
+  LQR_4:
+    # shape, min, max
+    [5, 0.08, 0.6]
+  LQR_5:
+    # shape, min, max
+    [5, 0.05, 10.0]
+  lateral_velocity:
+    # from trim output
+    [15.0, 14.0, 0.0, 27.0]
+  vertical_velocity:
+    # from trim output
+    [0.0, 0.0, -2.0, 0.0]

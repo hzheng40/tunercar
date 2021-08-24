@@ -22,7 +22,7 @@ def run_arch_fdm(conf: Namespace, _run=None):
     if not os.path.exists(conf.base_folder):
         os.makedirs(conf.base_folder)
 
-    num_cores = mp.cpu_count()
+    num_cores = conf.num_meta_workers
 
     # setting up parameter space, choice for meta optimization
     param = ng.p.Choice(np.arange(conf.num_choices), repetitions=conf.num_max_selections)
@@ -48,6 +48,7 @@ def run_arch_fdm(conf: Namespace, _run=None):
     # all scores
     all_scores = []
     all_individuals = []
+    all_vectors = []
 
     # work distribution loop
     eval_id = 0
@@ -57,75 +58,57 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
         # distribute
         for ind, worker in zip(individuals, workers):
-            work = ind.args[0]
-            work['eval_id'] = eval_id
+            work = list(ind.args[0])
+            # work['eval_id'] = eval_id
             #ind.args[0]['eval_id'] = eval_id
             worker.run_sim.remote(work)
             eval_id += 1
 
         # collect
-        future_results = [worker.collect.remote() for worker in workers]
+        future_vectors = []
+        future_results = []
+        for worker in workers:
+            vec, score = worker.collect.remote()
+            future_vectors.append(vec)
+            future_results.append(score)
+        # future_results = [worker.collect.remote() for worker in workers]
         results = ray.get(future_results)
+        vectors = ray.get(future_vectors)
 
-        # update optimization
-        # negate since we want to maximize scores
+        # update optimization, objective value is trim score
         for ind, score in zip(individuals, results):
-            if (not conf.trim_only) and (not conf.trim_discrete_only):
-                optim.tell(ind, 1640.0 - np.sum(score))
-            else:
-                optim.tell(ind, np.sum(score))
+            optim.tell(ind, np.sum(score))
 
         # collect all
         all_scores.extend(results)
         all_individuals.extend(individuals)
+        all_vectors.extend(vectors)
 
         if prog % 5 == 0:
             score_all_np = np.asarray(all_scores)
-            if (not conf.trim_only) and (not conf.trim_discrete_only) and (not conf.trim_arm_only):
-                print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
-                print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
-            else:
-                print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
-                print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
-            selected_vectors = []
-            for indi in all_individuals:
-                current_vec = []
-                d = indi.args[0]
-                for key in d:
-                    if isinstance(d[key], np.ndarray) or isinstance(d[key], list):
-                        current_vec.extend(list(d[key]))
-                    else:
-                        current_vec.append(d[key])
-                selected_vectors.append(current_vec)
+            print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
+            print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
+            vector_all_np = -1 * np.ones((len(all_vectors), len(max(all_vectors, key = lambda x: len(x)))), dtype=int)
+            for i, j in enumerate(all_vectors):
+                vector_all_np[i][0:len(j)] = j
+            vector_all_np = vector_all_np.astype(int)
+            selection_all_np = np.array(all_individuals).astype(int)
 
-            vector_all_np = np.asarray(selected_vectors)
-            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)
+            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
             _run.add_artifact(filename)
             optim.dump(filename_optim)
             _run.add_artifact(filename_optim)
 
-    # storing as npz, while running as sacred experiment, the directory quad_fdm_runs should've been created
-    # column 0 is eval 1 score, column 1-3 is eval 3-5 score
     score_all_np = np.asarray(all_scores)
-    if (not conf.trim_only) and (not conf.trim_discrete_only) and (not conf.trim_arm_only):
-        print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
-        print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
-    else:
-        print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
-        print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
-    selected_vectors = []
-    for indi in all_individuals:
-        current_vec = []
-        d = indi.args[0]
-        for key in d:
-            if isinstance(d[key], np.ndarray) or isinstance(d[key], list):
-                current_vec.extend(list(d[key]))
-            else:
-                current_vec.append(d[key])
-        selected_vectors.append(current_vec)
-    
-    vector_all_np = np.asarray(selected_vectors)
-    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)
+    print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
+    print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
+    vector_all_np = -1 * np.ones((len(all_vectors), len(max(all_vectors, key = lambda x: len(x)))), dtype=int)
+    for i, j in enumerate(all_vectors):
+        vector_all_np[i][0:len(j)] = j
+    vector_all_np = vector_all_np.astype(int)
+    selection_all_np = np.array(all_individuals).astype(int)
+
+    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
     _run.add_artifact(filename)
     optim.dump(filename_optim)
     _run.add_artifact(filename_optim)

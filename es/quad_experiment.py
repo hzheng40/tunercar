@@ -35,6 +35,10 @@ def hex():
 def design1():
     ex.add_config('configs/design1.yaml')
 
+@ex.named_config
+def existing_design():
+    ex.add_config('configs/existing.yaml')
+
 @ex.automain
 def run(_run, _config):
     ray.init()
