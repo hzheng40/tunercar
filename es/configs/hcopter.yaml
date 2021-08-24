@@ -1,17 +1,23 @@
 # Default configuration file for optimization with a hcopter
 
 # metadata
-run_name: 'hcopter_trim_only'
+run_name: 'hcopter_trim_discrete_only'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
 warm_start: False
+warm_start_with_trim: False
+tune_one_path_only: False
+path_to_tune: 5
 discrete_only: False
-trim_only: True
+trim_only: False
+trim_discrete_only: True
+trim_arm_only: False
 warm_start_params:
   baseline: 'hcopter_baseline1'
+  lqr_baseline: 'hcopter_'
 budget: 9600
 optim_method: 'PortfolioDiscreteOnePlusOne'
 optim_params:
@@ -20,11 +26,8 @@ optim_params:
   chain_budget: ['third']
 seed: 123
 
-# path to design space file
-acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
-
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals_hcopter_trim_only'
+base_folder: '/home/tunercar/tunercar/es/evals_hcopter_trim_discrete_only'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
