@@ -26,6 +26,9 @@ optim_params:
   chain_budget: ['third']
 seed: 123
 
+# path to design space file
+acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
+
 # path for saving the input output file
 base_folder: '/home/tunercar/tunercar/es/evals_hcopter_trim_discrete_only'
 
@@ -62,6 +65,21 @@ design_space:
   LQR:
     # shape, min, max
     [20, 0.05, 3.0]
+  LQR:
+    # shape, min, max
+    [20, 0.05, 3.0]
+  LQR_1:
+    # shape, min, max
+    [5, 0.95, 1.05]
+  LQR_3:
+    # shape, min, max
+    [5, 0.95, 1.05]
+  LQR_4:
+    # shape, min, max
+    [5, 0.08, 0.6]
+  LQR_5:
+    # shape, min, max
+    [5, 0.05, 10.0]
   lateral_velocity:
     # shape, min, max
     [4, 0.0, 20.0]
