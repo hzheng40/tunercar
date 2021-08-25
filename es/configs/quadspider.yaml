@@ -25,6 +25,7 @@ optim_params:
   chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
   chain_budget: ['third']
 seed: 123
+use_existing: False
 
 # path to design space file
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
