@@ -101,13 +101,14 @@ def run_arch_fdm(conf: Namespace, _run=None):
     score_all_np = np.asarray(all_scores)
     print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
     print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
-    vector_all_np = -1 * np.ones((len(all_vectors), len(max(all_vectors, key = lambda x: len(x)))), dtype=int)
-    for i, j in enumerate(all_vectors):
-        vector_all_np[i][0:len(j)] = j
-    vector_all_np = vector_all_np.astype(int)
+    # vector_all_np = -1 * np.ones((len(all_vectors), len(max(all_vectors, key = lambda x: len(x)))), dtype=int)
+    # for i, j in enumerate(all_vectors):
+    #     vector_all_np[i][0:len(j)] = j
+    # vector_all_np = vector_all_np.astype(int)
     selection_all_np = np.array(all_individuals).astype(int)
 
-    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
+    # np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
+    np.savez_compressed(filename, scores=score_all_np, selections=selection_all_np)
     _run.add_artifact(filename)
     optim.dump(filename_optim)
     _run.add_artifact(filename_optim)
