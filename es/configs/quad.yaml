@@ -46,7 +46,7 @@ design_space:
     [4, 20]
   arm:
     # shape, num selection
-    [4, 2]
+    [4, 1]
   prop:
     # shape, num selection
     [4, 417]
@@ -55,7 +55,7 @@ design_space:
     [4, 83]
   support:
     # shape, num selection
-    [4, 2]
+    [4, 1]
   arm_length:
     # shape, min, max
     [4, 100.0, 1000.0]
