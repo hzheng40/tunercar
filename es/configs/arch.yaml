@@ -9,12 +9,20 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 # optim settings
 # num_meta_workers * num_workers < 128
 # meta_budget * budget needs to be reasonable (~10000)
-max_num_selections: 2000
-num_choices: 5
-num_meta_workers: 8
-meta_budget: 64
+num_max_selections: 20
+# num_choices: 5
+num_meta_workers: 128
+meta_budget: 9600
 num_workers: 16
 budget: 256
+
+# node_options: ["hub_2", "hub_3", "hub_4", "hub_5", "hub_6"]
+# end_options: ["flange_side", "flange_side_2", "flange_bottom", "left_wing", "right_wing"]
+node_options: ["hub_2", "hub_3", "hub_4", "hub_5", "hub_6"]
+end_options: ["flange_side", "flange_side", "flange_side_2", "flange_bottom", "flange_bottom"]
+num_base_choices: 5
+num_low_choices: 10
+num_high_choices: 5
 
 warm_start: False
 warm_start_with_trim: False
@@ -22,7 +30,7 @@ tune_one_path_only: False
 path_to_tune: 5
 discrete_only: False
 trim_only: False
-trim_discrete_only: True
+trim_discrete_only: False
 trim_arm_only: False
 warm_start_params:
   baseline: 'quad_baseline5'
@@ -39,7 +47,7 @@ seed: 123
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals_quad_trim_discrete_only_DiscreteBSOOnePlusOne'
+base_folder: '/home/tunercar/tunercar/es/evals_arch'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex

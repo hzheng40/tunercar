@@ -25,7 +25,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     num_cores = mp.cpu_count()
 
     # setting up parameter space, hplane has more nodes
-    if conf.vehicle != 'hplane':
+    if conf.vehicle != 'hplane' and not conf.use_existing:
         param = ng.p.Dict()
 
         if conf.warm_start_with_trim:
@@ -169,6 +169,15 @@ def run_quad_fdm(conf: Namespace, _run=None):
                 param['lqr_vector'] = ng.p.Array(shape=(conf.design_space['LQR'][0], ), lower=conf.design_space['LQR'][1], upper=conf.design_space['LQR'][2])
                 param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
                 param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+
+    elif conf.use_existing:
+        param = ng.p.Dict()
+        param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
+        param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
+        param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
+        param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
+        param['lat_vel'] = conf.design_space['lateral_velocity']
+        param['vert_vel'] = conf.design_space['vertical_velocity']
 
     else:
         param = ng.p.Dict()

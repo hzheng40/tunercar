@@ -1,24 +1,37 @@
 # Default configuration file for optimization with a quadspider
 
 # metadata
-run_name: 'quadspider'
+run_name: 'quadspider_trim_discrete_only'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
 
 # optim settings
-# compute budget
+warm_start: False
+warm_start_with_trim: False
+tune_one_path_only: False
+path_to_tune: 5
+discrete_only: False
+trim_only: False
+trim_discrete_only: True
+trim_arm_only: False
+warm_start_params:
+  baseline: 'quad_baseline5'
+  lqr_baseline: 'quadspider_'
 budget: 9600
-optim_method: 'CMA'
+optim_method: 'PortfolioDiscreteOnePlusOne'
 optim_params:
   popsize: 'default'
+  chain_optims: ['PortfolioDiscreteOnePlusOne', 'CMA']
+  chain_budget: ['third']
 seed: 123
+use_existing: False
 
 # path to design space file
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals'
+base_folder: '/home/tunercar/tunercar/es/evals_quadspider_trim_discrete_only'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
@@ -34,7 +47,7 @@ design_space:
     [4, 20]
   arm:
     # shape, num selection
-    [12, 2]
+    [12, 1]
   prop:
     # shape, num selection
     [4, 417]
@@ -43,7 +56,7 @@ design_space:
     [4, 83]
   support:
     # shape, num selection
-    [4, 2]
+    [4, 1]
   arm_length:
     # shape, min, max
     [12, 100.0, 1000.0]
