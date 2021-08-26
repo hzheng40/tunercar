@@ -61,7 +61,8 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
         # distribute
         for ind, worker in zip(individuals, workers):
-            work = list(ind.args[0])
+            work = ind.args[0]
+            print(work)
             worker.run_sim.remote(work, eval_id)
             eval_id += 1
 

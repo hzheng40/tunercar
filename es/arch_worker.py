@@ -86,7 +86,7 @@ class ArchWorker:
         self.score = []
         self.eval_done = False
 
-        design_graph = self._generate_design(work['low_selections'], work['high_selections'])
+        design_graph = self._generate_design(list(work['low_selections']), list(work['high_selections']))
 
         try:
             simulation = Simulation(eval_id=eid,

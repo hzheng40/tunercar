@@ -11,7 +11,7 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 # meta_budget * budget needs to be reasonable (~10000)
 num_max_selections: 20
 # num_choices: 5
-num_meta_workers: 12
+num_meta_workers: 128
 meta_budget: 9600
 num_workers: 16
 budget: 256
