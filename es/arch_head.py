@@ -25,7 +25,10 @@ def run_arch_fdm(conf: Namespace, _run=None):
     num_cores = conf.num_meta_workers
 
     # setting up parameter space, choice for meta optimization
-    param = ng.p.Choice(np.arange(conf.num_choices), repetitions=conf.num_max_selections)
+    param = ng.p.Dict(
+        low_selections=ng.p.Choice(np.arange(conf.num_low_choices), repetitions=conf.num_max_selections),
+        high_selections=ng.p.Choice(np.arange(conf.num_high_choices), repetitions=conf.num_max_selections)
+        )
 
     if conf.optim_method == 'Chaining':
         # chaining optimizers
@@ -79,7 +82,7 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
         # collect all
         all_scores.extend(results)
-        all_individuals.extend([ind.args[0] for ind in individuals])
+        all_individuals.extend([ind.args[0]['low_selections'].value + ind.args[0]['high_selections'].value for ind in individuals])
         # all_vectors.extend(vectors)
 
         if prog % 5 == 0:
