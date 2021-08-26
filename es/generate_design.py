@@ -81,7 +81,30 @@ class Design(object):
         additional_edges = []
         prop_count = 0
 
-        design_graph = nx.DiGraph()
+        controls = {
+            "path1": {
+                "Q_position": 1.0, "Q_velocity": 1.0,
+                "Q_Angular_velocity": 1.0,
+                "Q_angles": 1.0, "R": 1.0, "latvel": 10.0, "vertvel": 0.0
+            },
+            "path3": {
+                "Q_position": 1.0, "Q_velocity": 1.0,
+                "Q_Angular_velocity": 1.0,
+                "Q_angles": 1.0, "R": 1.0, "latvel": 12.0, "vertvel": 0.0
+            },
+            "path4": {
+                "Q_position": 1.0, "Q_velocity": 1.0,
+                "Q_Angular_velocity": 1.0,
+                "Q_angles": 1.0, "R": 1.0, "latvel": 0.0, "vertvel": -2.0
+            },
+            "path5": {
+                "Q_position": 1.0, "Q_velocity": 1.0,
+                "Q_Angular_velocity": 1.0,
+                "Q_angles": 1.0, "R": 1.0, "latvel": 20.0, "vertvel": 0.0
+            }
+        }
+
+        design_graph = nx.DiGraph(**controls)
         mapping = {}
         for node in self.nodes:
             node_type = node.split("__")[0]
@@ -90,6 +113,8 @@ class Design(object):
                 container = space.find("HubConnectors")
                 variant = getattr(container, hubname)
                 node_instance = container.instantiate_variant(variant)
+                # hub_angle = np.random.uniform(55, 120)
+                # node_instance.ANGHORZCONN.default = str(hub_angle)
                 self._insert_node(node, design_graph, "HubConnectors",
                                   node_instance, mapping)
 
@@ -112,7 +137,7 @@ class Design(object):
                 variant = getattr(container, "para_cf_fplate")
                 node_instance = container.instantiate_variant(variant)
                 node_instance.X1_OFFSET.default = "0"
-                node_instance.Z1_OFFSET.default = "1"
+                node_instance.Z1_OFFSET.default = "0"
                 self._insert_node(node, design_graph, "PlateConnectors",
                                   node_instance, mapping)
 
@@ -142,6 +167,7 @@ class Design(object):
                 prop_name = self._insert_node(node_instance.name, design_graph,
                                               "Propeller", node_instance,
                                               mapping)
+                prop_count += 1
 
                 # add ESC
                 container = space.find("ESC")
@@ -162,6 +188,12 @@ class Design(object):
                 container = space.find("TubeConnectors")
                 variant = getattr(container, "0394OD_para_tube")
                 node_instance = container.instantiate_variant(variant)
+                # tube_orientation = np.random.choice(
+                #     [0, 45, 90, 135, 180], p=[0.8, 0.025, 0.05, 0.025, 0.1]
+                # )
+                # tube_length = np.random.uniform(100, 500)
+                # node_instance.ROT2.default = str(tube_orientation)
+                # node_instance.LENGTH.default = str(tube_length)
                 self._insert_node(node, design_graph, "TubeConnectors",
                                   node_instance, mapping)
 
@@ -224,14 +256,17 @@ class Design(object):
 
         return design_graph
 
-    def _insert_node(self, node, graph, instance, component, mapping):
+    def _insert_node(self, node, graph, instance, component, mapping,
+                     orientation=0.0, axis=[0, 0, 1]):
         node_name = f"{component.name}__{len(graph)}"
         mapping.update({node: node_name})
-        graph.add_node(node_name, node=component, instance=instance)
+        graph.add_node(node_name, node=component, instance=instance,
+                       orientation=orientation, direction=axis)
         return node_name
 
     def _add_hub(self, node_type, node_name, level=0):
-        for i in range(int(node_type.split("_")[-1])):
+        start = 1 if level > 0 else 0
+        for i in range(start, int(node_type.split("_")[-1])):
             tube_name = f"tube__{len(self.nodes)}"
             self.nodes.append(tube_name)
             source = self.nodes.index(node_name)
@@ -295,7 +330,8 @@ if __name__ == "__main__":
     end_options = ["flange_side", "flange_side_2", "flange_bottom",
                    "left_wing", "right_wing"]
     design = Design(node_options, end_options)
-    design.generate_by_selections([1,2,3,4,3,2,1,2,3,4,3,2,1,2,3,4])
+    design.generate_by_selections(3, [0, 0, 7, 7, 7, 5, 0, 0, 0], [0, 0, 0, 0, 0])
+    # design.generate()
     design_graph = design.to_design_graph(space)
-    with open("./design_graph.pk", "wb") as fout:
+    with open("./design_graph_new.pk", "wb") as fout:
         pk.dump(design_graph, fout)
