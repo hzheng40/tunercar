@@ -16,7 +16,7 @@ trim_only: False
 trim_discrete_only: False
 trim_arm_only: False
 warm_start_params:
-  baseline: 'quad_baseline5'
+  baseline: 'quad_baseline8'
   lqr_baseline: 'quad_'
 budget: 9600
 optim_method: 'CMA'
