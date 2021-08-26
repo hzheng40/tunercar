@@ -58,7 +58,7 @@ class QuadWorker:
         """
         # if response is empty, trim is not found
         if not bool(responses):
-            self.score = 8 * [99999.]
+            self.score = 4 * [99999.]
             return
 
         # forward trim
@@ -75,12 +75,12 @@ class QuadWorker:
         # turn radius 300 trim
         turn_300_df = responses['turn_300']
         turn_300_dist_obj = (3500.0 - turn_300_df['Distance'].max())
-        turn_300_speed_obj = - turn_300_df['Speed'].max()
+        turn_300_speed_obj = -300 * turn_300_df['Speed'].max()
         turn_300_frac_obj = 500.0 * (turn_300_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
-
-        self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
+        self.score = [forward_frac_obj, turn_500_frac_obj, turn_300_frac_obj, turn_300_speed_obj]
+        #self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
         if np.any(np.isnan(self.score)):
-            self.score = 8 * [99999.]
+            self.score = 4 * [99999.]
 
     def run_sim(self, raw_work):
         """
