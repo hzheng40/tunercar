@@ -64,7 +64,6 @@ class Design(object):
         high_selections.reverse()
         base_node = self._node_options[base_node]
         node_name = f"{base_node}__{len(self.nodes)}"
-        assert self.selections is None
         self.low_selections = low_selections
         self.high_selections = high_selections
         self.nodes.append("orient__0")
