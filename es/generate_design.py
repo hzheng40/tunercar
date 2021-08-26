@@ -241,12 +241,14 @@ class Design(object):
             self._grow(tube_name, level + 1)
 
     def _grow(self, tube_name, level=0):
-        if len(self.selections) == 0:
-            return
-        if self.selections is not None:
+        if self.low_selections is not None:
             if level <= 2:
+                if len(self.low_selections) == 0:
+                    return
                 chosen = self._low_options[self.low_selections.pop()]
             else:
+                if len(self.high_selections) == 0:
+                    return
                 chosen = self._end_options[self.high_selections.pop()]
         else:
             if level <= 2:
