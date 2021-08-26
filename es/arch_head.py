@@ -83,7 +83,7 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
         # collect all
         all_scores.extend(results)
-        all_individuals.extend([ind.args[0]['base_node'], *(ind.args[0]['low_selections']), *(ind.args[0]['high_selections']) for ind in individuals])
+        all_individuals.extend([[ind.args[0]['base_node'], *(ind.args[0]['low_selections']), *(ind.args[0]['high_selections'])] for ind in individuals])
         # all_vectors.extend(vectors)
 
         if prog % 5 == 0:
