@@ -66,9 +66,9 @@ class ArchWorker:
 
         self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
 
-    def _generate_design(self, low_selections, high_selections):
+    def _generate_design(self, base_node, low_selections, high_selections):
         design = Design(self.conf.node_options, self.conf.end_options)
-        design.generate_by_selections(low_selections, high_selections)
+        design.generate_by_selections(base_node, low_selections, high_selections)
         design_graph = design.to_design_graph(self.space)
         return design_graph
 
@@ -86,7 +86,9 @@ class ArchWorker:
         self.score = []
         self.eval_done = False
 
-        design_graph = self._generate_design(list(work['low_selections']), list(work['high_selections']))
+        design_graph = self._generate_design(work['base_node'],
+                                             list(work['low_selections']),
+                                             list(work['high_selections']))
 
         try:
             simulation = Simulation(eval_id=eid,

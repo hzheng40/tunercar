@@ -20,6 +20,7 @@ budget: 256
 # end_options: ["flange_side", "flange_side_2", "flange_bottom", "left_wing", "right_wing"]
 node_options: ["hub_2", "hub_3", "hub_4", "hub_5", "hub_6"]
 end_options: ["flange_side", "flange_side", "flange_side_2", "flange_bottom", "flange_bottom"]
+num_base_choices: 5
 num_low_choices: 10
 num_high_choices: 5
 

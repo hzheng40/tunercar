@@ -26,6 +26,7 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
     # setting up parameter space, choice for meta optimization
     param = ng.p.Dict(
+        base_node=ng.p.Choice(np.arange(conf.num_base_choices)),
         low_selections=ng.p.Choice(np.arange(conf.num_low_choices), repetitions=conf.num_max_selections),
         high_selections=ng.p.Choice(np.arange(conf.num_high_choices), repetitions=conf.num_max_selections)
         )

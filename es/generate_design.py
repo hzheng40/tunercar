@@ -50,7 +50,7 @@ class Design(object):
                            "TopConnector_1"))
         self._add_hub(base_node, node_name, level=0)
 
-    def generate_by_selections(self, low_selections, high_selections):
+    def generate_by_selections(self, base_node, low_selections, high_selections):
         """
         Generate designs based on vector of selections instead of random choice
 
@@ -62,7 +62,7 @@ class Design(object):
         """
         low_selections.reverse()
         high_selections.reverse()
-        base_node = self._node_options[low_selections.pop()]
+        base_node = self._node_options[base_node]
         node_name = f"{base_node}__{len(self.nodes)}"
         assert self.selections is None
         self.low_selections = low_selections
