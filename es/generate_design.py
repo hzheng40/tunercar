@@ -29,9 +29,9 @@ class Design(object):
         self._node_options = node_options
         self._end_options = end_options
 
-        self.selections = None
-
-        assert len(node_options) == len(end_options)
+        self.low_selections = None
+        self.high_selections = None
+        self._low_options = node_options + end_options
 
         self.nodes = []
         self.edges = []
@@ -50,7 +50,7 @@ class Design(object):
                            "TopConnector_1"))
         self._add_hub(base_node, node_name, level=0)
 
-    def generate_by_selections(self, selections):
+    def generate_by_selections(self, low_selections, high_selections):
         """
         Generate designs based on vector of selections instead of random choice
 
@@ -60,11 +60,13 @@ class Design(object):
         Returns:
             None
         """
-        selections.reverse()
-        base_node = self._node_options[selections.pop()]
+        low_selections.reverse()
+        high_selections.reverse()
+        base_node = self._node_options[low_selections.pop()]
         node_name = f"{base_node}__{len(self.nodes)}"
         assert self.selections is None
-        self.selections = selections
+        self.low_selections = low_selections
+        self.high_selections = high_selections
         self.nodes.append("orient__0")
         self.nodes.append("plate__1")
         self.nodes.append("battery__2")
@@ -244,9 +246,9 @@ class Design(object):
             return
         if self.selections is not None:
             if level <= 2:
-                chosen = self._node_options[self.selections.pop()]
+                chosen = self._low_options[self.low_selections.pop()]
             else:
-                chosen = self._end_options[self.selections.pop()]
+                chosen = self._end_options[self.high_selections.pop()]
         else:
             if level <= 2:
                 options = self._node_options + self._end_options

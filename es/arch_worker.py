@@ -66,18 +66,18 @@ class ArchWorker:
 
         self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
 
-    def _generate_design(self, selections):
+    def _generate_design(self, low_selections, high_selections):
         design = Design(self.conf.node_options, self.conf.end_options)
-        design.generate_by_selections(selections)
+        design.generate_by_selections(low_selections, high_selections)
         design_graph = design.to_design_graph(self.space)
         return design_graph
 
-    def run_sim(self, selections, eid):
+    def run_sim(self, work, eid):
         """
         Runs the full SwRI simulation with LQR parameters
 
         Args:
-            selections (list (N, )): sampled current candidate
+            work (dict): current candidate
 
         Returns:
             None
@@ -86,7 +86,7 @@ class ArchWorker:
         self.score = []
         self.eval_done = False
 
-        design_graph = self._generate_design(selections)
+        design_graph = self._generate_design(work['low_selections'], work['high_selections'])
 
         try:
             simulation = Simulation(eval_id=eid,
@@ -106,7 +106,7 @@ class ArchWorker:
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
 
-            shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
+            # shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
             print(e)
             self.score = 8 * [99999.]
