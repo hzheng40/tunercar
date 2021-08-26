@@ -108,7 +108,7 @@ class ArchWorker:
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
 
-            # shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
+            shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
             print(e)
             self.score = 8 * [99999.]
