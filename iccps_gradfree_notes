@@ -1,0 +1,12 @@
+Target optimizers:
+	1. DiscreteOnePlusOne: 1/d mutation rate in dimension d, randomly drawn
+	2. DiscretePortfolioOnePlusOne: uniform mixing in dang & lehre
+	3. DiscreteLenglerOnePlusOne: 
+	4. DoubleFastGADiscreteOnePlusOne: doerr et al, fast genetic algorithms, 2017
+
+Target experiments:
+	- From quad/hex/h seed, all params, using raw objective for path scores
+	- From quad/hex/h seed, all params, using trim objective
+	- From quad/hex/h seed, sequential, using raw objective for path scores
+	- From quad/hex/h seed, sequential, using trim objective
+	- Generated and optimized topology, using trim objective
