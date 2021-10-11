@@ -65,6 +65,8 @@ class ArchWorker:
         turn_300_frac_obj = 500.0 * (turn_300_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
 
         self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
+        if np.any(np.isnan(self.score)):
+            self.score = 8 * [99999.]
 
     def _generate_design(self, base_node, low_selections, high_selections):
         design = Design(self.conf.node_options, self.conf.end_options)
@@ -110,7 +112,7 @@ class ArchWorker:
 
             shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
-            print(e)
+            # print(e)
             self.score = 8 * [99999.]
 
         self.eval_done = True
