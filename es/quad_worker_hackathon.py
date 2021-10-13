@@ -58,7 +58,7 @@ class QuadWorker:
         """
         # if response is empty, trim is not found
         if not bool(responses):
-            self.score = 5 * [99999.]
+            self.score = 4 * [99999.]
             return
 
         # forward trim
@@ -77,24 +77,10 @@ class QuadWorker:
         turn_300_dist_obj = (3500.0 - turn_300_df['Distance'].max())
         turn_300_speed_obj = -300 * turn_300_df['Speed'].max()
         turn_300_frac_obj = 500.0 * (turn_300_df[['Frac pow', 'Frac amp', 'Frac current']] >= 1.0).sum().sum()
-        self.score = [forward_frac_obj, turn_500_frac_obj, turn_300_frac_obj, turn_300_speed_obj, self._get_max_latvel(responses)]
+        self.score = [forward_frac_obj, turn_500_frac_obj, turn_300_frac_obj, turn_300_speed_obj]
         #self.score = [forward_dist_obj, forward_time_obj, forward_frac_obj, turn_500_dist_obj, turn_500_frac_obj, turn_300_dist_obj, turn_300_speed_obj, turn_300_frac_obj]
         if np.any(np.isnan(self.score)):
-            self.score = 5 * [99999.]
-
-    def _get_max_latvel(self, responses):
-        """
-        Extracts maximum velocities from trim responses
-
-        Args:
-            responses (dict{pandas.DataFrame}): return from simulation
-
-        Returns:
-            max_latvel (float): maximum lateral velocity found in trim responses
-        """
-        500_max = responses['turn_500']['Speed'].max()
-        300_max = responses['turn_300']['Speed'].max()
-        return max(500_max, 300_max)
+            self.score = 4 * [99999.]
 
     def run_sim(self, raw_work):
         """
@@ -111,45 +97,86 @@ class QuadWorker:
         self.eval_done = False
 
         selected_vector = []
-        for key in raw_work:
-            if isinstance(raw_work[key], np.ndarray):
-                selected_vector.extend(list(raw_work[key]))
-            elif key == 'eval_id':
-                continue
-            elif key == 'discrete_baseline':
-                selected_vector = [*(raw_work[key]), *selected_vector]
-            elif key == 'continunous_baseline' or key == 'trim_baseline' or key == 'trim_discrete_baseline':
-                selected_vector.extend(raw_work[key])
-            else:
-                selected_vector.append(raw_work[key])
+        if self.conf.use_existing:
+            controls = {
+                "path1": {
+                    "Q_position": raw_work['lqr_vector1'][0], "Q_velocity": raw_work['lqr_vector1'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector1'][2],
+                    "Q_angles": raw_work['lqr_vector1'][3], "R": raw_work['lqr_vector1'][4],
+                    "latvel": raw_work['lat_vel'][0],
+                    "vertvel": raw_work['vert_vel'][0]
+                },
+                "path3": {
+                    "Q_position": raw_work['lqr_vector3'][0], "Q_velocity": raw_work['lqr_vector3'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector3'][2],
+                    "Q_angles": raw_work['lqr_vector3'][3], "R": raw_work['lqr_vector3'][4],
+                    "latvel": raw_work['lat_vel'][1],
+                    "vertvel": raw_work['vert_vel'][1]
+                },
+                "path4": {
+                    "Q_position": raw_work['lqr_vector4'][0], "Q_velocity": raw_work['lqr_vector4'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector4'][2],
+                    "Q_angles": raw_work['lqr_vector4'][3], "R": raw_work['lqr_vector4'][4],
+                    "latvel": raw_work['lat_vel'][2],
+                    "vertvel": raw_work['vert_vel'][2]
+                },
+                "path5": {
+                    "Q_position": raw_work['lqr_vector5'][0], "Q_velocity": raw_work['lqr_vector5'][1],
+                    "Q_Angular_velocity": raw_work['lqr_vector5'][2],
+                    "Q_angles": raw_work['lqr_vector5'][3], "R": raw_work['lqr_vector5'][4],
+                    "latvel": raw_work['lat_vel'][3],
+                    "vertvel": raw_work['vert_vel'][3]
+                }
+            }
+        elif not self.conf.warm_start_with_trim and not self.conf.tune_one_path_only:
+            for key in raw_work:
+                if isinstance(raw_work[key], np.ndarray):
+                    selected_vector.extend(list(raw_work[key]))
+                elif key == 'eval_id':
+                    continue
+                elif key == 'discrete_baseline':
+                    selected_vector = [*(raw_work[key]), *selected_vector]
+                elif key == 'continunous_baseline' or key == 'trim_baseline' or key == 'trim_discrete_baseline':
+                    selected_vector.extend(raw_work[key])
+                else:
+                    selected_vector.append(raw_work[key])
+        else:
+            selected_vector = raw_work['discrete_baseline']
+            selected_vector.extend(raw_work['lqr_vector1'])
+            selected_vector.extend(raw_work['lqr_vector3'])
+            selected_vector.extend(raw_work['lqr_vector4'])
+            selected_vector.extend(raw_work['lqr_vector5'])
+            selected_vector.extend(raw_work['lat_vel'])
+            selected_vector.extend(raw_work['vert_vel'])
 
         try:
-            callback = self.mapping[self.conf.vehicle]
-            space = DesignSpace(self.conf.acel_path)
-            design_graph = callback(space, selected_vector, is_selected=True)
+            if self.conf.use_existing:
+                with open(self.conf.existing_path, 'rb') as fin:
+                    design_graph = pk.load(fin)
+                    design_graph.graph = controls
+            else:
+                callback = self.mapping[self.conf.vehicle]
+                space = DesignSpace(self.conf.acel_path)
+                design_graph = callback(space, selected_vector, is_selected=True)
             simulation = Simulation(eval_id=raw_work['eval_id'],
                                     base_folder=self.conf.base_folder,
                                     create_folder=True)
             manager = Manager()
             responses = manager.dict()
-            run_path = conf.pipeline == 'all'
+            run_path = (not self.conf.trim_only) and (not self.conf.trim_discrete_only) and (not self.conf.trim_arm_only)
             process = Process(target=simulation.evaluate_design,
                               args=(design_graph, True, True, [], True, run_path, responses))
             process.start()
             process.join()
 
-            # extracting score from responses
-            # get from conf.score_type, this should be TODO from head.
-
-            if not bool(responses) and not (self.conf.score_type == 'trim'):
+            if not bool(responses) and not self.conf.trim_only and not self.conf.trim_discrete_only and not self.conf.trim_arm_only:
                 self.score = [0.0, 0.0, 0.0, 0.0]
             else:
-                if self.conf.score_type == 'trim':
+                if self.conf.trim_only or self.conf.trim_discrete_only or self.conf.trim_arm_only:
                     self._get_trim_score(responses)
                 else:
                     for key in responses:
-                        self.score.append(responses[key]['score'])
-
+                        self.score.append(responses[key]['score'] + 10.)
             output_path = os.path.join(simulation.eval_folder, "design_graph.pk")
             with open(output_path, "wb") as fout:
                 pk.dump(design_graph, fout)
@@ -157,7 +184,7 @@ class QuadWorker:
             shutil.rmtree(os.path.join(simulation.eval_folder, "assembly/"))
         except Exception as e:
             print(e)
-            if self.conf.score_type == 'trim':
+            if self.conf.trim_only or self.conf.trim_discrete_only or self.conf.trim_arm_only:
                 self.score = 8 * [99999.]
             else:
                 self.score = [-1000.0, -1000.0, -1000.0, -1000.0]

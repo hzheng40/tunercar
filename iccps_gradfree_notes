@@ -8,3 +8,9 @@ Target experiments:
     - From quad/hex/h seed, all params, using raw objective for path scores
     - From quad/hex/h seed, sequential, using trim objective for component selection/parameterization, then raw objective for controller parameters
     - Generated and optimized topology, using trim objective, then tune controller parameters on raw objective
+
+Sim runner:
+    - loops over optimizers specified
+    - if all params, proceed
+    - if seq params, proceed with only component level stuff, return to head, find best design, then run again with only control/vels params
+    - needs to distribute seq budgets
