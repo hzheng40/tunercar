@@ -6,6 +6,7 @@ __pycache__
 tunercar_runs/
 quad_fdm_runs/
 arch_fdm_runs/
+iccps_runs/
 es/evals*/
 es/maps/f1tenth_racetracks/
 fdm-wrapper/
