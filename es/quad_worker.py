@@ -92,9 +92,9 @@ class QuadWorker:
         Returns:
             max_latvel (float): maximum lateral velocity found in trim responses
         """
-        500_max = responses['turn_500']['Speed'].max()
-        300_max = responses['turn_300']['Speed'].max()
-        return max(500_max, 300_max)
+        five_max = responses['turn_500']['Speed'].max()
+        three_max = responses['turn_300']['Speed'].max()
+        return max(five_max, three_max)
 
     def run_sim(self, raw_work):
         """

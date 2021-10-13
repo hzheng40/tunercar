@@ -11,6 +11,7 @@ def run_quad_fdm(conf: Namespace, _run=None):
     optim_list = conf.optim_method
     for optim in optim_list:
         if conf.pipeline == 'all':
+            conf.score_type = 'all'
             run_quad_fdm_with_optim_all_params(conf, optim, _run)
 
 def run_quad_fdm_with_optim_all_params(conf: Namespace, optimizer, _run=None):
