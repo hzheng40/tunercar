@@ -132,7 +132,7 @@ class QuadWorker:
                                     create_folder=True)
             manager = Manager()
             responses = manager.dict()
-            run_path = conf.pipeline == 'all'
+            run_path = (self.conf.score_type == 'all')
             process = Process(target=simulation.evaluate_design,
                               args=(design_graph, True, True, [], True, run_path, responses))
             process.start()
