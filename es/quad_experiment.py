@@ -39,6 +39,10 @@ def design1():
 def existing_design():
     ex.add_config('configs/existing.yaml')
 
+@ex.named_config
+def quad_all_raw():
+    ex.add_config('configs/quad_seed_all_params_raw_score.yaml')
+
 @ex.automain
 def run(_run, _config):
     ray.init()
