@@ -1,7 +1,7 @@
 # Default configuration file for optimization with a quadrotor (4 propulsion blocks and 4 motors)
 
 # metadata
-run_name: 'hex_seed_all_params_raw_score'
+run_name: 'hcopter_seed_all_params_raw_score'
 fdm_bin: '/home/tunercar/flight-dynamics-model/bin/new_fdm'
 fdm_wrapper_path: '/home/tunercar/fdm-wrapper'
 propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller'
@@ -24,7 +24,7 @@ base_folder: '/home/tunercar/tunercar/es/evals_hex_seed_all_params_raw_score'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
-vehicle: 'hex'
+vehicle: 'hcopter'
 
 # design space
 design_space:
@@ -33,25 +33,28 @@ design_space:
     [1, 27]
   esc:
     # shape, num_selection
-    [6, 20]
+    [4, 20]
   arm:
     # shape, num selection
-    [6, 2]
+    [6, 1]
   prop:
     # shape, num selection
-    [6, 417]
+    [4, 417]
   motor:
     # shape, num selection
-    [6, 83]
+    [4, 83]
   support:
     # shape, num selection
-    [6, 2]
+    [4, 2]
   arm_length:
     # shape, min, max
     [6, 100.0, 1000.0]
   support_length:
     # shape, min, max
-    [6, 0.0, 100.0]
+    [4, 0.0, 400.0]
+  LQR:
+    # shape, min, max
+    [20, 0.05, 3.0]
   LQR:
     # shape, min, max
     [20, 0.05, 3.0]
