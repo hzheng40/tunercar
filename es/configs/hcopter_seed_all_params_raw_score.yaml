@@ -20,7 +20,7 @@ seed: 123
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 
 # path for saving the input output file
-base_folder: '/home/tunercar/tunercar/es/evals_hex_seed_all_params_raw_score'
+base_folder: '/home/tunercar/tunercar/es/evals_hcopter_seed_all_params_raw_score'
 
 # vehicle types:
 # quadspider, quad, hcopter, hexring, hplane, hex
@@ -45,7 +45,7 @@ design_space:
     [4, 83]
   support:
     # shape, num selection
-    [4, 2]
+    [4, 1]
   arm_length:
     # shape, min, max
     [6, 100.0, 1000.0]

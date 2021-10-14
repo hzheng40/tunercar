@@ -13,6 +13,17 @@ def run_quad_fdm(conf: Namespace, _run=None):
         if conf.pipeline == 'all':
             conf.score_type = 'all'
             run_quad_fdm_with_optim_all_params(conf, optim, _run)
+        if conf.pipeline == 'seq':
+            # TODO: split budget, could be done in config
+
+            # TODO: optimize on trim and extract best design for trim
+            conf.score_type = 'trim'
+            best_trim_vector = run_quad_fdm_with_optim_seq(conf, optim, _run)
+
+            # TODO: tune control on raw
+            conf.score_type = 'all'
+            run_quad_fdm_with_optim_seq(conf, 'CMA', _run, vector=best_trim_vector)
+            
 
 def run_quad_fdm_with_optim_all_params(conf: Namespace, optimizer, _run=None):
     # seeding
@@ -166,7 +177,8 @@ def run_quad_fdm_with_optim_all_params(conf: Namespace, optimizer, _run=None):
     optim.dump(filename_optim)
     # _run.add_artifact(filename_optim)
 
-def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None):
+def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=None):
+    
     # seeding
     np.random.seed(conf.seed)
     
@@ -185,37 +197,52 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None):
 
     num_cores = mp.cpu_count()
 
-    # setting up parameter space
+    # setting up parameter space, if input vector is specified then only create param for controls
     param = ng.p.Dict()
 
-    # discrete components
-    for i in range(conf.design_space['battery'][0]):
-        param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
-    for i in range(conf.design_space['esc'][0]):
-        param['esc' + str(i)] = ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int))
-    for i in range(conf.design_space['arm'][0]):
-        param['arm' + str(i)] = ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int))
-    for i in range(conf.design_space['prop'][0]):
-        param['prop' + str(i)] = ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int))
-    for i in range(conf.design_space['motor'][0]):
-        param['motor' + str(i)] = ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int))
-    for i in range(conf.design_space['support'][0]):
-        param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
+    if vector is None:
+        # discrete components
+        for i in range(conf.design_space['battery'][0]):
+            param['battery' + str(i)] = ng.p.Choice(np.arange(conf.design_space['battery'][1], dtype=int))
+        for i in range(conf.design_space['esc'][0]):
+            param['esc' + str(i)] = ng.p.Choice(np.arange(conf.design_space['esc'][1], dtype=int))
+        for i in range(conf.design_space['arm'][0]):
+            param['arm' + str(i)] = ng.p.Choice(np.arange(conf.design_space['arm'][1], dtype=int))
+        for i in range(conf.design_space['prop'][0]):
+            param['prop' + str(i)] = ng.p.Choice(np.arange(conf.design_space['prop'][1], dtype=int))
+        for i in range(conf.design_space['motor'][0]):
+            param['motor' + str(i)] = ng.p.Choice(np.arange(conf.design_space['motor'][1], dtype=int))
+        for i in range(conf.design_space['support'][0]):
+            param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
 
-    # continuous components
-    for i in range(conf.design_space['arm_length'][0]):
-        param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
-    for i in range(conf.design_space['support_length'][0]):
-        param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
+        # continuous components
+        for i in range(conf.design_space['arm_length'][0]):
+            param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+        for i in range(conf.design_space['support_length'][0]):
+            param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
 
-    # control params
-    # all parameters tuned in the same run, with raw score
-    param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
-    param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
-    param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
-    param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
-    param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
-    param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+        # control params
+        # all parameters tuned in the same run, with raw score
+        param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
+        param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
+        param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
+        param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
+        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
+        param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+
+    else:
+        # load warm start baseline for discrete parameters
+        param['discrete_baseline'] = vector[:-1]
+        # use preset velocities
+        param['lat_vel'] = [15.0, 15.0, 0.0, vector[-1]]
+        param['vert_vel'] = [0.0, 0.0, -2.0, 0.0]
+
+        # continuous parameters
+        param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
+        param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
+        param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
+        param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
+
 
     # setting up optimizer with hyperparams
     optim = ng.optimizers.registry[optimizer](parametrization=param, budget=conf.budget, num_workers=num_cores)
@@ -252,23 +279,26 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None):
         # update optimization
         # negate since we want to maximize scores
         for ind, score in zip(individuals, results):
-            if (not conf.trim_only) and (not conf.trim_discrete_only):
-                optim.tell(ind, 1640.0 - np.sum(score))
+            if conf.score_type != 'trim':
+                optim.tell(ind, 1600.0 - np.sum(score))
             else:
-                optim.tell(ind, np.sum(score))
+                optim.tell(ind, np.sum(score[:-1]))
 
         # collect all
         all_scores.extend(results)
         all_individuals.extend(individuals)
 
-        if prog % 5 == 0:
+        if prog % 10 == 0:
             score_all_np = np.asarray(all_scores)
-            if (not conf.trim_only) and (not conf.trim_discrete_only) and (not conf.trim_arm_only):
+            latvel_all_np = score_all_np[:, -1]
+            score_all_np = score_all_np[:, :-1]
+            if conf.score_type != 'trim':
                 print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
                 print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
             else:
                 print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
                 print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
+
             selected_vectors = []
             for indi in all_individuals:
                 current_vec = []
@@ -281,20 +311,23 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None):
                 selected_vectors.append(current_vec)
 
             vector_all_np = np.asarray(selected_vectors)
-            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)
-            _run.add_artifact(filename)
+            np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, latvels=latvel_all_np)
+            # _run.add_artifact(filename)
             optim.dump(filename_optim)
-            _run.add_artifact(filename_optim)
+            # _run.add_artifact(filename_optim)
 
     # storing as npz, while running as sacred experiment, the directory iccps_runs should've been created
     # column 0 is eval 1 score, column 1-3 is eval 3-5 score
     score_all_np = np.asarray(all_scores)
-    if (not conf.trim_only) and (not conf.trim_discrete_only) and (not conf.trim_arm_only):
+    latvel_all_np = score_all_np[:, -1]
+    score_all_np = score_all_np[:, :-1]
+    if not conf.score_type == 'trim':
         print("Current High Score: " + str(np.max(np.sum(score_all_np, axis=1))))
         print("At index: " + str(str(np.argmax(np.sum(score_all_np, axis=1)))))
     else:
         print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
         print("At index: " + str(str(np.argmin(np.sum(score_all_np, axis=1)))))
+
     selected_vectors = []
     for indi in all_individuals:
         current_vec = []
@@ -307,7 +340,14 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None):
         selected_vectors.append(current_vec)
     
     vector_all_np = np.asarray(selected_vectors)
-    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np)
-    _run.add_artifact(filename)
+    np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, latvels=latvel_all_np)
+    # _run.add_artifact(filename)
     optim.dump(filename_optim)
-    _run.add_artifact(filename_optim)
+    # _run.add_artifact(filename_optim)
+
+    if conf.score_type == 'trim':
+        best_ind = np.argmin(np.sum(score_all_np, axis=1))
+        best_vec = np.append(vector_all_np[best_ind, :-28], latvel_all_np[best_ind])
+        return best_vec
+    else:
+        return None

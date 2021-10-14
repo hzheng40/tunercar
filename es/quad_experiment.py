@@ -51,6 +51,18 @@ def hex_all_raw():
 def hcopter_all_raw():
     ex.add_config('configs/hcopter_seed_all_params_raw_score.yaml')
 
+@ex.named_config
+def quad_seq():
+    ex.add_config('configs/quad_seed_seq.yaml')
+
+@ex.named_config
+def hex_seq():
+    ex.add_config('configs/hex_seed_seq.yaml')
+
+@ex.named_config
+def hcopter_seq():
+    ex.add_config('configs/hcopter_seed_seq.yaml')
+
 @ex.automain
 def run(_run, _config):
     ray.init()
