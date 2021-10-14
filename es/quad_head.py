@@ -15,14 +15,13 @@ def run_quad_fdm(conf: Namespace, _run=None):
             run_quad_fdm_with_optim_all_params(conf, optim, _run)
         if conf.pipeline == 'seq':
             # TODO: split budget, could be done in config
-
             # TODO: optimize on trim and extract best design for trim
             conf.score_type = 'trim'
-            best_trim_vector = run_quad_fdm_with_optim_seq(conf, optim, _run)
+            best_trim_vector = run_quad_fdm_with_optim_seq(conf, optim, _run, budget=conf.trim_budget)
 
             # TODO: tune control on raw
             conf.score_type = 'all'
-            run_quad_fdm_with_optim_seq(conf, 'CMA', _run, vector=best_trim_vector)
+            run_quad_fdm_with_optim_seq(conf, 'CMA', _run, vector=best_trim_vector, disc_opt=optim, budget=conf.control_budget)
             
 
 def run_quad_fdm_with_optim_all_params(conf: Namespace, optimizer, _run=None):
@@ -177,7 +176,7 @@ def run_quad_fdm_with_optim_all_params(conf: Namespace, optimizer, _run=None):
     optim.dump(filename_optim)
     # _run.add_artifact(filename_optim)
 
-def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=None):
+def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=None, disc_opt=None, budget=None):
     
     # seeding
     np.random.seed(conf.seed)
@@ -189,8 +188,12 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
     if not os.path.exists('iccps_runs/optims_pkl'):
         os.makedirs('iccps_runs/optims_pkl')
 
-    filename = 'iccps_runs/npzs/' + conf.run_name + '_' + optimizer + '_budget' + str(conf.budget) + '.npz'
-    filename_optim = 'iccps_runs/optims_pkl/' + conf.run_name + '_' + optimizer + '_budget' + str(conf.budget) + '_optim.pkl'
+    if disc_opt is not None:
+        filename = 'iccps_runs/npzs/' + conf.run_name + '_' + optimizer + '+' + disc_opt + '_budget' + str(conf.budget) + '.npz'
+        filename_optim = 'iccps_runs/optims_pkl/' + conf.run_name + '_' + optimizer + '+' + disc_opt + '_budget' + str(conf.budget) + '_optim.pkl'
+    else:
+        filename = 'iccps_runs/npzs/' + conf.run_name + '_' + optimizer + '_budget' + str(conf.budget) + '.npz'
+        filename_optim = 'iccps_runs/optims_pkl/' + conf.run_name + '_' + optimizer + '_budget' + str(conf.budget) + '_optim.pkl'
     
     if not os.path.exists(conf.base_folder):
         os.makedirs(conf.base_folder)
@@ -245,7 +248,11 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
 
 
     # setting up optimizer with hyperparams
-    optim = ng.optimizers.registry[optimizer](parametrization=param, budget=conf.budget, num_workers=num_cores)
+    if budget is not None:
+        curr_budget = budget
+    else:
+        curr_budget = conf.budget
+    optim = ng.optimizers.registry[optimizer](parametrization=param, budget=curr_budget, num_workers=num_cores)
 
     # seeding
     optim.parametrization.random_state = np.random.RandomState(conf.seed)
@@ -260,7 +267,7 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
 
     # work distribution loop
     eval_id = 0
-    for prog in tqdm(range(conf.budget // num_cores)):
+    for prog in tqdm(range(curr_budget // num_cores)):
         individuals = [optim.ask() for _ in range(num_cores)]
         results = []
 
