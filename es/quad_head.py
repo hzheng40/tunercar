@@ -235,16 +235,17 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
 
     else:
         # load warm start baseline for discrete parameters
-        param['discrete_baseline'] = vector[:-1]
-        # use preset velocities
-        param['lat_vel'] = [15.0, 15.0, 0.0, vector[-1]]
-        param['vert_vel'] = [0.0, 0.0, -2.0, 0.0]
+        param['trim_discrete_baseline'] = vector[:-1]
 
         # continuous parameters
         param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
         param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
         param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
         param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
+
+        # use preset velocities
+        param['lat_vel'] = [15.0, 15.0, 0.0, vector[-1]]
+        param['vert_vel'] = [0.0, 0.0, -2.0, 0.0]
 
 
     # setting up optimizer with hyperparams
