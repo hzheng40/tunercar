@@ -235,7 +235,7 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
 
     else:
         # load warm start baseline for discrete parameters
-        param['trim_discrete_baseline'] = vector[:-1]
+        param['trim_discrete_baseline'] = list(vector[:-1].astype(int))
 
         # continuous parameters
         param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
