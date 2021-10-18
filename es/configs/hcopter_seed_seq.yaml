@@ -8,11 +8,11 @@ propeller_path: '/home/tunercar/swri-uav-pipeline/uav-design-simulator/propeller
 
 # optim settings
 # four from [all, seq]
-pipeline: 'all'
+pipeline: 'seq'
 # budget for each optimizer
-budget: 4800
-trim_budget: 2432
-control_budget: 2368
+budget: 9600
+trim_budget: 5120
+control_budget: 4480
 optim_method: ['DiscreteOnePlusOne', 'PortfolioDiscreteOnePlusOne', 'DiscreteLenglerOnePlusOne', 'DoubleFastGADiscreteOnePlusOne']
 optim_params:
   popsize: 'default'
