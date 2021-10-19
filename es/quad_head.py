@@ -233,10 +233,10 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
 
         # control params
         # all parameters tuned in the same run, with raw score
-        param['lqr_vector1'] = [0., 0., 0., 0., 0.]
-        param['lqr_vector3'] = [0., 0., 0., 0., 0.]
-        param['lqr_vector4'] = [0., 0., 0., 0., 0.]
-        param['lqr_vector5'] = [0., 0., 0., 0., 0.]
+        param['lqr_vector1'] = np.array([0., 0., 0., 0., 0.])
+        param['lqr_vector3'] = np.array([0., 0., 0., 0., 0.])
+        param['lqr_vector4'] = np.array([0., 0., 0., 0., 0.])
+        param['lqr_vector5'] = np.array([0., 0., 0., 0., 0.])
         param['lat_vel'] = [0., 0., 0., 0.]
         param['vert_vel'] = [0., 0., 0., 0.]
         # param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
