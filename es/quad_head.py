@@ -219,19 +219,32 @@ def run_quad_fdm_with_optim_seq(conf: Namespace, optimizer, _run=None, vector=No
             param['support' + str(i)] = ng.p.Choice(np.arange(conf.design_space['support'][1], dtype=int))
 
         # continuous components
+        import baselines
+        arm_lengths = list(eval('baselines.' + conf.vehicle + '_arm_lengths'))
+        support_lengths = list(eval('baselines.' + conf.vehicle + '_support_lengths'))
         for i in range(conf.design_space['arm_length'][0]):
-            param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+            param['arm_length' + str(i)] = arm_lengths[i]
         for i in range(conf.design_space['support_length'][0]):
-            param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
+            param['support_length' + str(i)] = support_lengths[i]
+        # for i in range(conf.design_space['arm_length'][0]):
+        #     param['arm_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['arm_length'][1], upper=conf.design_space['arm_length'][2])
+        # for i in range(conf.design_space['support_length'][0]):
+        #     param['support_length' + str(i)] = ng.p.Scalar(lower=conf.design_space['support_length'][1], upper=conf.design_space['support_length'][2])
 
         # control params
         # all parameters tuned in the same run, with raw score
-        param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
-        param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
-        param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
-        param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
-        param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
-        param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
+        param['lqr_vector1'] = [0., 0., 0., 0., 0.]
+        param['lqr_vector3'] = [0., 0., 0., 0., 0.]
+        param['lqr_vector4'] = [0., 0., 0., 0., 0.]
+        param['lqr_vector5'] = [0., 0., 0., 0., 0.]
+        param['lat_vel'] = [0., 0., 0., 0., 0.]
+        param['vert_vel'] = [0., 0., 0., 0., 0.]
+        # param['lqr_vector1'] = ng.p.Array(shape=(conf.design_space['LQR_1'][0], ), lower=conf.design_space['LQR_1'][1], upper=conf.design_space['LQR_1'][2])
+        # param['lqr_vector3'] = ng.p.Array(shape=(conf.design_space['LQR_3'][0], ), lower=conf.design_space['LQR_3'][1], upper=conf.design_space['LQR_3'][2])
+        # param['lqr_vector4'] = ng.p.Array(shape=(conf.design_space['LQR_4'][0], ), lower=conf.design_space['LQR_4'][1], upper=conf.design_space['LQR_4'][2])
+        # param['lqr_vector5'] = ng.p.Array(shape=(conf.design_space['LQR_5'][0], ), lower=conf.design_space['LQR_5'][1], upper=conf.design_space['LQR_5'][2])
+        # param['lat_vel'] = ng.p.Array(shape=(conf.design_space['lateral_velocity'][0], ), lower=conf.design_space['lateral_velocity'][1], upper=conf.design_space['lateral_velocity'][2])
+        # param['vert_vel'] = ng.p.Array(shape=(conf.design_space['vertical_velocity'][0], ), lower=conf.design_space['vertical_velocity'][1], upper=conf.design_space['vertical_velocity'][2])
 
     else:
         # load warm start baseline for discrete parameters
