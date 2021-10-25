@@ -18,6 +18,9 @@ optim_params:
   popsize: 'default'
 seed: 123
 
+warmstart_with_npz: True
+warmstart_npzs: ['quad_seed_seq_DiscreteOnePlusOne_budget19200', 'quad_seed_seq_PortfolioDiscreteOnePlusOne_budget19200', 'quad_seed_seq_DiscreteLenglerOnePlusOne_budget19200', 'quad_seed_seq_DoubleFastGADiscreteOnePlusOne_budget19200']
+
 # path to design space file
 acel_path: '/home/tunercar/swri-uav-pipeline/swri-uav-exploration/assets/uav_design_space.acel'
 

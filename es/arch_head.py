@@ -13,12 +13,12 @@ def run_arch_fdm(conf: Namespace, _run=None):
     
     # saving the optimizer
     import os
-    if not os.path.exists('quad_fdm_runs/npzs'):
-        os.makedirs('quad_fdm_runs/npzs')
-    if not os.path.exists('quad_fdm_runs/optims_pkl'):
-        os.makedirs('quad_fdm_runs/optims_pkl')
-    filename = 'quad_fdm_runs/npzs/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '.npz'
-    filename_optim = 'quad_fdm_runs/optims_pkl/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '_optim.pkl'
+    if not os.path.exists('iccps_runs/npzs'):
+        os.makedirs('iccps_runs/npzs')
+    if not os.path.exists('iccps_runs/optims_pkl'):
+        os.makedirs('iccps_runs/optims_pkl')
+    filename = 'iccps_runs/npzs/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '.npz'
+    filename_optim = 'iccps_runs/optims_pkl/' + conf.run_name + '_' + conf.optim_method + '_budget' + str(conf.budget) + '_optim.pkl'
     if not os.path.exists(conf.base_folder):
         os.makedirs(conf.base_folder)
 
@@ -98,9 +98,9 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
             # np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
             np.savez_compressed(filename, scores=score_all_np, selections=selection_all_np)
-            _run.add_artifact(filename)
+            # _run.add_artifact(filename)
             optim.dump(filename_optim)
-            _run.add_artifact(filename_optim)
+            # _run.add_artifact(filename_optim)
 
     score_all_np = np.asarray(all_scores)
     print('Current Trim Only Best Score: ' + str(np.min(np.sum(score_all_np, axis=1))))
@@ -113,6 +113,6 @@ def run_arch_fdm(conf: Namespace, _run=None):
 
     # np.savez_compressed(filename, scores=score_all_np, vectors=vector_all_np, selections=selection_all_np)
     np.savez_compressed(filename, scores=score_all_np, selections=selection_all_np)
-    _run.add_artifact(filename)
+    # _run.add_artifact(filename)
     optim.dump(filename_optim)
-    _run.add_artifact(filename_optim)
+    # _run.add_artifact(filename_optim)
