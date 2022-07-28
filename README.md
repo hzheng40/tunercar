@@ -2,9 +2,10 @@
 This work is supported in part by the Defense Advanced Research Projects Agency (DARPA) under the program Symbiotic Design for Cyber Physical Systems (SDCPS) Contract FA8750-20-C-0542 (Systemic Generative Engineering). The views, opinions, and/or findings expressed are those of the author(s) and do not necessarily reflect the view of DARPA.
 
 # Overview
-This is the reference implementation for our paper:
+This is the reference implementation for our papers:
 
 <em><b>TunerCar: A Superoptimization Toolchain for Autonomous Racing</b></em>
+<em><b>Gradient-free Multi-domain Optimization for Autonomous Systems</b></em>
 
 ## Citing
 
@@ -18,6 +19,14 @@ If you find this code useful in your work, please consider citing:
   pages={5356--5362},
   year={2020},
   organization={IEEE}
+}
+```
+```
+@article{zheng2022gradient,
+  title={Gradient-free Multi-domain Optimization for Autonomous Systems},
+  author={Zheng, Hongrui and Betz, Johannes and Mangharam, Rahul},
+  journal={arXiv preprint arXiv:2202.13525},
+  year={2022}
 }
 ```
 ```
