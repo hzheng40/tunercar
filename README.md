@@ -8,6 +8,8 @@ This is the reference implementation for our papers:
 
 <em><b>Gradient-free Multi-domain Optimization for Autonomous Systems</b></em>
 
+<em><b>Combinatorial and Parametric Gradient-Free Optimization for Cyber-Physical System Design</b></em>
+
 ## Citing
 
 If you find this code useful in your work, please consider citing:
@@ -34,14 +36,6 @@ If you find this code useful in your work, please consider citing:
 @article{zhengcombinatorial,
   title={Combinatorial and Parametric Gradient-Free Optimization for Cyber-Physical System Design},
   author={Zheng, Hongrui and Betz, Johannes and Ramamurthy, Arun and Jin, Hyunjee and Mangharam, Rahul}
-}
-```
-```
-@article{zheng2022gradient,
-  title={Gradient-free Multi-domain Optimization for Autonomous Systems},
-  author={Zheng, Hongrui and Betz, Johannes and Mangharam, Rahul},
-  journal={arXiv preprint arXiv:2202.13525},
-  year={2022}
 }
 ```
 This implementation also uses the F1TENTH Gym environment from: [https://github.com/f1tenth/f1tenth_gym/tree/exp_py](https://github.com/f1tenth/f1tenth_gym/tree/exp_py)
