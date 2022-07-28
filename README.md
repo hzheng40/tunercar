@@ -5,6 +5,7 @@ This work is supported in part by the Defense Advanced Research Projects Agency 
 This is the reference implementation for our papers:
 
 <em><b>TunerCar: A Superoptimization Toolchain for Autonomous Racing</b></em>
+
 <em><b>Gradient-free Multi-domain Optimization for Autonomous Systems</b></em>
 
 ## Citing
